@@ -1,0 +1,69 @@
+================================================================================
+SOUND ATTRIBUTIONS
+================================================================================
+
+Ball Gone
+- File: ball_gone.mp3
+- Source: https://freesound.org/people/Licht2003/sounds/808522/
+- Creator: Licht2003
+- License: Creative Commons 0
+
+Powerup/success
+- File: pwrUp_success.wav
+- Source: https://freesound.org/people/GabrielAraujo/sounds/242501/
+- Creator: GabrielAraujo
+- License: Creative Commons 0
+
+Padel hit by ball
+- File: padelHit.wav
+- Source: https://freesound.org/people/NoiseCollector/sounds/6164/
+- Creator: NoiseCollector
+- License: Creative Commons 0
+
+Object hit by ball
+- File: ballObj_hit.wav
+- Source: https://freesound.org/people/NoiseCollector/sounds/6164/
+- Creator: NoiseCollector
+- License: Creative Commons 0
+
+Metal Object hit by ball
+- File: ballMObj_hit.wav
+- Source: https://freesound.org/people/NoiseCollector/sounds/6164/
+- Creator: NoiseCollector
+- License: Creative Commons 0
+
+Lost a life
+- File: lifeLost.wav
+- Source: Made with Audacity
+
+Padel grow Powerup
+- File: padel_grow.wav
+- Source: Made with Audacity
+
+Padel shrink Powerup
+- File: padel_shrink.wav
+- Source: Made with Audacity
+
+Card flip up
+- File: cardFlip_up.wav
+- Source: Made with Audacity
+
+Card flip down
+- File: cardFlip_up.wav
+- Source: Made with Audacity
+
+Number Correct
+- File: num_correct.wav
+- Source: Made with Audacity
+
+Number Wrong
+- File: num_wrong.wav
+- Source: Made with Audacity
+
+Menu navigation sound
+- File: menu_nav.wav
+- Source: Made with Audacity
+
+Menu selecting sound on games/settings
+- File: menu_select.wav
+- Source: Made with Audacity
