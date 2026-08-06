@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "readme.md",
+                "file": "Proposal.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "readme"
+              "title": "Proposal"
             }
           }
         ]
@@ -99,7 +99,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "readme.md",
+                "file": "Proposal.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -118,7 +118,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "readme.md",
+                "file": "Proposal.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
@@ -161,7 +161,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "readme.md",
+                "file": "Proposal.md",
                 "followCursor": true,
                 "showSearch": false,
                 "searchQuery": ""
@@ -191,11 +191,16 @@
   },
   "active": "515629fe4c020464",
   "lastOpenFiles": [
+    "media/Proposal (1).html",
+    "Proposal.html",
+    "media/Proposal.html",
+    "Proposal 1.md",
+    "Proposal.md",
+    "readme.md",
     "Proposal.md.md",
     "media/Heading (3).png",
     "media/Heading (2).png",
     "media/Heading (1).png",
-    "readme.md",
     "media/Pasted image 20260806200301.png",
     "media",
     "media/Pasted image 20260806195231.png",

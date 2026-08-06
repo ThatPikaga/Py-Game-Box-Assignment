@@ -1,0 +1,354 @@
+<style>
+  @page {
+    size: A4;
+    margin: 2cm;
+  }
+
+  /* Arcade-inspired colour palette */
+  :root {
+    --bg: #0d0d0d;
+    --text-normal: #e0e0e0;
+    --text-muted: #888;
+    --text-accent: #ff2a6d;
+    --border-accent: #05d9e8;
+    --surface: #1a1a2e;
+  }
+
+  body {
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text-normal);
+    line-height: 1.6;
+    margin: 0;
+    padding: 2rem;
+    font-size: 12pt; /* Base size for A4 readability */
+  }
+
+  h1, h2, h3, h4, h5 {
+    color: var(--text-accent);
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-top: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  h1 { font-size: 2.2rem; border-bottom: 2px solid var(--border-accent); padding-bottom: 0.5rem; }
+  h2 { font-size: 1.8rem; }
+  h3 { font-size: 1.4rem; color: var(--border-accent); }
+  h4 { font-size: 1.2rem; color: var(--text-muted); }
+
+  p, li { font-size: 11pt; } /* Slightly smaller for paragraphs to maintain comfort */
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1.5rem 0;
+    background: var(--surface);
+    border: 1px solid var(--text-muted);
+    font-size: 11pt;
+  }
+
+  th {
+    background: var(--text-accent);
+    color: #000;
+    font-weight: 700;
+    padding: 0.75rem;
+    text-align: left;
+    font-size: 11pt;
+  }
+
+  td {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--text-muted);
+    font-size: 11pt;
+  }
+
+  pre {
+    background: var(--surface);
+    padding: 1.5rem;
+    border-radius: 8px;
+    border-left: 4px solid var(--border-accent);
+    font-size: 9pt; /* File structure only – smaller as requested */
+    line-height: 1.4;
+    overflow-x: auto;
+    color: #ccc;
+  }
+
+  code {
+    font-family: 'Fira Code', 'Courier New', monospace;
+    font-size: 9pt;
+  }
+
+  blockquote {
+    border-left: 4px solid var(--text-accent);
+    padding: 0.5rem 1.5rem;
+    margin: 1.5rem 0;
+    background: rgba(255,42,109,0.1);
+    font-style: italic;
+    font-size: 11pt;
+  }
+
+  img {
+    display: block;
+    margin: 2rem auto;
+    max-width: 100%;
+    border: 2px solid var(--border-accent);
+    border-radius: 6px;
+  }
+
+  .page-break { page-break-after: always; }
+
+  .section-card {
+      background: var(--surface);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 2rem;
+      margin: 2rem 0;
+      
+      /* FIXES THE PRINT BLANK SPACE BUG */
+      break-inside: avoid; /* Prevents the box container itself from breaking across pages */
+    }
+</style>
+
+<!-- COVER PAGE -->
+<div style="display: flex; flex-direction: column; justify-content: space-between; height: 85vh; text-align: center; font-family: sans-serif; padding: 20px 0;">
+
+    <!-- Top Branding / Visual Anchor (Firefox emoji print fix applied) -->
+    <div style="margin-top: 10%; overflow: visible; print-color-adjust: exact; -webkit-print-color-adjust: exact;">
+      <style>
+        @media print {
+          .firefox-emoji-fix {
+            display: inline-block !important;
+            font-size: 4rem !important;
+            transform: scale(2) !important;
+            transform-origin: center !important;
+            margin-bottom: 1.5rem !important;
+          }
+        }
+      </style>
+      <div style="font-size: 9rem; line-height: 1.4; margin-bottom: 10px; display: block; overflow: visible;">
+        <span class="firefox-emoji-fix" style="display: inline-block;">🕹️</span>
+      </div>
+      <h1 style="font-size: 2.8rem; font-weight: 800; letter-spacing: -1px; margin: 0; color: var(--text-normal);">PyCayde</h1>
+      <p style="font-size: 1.25rem; color: var(--text-muted); margin-top: 5px; font-style: italic;">A Retro Style Arcade Collection</p>
+    </div>
+
+    <!-- Center Section Indicator -->
+    <div style="margin: auto 0;">
+        <div style="display: inline-block; border-top: 2px solid var(--text-accent); border-bottom: 2px solid var(--text-accent); padding: 15px 40px; text-transform: uppercase; letter-spacing: 3px; font-size: 0.95rem; font-weight: 600; color: var(--text-accent);">
+            Major Project Proposal
+        </div>
+    </div>
+
+    <!-- Bottom Metadata Block -->
+    <div style="margin-bottom: 5%; font-size: 1.05rem; line-height: 1.8; color: var(--text-normal);">
+        <table style="margin: 0 auto; border-collapse: collapse; background: transparent; width: auto;">
+            <tr style="border: none; background: transparent;"><td style="text-align: right; font-weight: 600; padding: 4px 15px; border: none; color: var(--text-muted);">Student</td><td style="text-align: left; padding: 4px 15px; border: none;">1533</td></tr>
+            <tr style="border: none; background: transparent;"><td style="text-align: right; font-weight: 600; padding: 4px 15px; border: none; color: var(--text-muted);">Class</td><td style="text-align: left; padding: 4px 15px; border: none;">Information Technology / Accredited</td></tr>
+            <tr style="border: none; background: transparent;"><td style="text-align: right; font-weight: 600; padding: 4px 15px; border: none; color: var(--text-muted);">Date</td><td style="text-align: left; padding: 4px 15px; border: none;">06/08/2026</td></tr>
+        </table>
+    </div>
+
+</div>
+
+<div class="page-break"></div>
+
+<!-- CLIENT & PRODUCT -->
+<div class="section-card" style="margin-top: 1.5rem;">
+  <h3>Client</h3>
+  <p>Casual gamers who enjoy classic pick‑up‑and‑play titles with local multiplayer and AI opponents, to cure boredom and revive some nostalgia from the early 2000s without any ads, in‑app purchases or WiFi.</p>
+
+  <h3>The Product</h3>
+  <p>An original desktop arcade collection built with Pygame. The app presents a carousel menu where the user scrolls through game covers and launches one of five classic games: Pong, Scissors‑Paper‑Rock, Guess the Number, Breakout, and Memory Match. Every game includes single‑player, local two‑player, or versus‑AI modes. Before playing, players enter a name (like old‑school arcade high‑score screens) and performance stats are saved per game until loss or exit. A dedicated scoreboard screen, opened by pressing <strong>T</strong> on the menu, shows lifetime stats – number of AI defeats, longest rally, fastest clear time, etc.</p>
+</div>
+
+<div class="page-break"></div>
+
+<!-- ESSENTIAL FEATURES -->
+<h2>Essential Features</h2>
+<ul>
+  <li><strong>Core games</strong> working with basic graphics, sound, and controls.</li>
+  <li><strong>Three play modes</strong> per game: human vs. human, human vs. AI, and pure single‑player where applicable (for games like Breakout).</li>
+  <li><strong>Menus and navigation</strong>:
+    <ul>
+      <li><strong>Main Menu</strong>: A carousel game select, navigated via left/right arrow keys. Press <strong>E</strong> on a selected game to launch; from there, enter username and then choose game mode and difficulty.</li>
+      <li><strong>Settings</strong> <em>(refer to Designs sections)</em>: Press <strong>S</strong> on the menu to open the settings screen ("General" tab by default). Change things like sound volume and later AI difficulty or other options. The Controls screen can be selected from the side panel inside Settings (as per designs at the bottom of this page). Press <strong>ENTER</strong> to save, <strong>ESC</strong> to exit back to the main menu.</li>
+      <li><strong>Scoreboard</strong>: Press <strong>T</strong> on the menu to view saved stats for the currently highlighted game; left/right arrow switches between game scoreboards.</li>
+      <li><strong>Game Pause</strong>: Press <strong>ESC</strong> during any game to bring up a classic pause menu (inspired by Angry Birds style) – refer to the inspiration section for reference.</li>
+    </ul>
+  </li>
+  <li><strong>Asset management</strong>: a single config file stores file paths and sizes; a startup routine loads and scales all images and sounds.</li>
+  <li><strong>Modular code architecture</strong>: the menu returns a state, and the main loop uses a switch/case to run the correct game module – easy to add new games later.</li>
+</ul>
+
+
+<!-- ADD-ONS -->
+<h2>Add‑ons (If time bids)</h2>
+<ol>
+  <li>Advanced split‑screen: two‑player race mode in Breakout with independent surfaces/screens.</li>
+  <li>Enhanced AI humanisation: adjustable difficulty (reaction delay, occasional misses) for Pong and Breakout; adaptive counter‑strategy.</li>
+  <li>Breakout power‑ups: timed items (wider paddle, extra ball, laser) drop from broken bricks, with visual and sound effects.</li>
+  <li>Random Breakout level generator to avoid repetitive brick layouts.</li>
+  <li>More games: e.g., Snake, Space Invaders/Galaga, Flappy Bird clone.</li>
+  <li>Full arcade‑style attract mode: demo loops when idle – perhaps just get the macro “AI” to play against itself.</li>
+</ol>
+
+<div class="page-break"></div>
+
+<!-- FILE STRUCTURE -->
+<h2>Intended File Structure</h2>
+<div style="font-size: 9pt; line-height: 1.4;">
+<pre>
+code/ (Root folder)  
+├── main.py # App entry point; runs the core state machine loop  
+├── settings.py # Central config; file paths, window sizes, colors, FPS  
+├── assets_loader.py # Startup routine; loads and scales all images and sounds  
+├── assets/ (Universal asset storage)  
+	│ ├── sfx/ # UI clicks, game-specific sound & music  
+	│ └── images/ # Carousel covers, backgrounds, sprites  
+├── data/ (Persistent arcade score storage)  
+	│ ├── pong_stats.npy  
+	│ ├── spr_stats.npy  
+	│ ├── guess_stats.npy  
+	│ ├── breakout_stats.npy  
+	│ └── memory_stats.npy  
+└── src/ (Source code directory)  
+	├── __init__.py  
+	├── engine/ (Core framework files)  
+		│ ├── __init__.py  
+		│ ├── base_state.py # Parent class that all games/menus inherit from  
+		│ ├── state_manager.py # Handles switching between menu, games, scoreboard  
+		│ └── input_handler.py # Manages name entry and cabinet button maps  
+	├── menu/ (Menu and UI states)  
+		│ ├── __init__.py  
+		│ ├── carousel_menu.py # Main game selection visual carousel  
+		│ ├── name_entry.py # Old-school high score name input screen  
+		│ ├── settings_menu.py    # Settings screen (general, controls tabs)
+		│ └── scoreboard.py # Toggles stats with 'T'; cycles with arrows  
+	└── games/ (Individual game modules)  
+		├── __init__.py  
+		├── base_game.py  # Shared game logic (AI modes, universal scoring, pause menu)
+		├── pong/  
+			│ ├── __init__.py  
+			│ ├── pong_main.py # Pong state manager & loop  
+			│ └── pong_ai.py # Humanized AI (speed caps, random overshoots)  
+		├── spr/  
+			│ ├── __init__.py  
+			│ ├── spr_main.py # Scissors-Paper-Rock state & loop  
+			│ └── spr_ai.py # Frequency counter AI tracking player moves  
+		├── guess_number/  
+			│ ├── __init__.py  
+			│ └── guess_main.py # Guess the Number state & loop  
+		├── breakout/  
+			│ ├── __init__.py  
+			│ ├── breakout_main.py # Breakout state, split-screen management  
+			│ ├── breakout_ai.py # Humanized tracking AI for Breakout  
+			│ └── powerups.py # Droppable timed items (laser, wide paddle)  
+		└── memory_match/  
+			├── __init__.py  
+			├── memory_main.py # Memory Match state & loop  
+			└── memory_ai.py # Grid memory matrix AI tracking seen cards
+</pre> 
+</div>
+
+<div class="page-break"></div>
+
+<!-- RESEARCH -->
+<h2>Research & Problem Breakdown</h2>
+<p>This section covers disecting the project into challenges and investigated existing solutions.</p>
+
+<table>
+  <tr><th>Problem</th><th>Research & Approach</th></tr>
+  <tr><td><strong>Game loop and state management</strong></td><td>Tutorials (e.g., “Pygame State Machine” by Clear Code) show how a central loop can delegate to different states, keeping code organised.</td></tr>
+  <tr><td><strong>AI opponents that feel human</strong></td><td>For Pong/Breakout, I will cap the AI paddle speed and add random overshoots, based on techniques I saw on Stack Overflow. For SPR, I’ll implement a simple frequency counter that beats the player’s most frequent move. The Concentration AI will maintain a list of seen cards.</td></tr>
+  <tr><td><strong>Asset loading and scaling</strong></td><td>I’ll load images after <code>pygame.init()</code>. Paths and target sizes will be stored in a <code>.py</code> config file and scaled in a dedicated function, avoiding loading too fast.</td></tr>
+  <tr><td><strong>Persistent arcade scores</strong></td><td>NumPy arrays (<code>.npy</code>) are lightweight and Python‑native; no external database needed.</td></tr>
+  <tr><td><strong>Split‑screen rendering</strong></td><td>Instead of drawing directly to the display surface, I’ll create two subsurface rectangles and copy each player’s view independently, perhaps like SNES <em>Tetris & Dr. Mario</em>. <a href="https://www.youtube.com/watch?v=uoJxVnkDA8Y&t=1s">Video of Gameplay</a></td></tr>
+  <tr><td><strong>Win condition checks with NumPy</strong></td><td>Using a boolean brick grid in Breakout, <code>np.any()</code> instantly tells if any bricks remain.</td></tr>
+  <tr><td><strong>Sound system and UI Assets</strong></td><td>Write down all needed sounds for entire game box, then create or find & credit sounds that will be used and import them accordingly per game or menu, the same will follow for UI assets.</td></tr>
+</table>
+
+<h4>Sources:</h4>
+<ul>
+  <li>GeeksforGeeks (NumPy save method: <a href="https://www.geeksforgeeks.org/python/numpy-save/">link</a>)</li>
+  <li>Stack Overflow thread on Pong AI paddle flickering: <a href="https://stackoverflow.com/questions/22868629/pong-game-ai-paddle-flickering">link</a> (mentions speeding up ball randomly for enhanced challenge)</li>
+  <li>Pygame Fundamentals – Clear Code: <a href="https://www.youtube.com/watch?v=YOCt8nsQqEo&list=PL8ui5HK3oSiHnIdi0XIAVXHAeulNmBrLy">YouTube playlist</a></li>
+  <li>Pygame official documentation</li>
+</ul>
+
+<div class="page-break"></div>
+
+<!-- TIMELINE -->
+<h2>Timeline <span style="font-size: 0.9rem; font-weight: 400; color: var(--text-muted);">(Week‑by‑week, assuming ~3 hours class time per week + homework)</span></h2>
+
+<table>
+  <tr><th>Week</th><th>Tasks</th><th>Documentation / Testing</th></tr>
+  <tr><td>1</td><td>Create main loop skeleton, config file structure, asset loader. Find assets.</td><td>Proposal writing. Test: window opens, asset loader prints loaded paths.</td></tr>
+  <tr><td>2</td><td>Implement carousel menu: switching covers, state returns. Build settings system/screen. Stub out all five game files. Player‑name entry screen.</td><td>Document menu state logic. Test: navigation works, switches to dummy game screen.</td></tr>
+  <tr><td>3</td><td>Build Pong – core mechanics, simple AI, and scorekeeping. Integrate into menu. Build pause menu function to be used in all games.</td><td>Begin game‑specific docs and UI documentation. Test: Pong playable, AI moves.</td></tr>
+  <tr><td>4</td><td>Build Scissors‑Paper‑Rock with emoji UI and random AI. Add smart counter‑AI as add‑on if time.</td><td>Document AI logic. Test: all modes functional.</td></tr>
+  <tr><td>5</td><td>Build Guess the Number with binary‑search AI.</td><td>Test: human guesses and AI guesses work.</td></tr>
+  <tr><td>6</td><td>Build Breakout core (reuse Pong physics). Add brick grid, collision, basic level (13×5). Power‑ups implemented as add‑on.</td><td>Document physics reuse. Test: ball destroys bricks, win condition triggers.</td></tr>
+  <tr><td>7</td><td>Build Memory Match – grid display, card flip logic, basic random AI. Add Level‑2 “remembering” AI.</td><td>Document grid logic and AI. Test: matches detected, AI behaves correctly.</td></tr>
+  <tr><td>8</td><td>Implement save system: .npy stats arrays, scoreboard screen navigation, stats updating after each match.</td><td>Test: scores persist across sessions, scoreboard navigation works.</td></tr>
+  <tr><td>9</td><td>Add split‑screen mode for Breakout two‑player. Polish UI, sound effects, music loops.</td><td>Full integration testing. Document split‑screen approach.</td></tr>
+  <tr><td>10</td><td>Refine AI humanisation, add difficulty selector, tweak power‑up timings.</td><td>Prepare final documentation, user guide.</td></tr>
+  <tr><td>11</td><td>Buffer week – tackle add‑ons (random layout generator, attract mode) or fix unexpected bugs.</td><td>Finalise documentation.</td></tr>
+  <tr><td>12</td><td>Final testing, code freeze, submission.</td><td>Complete all documentation.</td></tr>
+</table>
+
+<p><em>The project should follow the Stanford / Double Diamond Design Process – starting with broad exploration, then focusing on defined problems, prototyping solutions, and iterating through testing and refinement.</em></p>
+
+<div class="page-break"></div>
+
+<!-- SCREEN DESIGNS -->
+<h1>Screen Designs <span style="font-size: 1rem; color: var(--text-muted);">(Excluding Game Screens)</span></h1>
+
+<h4>Main Menu</h4>
+<img src="Heading (3).png" alt="Main Menu Design">
+
+<div class="page-break"></div>
+
+<h4>Settings System Screens <span style="font-weight: 400; color: var(--text-muted);">(default will be set to General)</span></h4>
+
+<h5>General</h5>
+<img src="Heading (2).png" alt="Settings General">
+
+<div class="page-break"></div>
+
+<h5>Controls</h5>
+<img src="Heading (1).png" alt="Settings Controls">
+
+<div class="page-break"></div>
+
+<!-- INSPIRATION -->
+<h1>Inspiration</h1>
+<p>Below are images which I plan to be of inspiration during development:</p>
+
+<h3>Pause Menu</h3>
+
+<h4>Angry Birds Star Wars</h4>
+<img src="Pasted image 20260806195231.png" alt="Angry Birds Star Wars pause">
+<p style="text-align: center; font-size: 0.9rem; color: var(--text-muted);">Source: <a href="https://www.mobygames.com/game/62348/angry-birds-star-wars-ii/screenshots/android/643874/">MobyGames</a></p>
+
+<div class="page-break"></div>
+
+<h4>Angry Birds Classic</h4>
+<img src="Pasted image 20260806195452.png" alt="Angry Birds Classic pause">
+<p style="text-align: center; font-size: 0.9rem; color: var(--text-muted);">Source: <a href="https://www.mobygames.com/game/46396/angry-birds/screenshots/macintosh/490935/">MobyGames</a></p>
+
+<div class="page-break"></div>
+
+<h3>Breakout</h3>
+
+<h4>Arkanoid</h4>
+<img src="Pasted image 20260806195820.png" alt="Arkanoid screenshot" style="width: 390px;">
+<p style="text-align: center; font-size: 0.9rem; color: var(--text-muted);">Source: <a href="https://en.wikipedia.org/wiki/Arkanoid#/media/File:Arkanoid.png">Wikipedia</a></p>
+
+<div class="page-break"></div>
+
+<h3>Two player split screen</h3>
+
+<h4>Tetris & Dr. Mario</h4>
+<img src="Pasted image 20260806200301.png" alt="Tetris & Dr. Mario split screen" style="width: 456px;">
+<p style="text-align: center; font-size: 0.9rem; color: var(--text-muted);">Source: <a href="https://ultimatepopculture.fandom.com/wiki/Tetris_%26_Dr._Mario?file=Tetris_%26_Dr._Mario_screenshot.png">Fandom</a></p>
