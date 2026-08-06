@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "readme.md",
+                "file": "Proposal.md.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "readme"
+              "title": "Proposal.md"
             }
           }
         ]
@@ -189,5 +189,11 @@
     }
   },
   "active": "64d13079e67f12cf",
-  "lastOpenFiles": []
+  "lastOpenFiles": [
+    "Heading (3).png",
+    "Heading (2).png",
+    "Heading (1).png",
+    "Proposal.md.md",
+    "readme.md"
+  ]
 }
