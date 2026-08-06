@@ -1,4 +1,4 @@
-# Major Project Documentation – PyArcade
+# Major Project Documentation – PyCade
 
 ---
 

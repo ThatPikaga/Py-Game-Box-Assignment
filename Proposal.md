@@ -1,14 +1,6 @@
-
-
-
 # PyCayde
 *A Retro style arcade box*
-
-	M A J O R   P R O J E C T   P R O P O S A L
-
-Student: 1533
 <div style="page-break-after: always;"></div>
-
 
 <div style="page-break-after: always;"></div>
 ### Client
