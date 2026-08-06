@@ -129,7 +129,7 @@ This section covers disecting the project into challenges and investigated exist
 
 ---
 
-# **Screen Designs** *(Excluding Game Screens)
+# **Screen Designs** *(Excluding Game Screens)*
 
 ##### Main Menu
 ![[Heading (3).png]]
@@ -183,7 +183,7 @@ Source: https://ultimatepopculture.fandom.com/wiki/Tetris_%26_Dr._Mario?file=Tet
 - Next steps  
 
 **Stage 1 – [06/08/2026 / Week 1]**  
-*(Insert your evidence and commentary here.)*
+Completed proposal writing and curating sound assets, some where gathered from https://freesound.org while others were created in Audacity. They have been named and credited in Attribution txt files in their designated folder. Still need to create main loop skeleton, config file structure, and asset loader.
 
 **Stage 2 – [Date / Week]**  
 *(Insert your evidence and commentary here.)*
