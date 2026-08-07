@@ -7,11 +7,10 @@
 Casual gamers who enjoy classic pick‑up‑and‑play titles with local multiplayer and AI opponents, to cure boredom and revive some nostalgia from the early 2000s without any ads, in‑app purchases or WiFi.
 
 ### The Product
-An original desktop arcade collection built with Pygame. The app presents a carousel menu where the user scrolls through game covers and launches one of five classic games: Pong, Scissors‑Paper‑Rock, Guess the Number, Breakout, and Memory Match. Every game includes single‑player, local two‑player, or versus‑AI modes. Before playing, players enter a name (like old‑school arcade high‑score screens) and performance stats are saved per game until loss or exit. A dedicated scoreboard screen, opened by pressing **T** on the menu, shows lifetime stats – number of AI defeats, longest rally, fastest clear time, etc.
+An original desktop arcade collection built with Pygame. The app presents a carousel menu where users scroll through game covers and launch one of five classic games: Pong, Scissors‑Paper‑Rock, Guess the Number, Breakout, and Memory Match. Every game includes multiple play modes, user profile creation, and stat tracking. A dedicated scoreboard screen tracks lifetime achievements across all titles.
 
 ---
 <div style="page-break-after: always;"></div>
-
 ### Essential Features
 - **Core games** working with basic graphics, sound, and controls.
 - **Three play modes** per game: human vs. human, human vs. AI, and pure single‑player where applicable (for games like Breakout).
@@ -104,13 +103,6 @@ This section covers disecting the project into challenges and investigated exist
 | **Win condition checks with NumPy** | Using a boolean brick grid in Breakout, `np.any()` instantly tells if any bricks remain.                                                                                                                                                                                          |
 | **Sound system and UI Assets**      | Write down all needed sounds for entire game box, then create or find & credit sounds that will be used and import them accordingly per game or menu, the same will follow for UI assets.                                                                                         |
 
-**Sources:**  
-- GeeksforGeeks (NumPy save method: [https://www.geeksforgeeks.org/python/numpy-save/](https://www.geeksforgeeks.org/python/numpy-save/))  
-- Stack Overflow thread on Pong AI paddle flickering: [https://stackoverflow.com/questions/22868629/pong-game-ai-paddle-flickering](https://stackoverflow.com/questions/22868629/pong-game-ai-paddle-flickering) (mentions speeding up ball randomly for enhanced challenge)  
-- Pygame Fundamentals – Clear Code: [https://www.youtube.com/watch?v=YOCt8nsQqEo&list=PL8ui5HK3oSiHnIdi0XIAVXHAeulNmBrLy](https://www.youtube.com/watch?v=YOCt8nsQqEo&list=PL8ui5HK3oSiHnIdi0XIAVXHAeulNmBrLy)  
-- Pygame official documentation  
-
-
 ---
 <div style="page-break-after: always;"></div>
 ### **Timeline** (Week‑by‑week, assuming ~3 hours class time per week + homework)
@@ -176,3 +168,18 @@ Source: https://en.wikipedia.org/wiki/Arkanoid#/media/File:Arkanoid.png
 ##### Tetris & Dr. Mario
 ![[Pasted image 20260806200301.png|456]]
 Source: https://ultimatepopculture.fandom.com/wiki/Tetris_%26_Dr._Mario?file=Tetris_%26_Dr._Mario_screenshot.png
+
+
+---
+
+# Bibliography 
+
+1. Clear Code. (n.d.). Pygame Fundamentals [YouTube playlist]. YouTube. Retrieved from https://www.youtube.com/playlist?list=PL8ui5HK3oSiHnIdi0XIAVXHAeulNmBrLy 
+2. GeeksforGeeks. (n.d.). numpy.save() in Python. GeeksforGeeks. Retrieved from https://www.geeksforgeeks.org/python/numpy-save/ 
+3. Stack Overflow. (2014, April 9). Pong game AI paddle flickering. Stack Overflow. Retrieved from https://stackoverflow.com/questions/22868629/pong-game-ai-paddle-flickering 
+4. Pygame Developers. (n.d.). Pygame Documentation. Retrieved from https://www.pygame.org/docs/ 
+5. Tetris & Dr. Mario (SNES). (2018, December 23). Tetris & Dr. Mario SNES 2 Player Gameplay [Video]. YouTube. Retrieved from https://www.youtube.com/watch?v=uoJxVnkDA8Y&t=1s 
+6. MobyGames. (n.d.). Angry Birds Star Wars II – Screenshot (Android). MobyGames. Retrieved from https://www.mobygames.com/game/62348/angry-birds-star-wars-ii/screenshots/android/643874/ 
+7. MobyGames. (n.d.). Angry Birds – Screenshot (Macintosh). MobyGames. Retrieved from https://www.mobygames.com/game/46396/angry-birds/screenshots/macintosh/490935/ 
+8. Wikipedia contributors. (n.d.). Arkanoid. Wikipedia. Retrieved from https://en.wikipedia.org/wiki/Arkanoid#/media/File:Arkanoid.png 
+9. Fandom. (n.d.). Tetris & Dr. Mario. Ultimate Pop Culture Wiki. Retrieved from https://ultimatepopculture.fandom.com/wiki/Tetris_%26_Dr._Mario?file=Tetris_%26_Dr._Mario_screenshot.png
