@@ -99,16 +99,23 @@
   .page-break { page-break-after: always; }
 
   .section-card {
-      background: var(--surface);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 12px;
-      padding: 2rem;
-      margin: 2rem 0;
-      
-      /* FIXES THE PRINT BLANK SPACE BUG */
-      break-inside: avoid; /* Prevents the box container itself from breaking across pages */
-    }
+    background: var(--surface);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 2rem;
+    margin: 2rem 0;
+  }
 </style>
+
+
+
+
+
+
+
+
+
+
 
 <!-- COVER PAGE -->
 <div style="display: flex; flex-direction: column; justify-content: space-between; height: 85vh; text-align: center; font-family: sans-serif; padding: 20px 0;">
@@ -119,14 +126,14 @@
         @media print {
           .firefox-emoji-fix {
             display: inline-block !important;
-            font-size: 4rem !important;
-            transform: scale(2) !important;
+            font-size: 1rem !important;
+            transform: scale(4) !important;
             transform-origin: center !important;
             margin-bottom: 1.5rem !important;
           }
         }
       </style>
-      <div style="font-size: 9rem; line-height: 1.4; margin-bottom: 10px; display: block; overflow: visible;">
+      <div style="font-size: 4rem; line-height: 1.4; margin-bottom: 10px; display: block; overflow: visible;">
         <span class="firefox-emoji-fix" style="display: inline-block;">🕹️</span>
       </div>
       <h1 style="font-size: 2.8rem; font-weight: 800; letter-spacing: -1px; margin: 0; color: var(--text-normal);">PyCayde</h1>
@@ -154,7 +161,7 @@
 <div class="page-break"></div>
 
 <!-- CLIENT & PRODUCT -->
-<div class="section-card" style="margin-top: 1.5rem;">
+<div class="section-card">
   <h3>Client</h3>
   <p>Casual gamers who enjoy classic pick‑up‑and‑play titles with local multiplayer and AI opponents, to cure boredom and revive some nostalgia from the early 2000s without any ads, in‑app purchases or WiFi.</p>
 
@@ -180,7 +187,6 @@
   <li><strong>Asset management</strong>: a single config file stores file paths and sizes; a startup routine loads and scales all images and sounds.</li>
   <li><strong>Modular code architecture</strong>: the menu returns a state, and the main loop uses a switch/case to run the correct game module – easy to add new games later.</li>
 </ul>
-
 
 <!-- ADD-ONS -->
 <h2>Add‑ons (If time bids)</h2>
@@ -268,15 +274,9 @@ code/ (Root folder)
   <tr><td><strong>Sound system and UI Assets</strong></td><td>Write down all needed sounds for entire game box, then create or find & credit sounds that will be used and import them accordingly per game or menu, the same will follow for UI assets.</td></tr>
 </table>
 
-<h4>Sources:</h4>
-<ul>
-  <li>GeeksforGeeks (NumPy save method: <a href="https://www.geeksforgeeks.org/python/numpy-save/">link</a>)</li>
-  <li>Stack Overflow thread on Pong AI paddle flickering: <a href="https://stackoverflow.com/questions/22868629/pong-game-ai-paddle-flickering">link</a> (mentions speeding up ball randomly for enhanced challenge)</li>
-  <li>Pygame Fundamentals – Clear Code: <a href="https://www.youtube.com/watch?v=YOCt8nsQqEo&list=PL8ui5HK3oSiHnIdi0XIAVXHAeulNmBrLy">YouTube playlist</a></li>
-  <li>Pygame official documentation</li>
-</ul>
-
 <div class="page-break"></div>
+
+
 
 <!-- TIMELINE -->
 <h2>Timeline <span style="font-size: 0.9rem; font-weight: 400; color: var(--text-muted);">(Week‑by‑week, assuming ~3 hours class time per week + homework)</span></h2>
@@ -352,3 +352,21 @@ code/ (Root folder)
 <h4>Tetris & Dr. Mario</h4>
 <img src="Pasted image 20260806200301.png" alt="Tetris & Dr. Mario split screen" style="width: 456px;">
 <p style="text-align: center; font-size: 0.9rem; color: var(--text-muted);">Source: <a href="https://ultimatepopculture.fandom.com/wiki/Tetris_%26_Dr._Mario?file=Tetris_%26_Dr._Mario_screenshot.png">Fandom</a></p>
+
+
+<!-- BIBLIOGRAPHY -->
+<div class="page-break"></div>
+
+<h2>Bibliography</h2>
+<ol style="font-size: 11pt; line-height: 1.6;">
+  <li>Clear Code. (n.d.). <em>Pygame Fundamentals</em> [YouTube playlist]. YouTube. Retrieved from <a href="https://www.youtube.com/playlist?list=PL8ui5HK3oSiHnIdi0XIAVXHAeulNmBrLy">https://www.youtube.com/playlist?list=PL8ui5HK3oSiHnIdi0XIAVXHAeulNmBrLy</a></li>
+  <li>GeeksforGeeks. (n.d.). <em>numpy.save() in Python</em>. GeeksforGeeks. Retrieved from <a href="https://www.geeksforgeeks.org/python/numpy-save/">https://www.geeksforgeeks.org/python/numpy-save/</a></li>
+  <li>Stack Overflow. (2014, April 9). <em>Pong game AI paddle flickering</em>. Stack Overflow. Retrieved from <a href="https://stackoverflow.com/questions/22868629/pong-game-ai-paddle-flickering">https://stackoverflow.com/questions/22868629/pong-game-ai-paddle-flickering</a></li>
+  <li>Pygame Developers. (n.d.). <em>Pygame Documentation</em>. Retrieved from <a href="https://www.pygame.org/docs/">https://www.pygame.org/docs/</a></li>
+  <li>Tetris & Dr. Mario (SNES). (2018, December 23). <em>Tetris & Dr. Mario SNES 2 Player Gameplay</em> [Video]. YouTube. Retrieved from <a href="https://www.youtube.com/watch?v=uoJxVnkDA8Y&t=1s">https://www.youtube.com/watch?v=uoJxVnkDA8Y&t=1s</a></li>
+  <li>MobyGames. (n.d.). <em>Angry Birds Star Wars II – Screenshot (Android)</em>. MobyGames. Retrieved from <a href="https://www.mobygames.com/game/62348/angry-birds-star-wars-ii/screenshots/android/643874/">https://www.mobygames.com/game/62348/angry-birds-star-wars-ii/screenshots/android/643874/</a></li>
+  <li>MobyGames. (n.d.). <em>Angry Birds – Screenshot (Macintosh)</em>. MobyGames. Retrieved from <a href="https://www.mobygames.com/game/46396/angry-birds/screenshots/macintosh/490935/">https://www.mobygames.com/game/46396/angry-birds/screenshots/macintosh/490935/</a></li>
+  <li>Wikipedia contributors. (n.d.). <em>Arkanoid</em>. Wikipedia. Retrieved from <a href="https://en.wikipedia.org/wiki/Arkanoid#/media/File:Arkanoid.png">https://en.wikipedia.org/wiki/Arkanoid#/media/File:Arkanoid.png</a></li>
+  <li>Fandom. (n.d.). <em>Tetris & Dr. Mario</em>. Ultimate Pop Culture Wiki. Retrieved from <a href="https://ultimatepopculture.fandom.com/wiki/Tetris_%26_Dr._Mario?file=Tetris_%26_Dr._Mario_screenshot.png">https://ultimatepopculture.fandom.com/wiki/Tetris_%26_Dr._Mario?file=Tetris_%26_Dr._Mario_screenshot.png</a></li>
+</ol>
+
