@@ -201,19 +201,20 @@ Source: https://ultimatepopculture.fandom.com/wiki/Tetris_%26_Dr._Mario?file=Tet
 - Next steps  
 
 **Stage 1 – [06/08/2026 / Week 1]**  
-Completed proposal writing and curating sound assets, some where gathered from https://freesound.org while others were created in Audacity. They have been named and credited in Attribution txt files in their designated folder. Still need to create main loop skeleton, config file structure, and asset loader.
+>Completed proposal writing and curating sound assets, some where gathered from https://freesound.org while others were created in Audacity. They have been named and credited in Attribution txt files in their designated folder. Still need to create main loop skeleton, config file structure, and asset loader.
 
 **Stage 2 – [15/08/2026 / Week 2]**  
-Learning about some things in python such as dunders like `__init__' becasue I want to understand further how it is they work as I know they can be used to simplify aspect of coding.   
-`What does __init__ do in Python?` - https://www.youtube.com/watch?v=VEbuZox5qC4
+>Learning about some things in python such as dunders like `__init__'. While we have learnt this in class in the past, I like to refresh if I feel a need. 
+ 
+>`What does __init__ do in Python?` - https://www.youtube.com/watch?v=VEbuZox5qC4
 
-`What is the __init__ method in Python?` https://www.youtube.com/watch?v=PwmQHPU7_Og
+>`What is the __init__ method in Python?` https://www.youtube.com/watch?v=PwmQHPU7_Og
 
-`What does __name__ == __main__ do in Python?` - https://www.youtube.com/watch?v=x5IbdKnvt6k
+>`What does __name__ == __main__ do in Python?` - https://www.youtube.com/watch?v=x5IbdKnvt6k
 
 
-**Stage 3 – [Date / Week]**  
-*(Insert your evidence and commentary here.)*
+**Stage 3 – [19/08/2026 / Week 3]**  
+> Created `starrynight.py` to serve as a dynamic main menu background, eliminating the need for heavy GIF file rendering. Fixed a rendering order issue from the previous lesson where the background clearing step was accidentally overwriting the stars. The script generates stars across three distinct depth layers to create a parallax effect (`speed = layer * 0.1`). Stars move downward continuously; once a star goes off-screen (`y > height`), its properties reset and it respawns at `y = 0` to create an infinite loop. Now we need to setup the file structure so that I can get started on coding the skeletons.
 
 **Stage 4 – [Date / Week]**  
 *(Insert your evidence and commentary here.)*

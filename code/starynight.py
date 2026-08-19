@@ -1,6 +1,5 @@
 import pygame
 import random
-import sys
 
 
 class StarfieldBackground:
@@ -12,13 +11,13 @@ class StarfieldBackground:
         for _ in range(star_count):
             self.stars.append(self._create_star(random_y=True))
 
-    def _create_star(self, random_y=False):
-        layer = random.choice([1, 2, 3])
+    def _create_star(self, random_y=True):
+        layer = random.choice([1,2,3])
 
         return {
             "x": random.randint(0, self.width),
             "y": random.randint(0, self.height) if random_y else 0,
-            "speed": layer * 0.8,
+            "speed": layer * 0.1,
             "radius": layer,
             "color": self._get_color(layer),
         }
@@ -47,8 +46,7 @@ class StarfieldBackground:
 
         for star in self.stars:
             pygame.draw.circle(
-                screen,
-                star["color"],
+                screen, star["color"],
                 (int(star["x"]), int(star["y"])),
                 star["radius"],
             )
@@ -64,19 +62,15 @@ if __name__ == "__main__":
     clock = pygame.time.Clock()
     background = StarfieldBackground(WIDTH, HEIGHT, star_count=200)
 
+
     running = True
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    running = False
-
         background.update()
         background.draw(screen)
         pygame.display.flip()
         clock.tick(60)
 
     pygame.quit()
-    sys.exit()
