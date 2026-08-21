@@ -217,8 +217,17 @@ Source: https://ultimatepopculture.fandom.com/wiki/Tetris_%26_Dr._Mario?file=Tet
 **Stage 3 – [19/08/2026 / Week 3]**  
 > Created `starrynight.py` to serve as a dynamic main menu background, eliminating the need for heavy GIF file rendering. Fixed a rendering order issue from the previous lesson where the background clearing step was accidentally overwriting the stars. The script generates stars across three distinct depth layers to create a parallax effect (`speed = layer * 0.1`). Stars move downward continuously; once a star goes off-screen (`y > height`), its properties reset and it respawns at `y = 0` to create an infinite loop. Now we need to setup the file structure so that I can get started on coding the skeletons.
 
-**Stage 4 – [Date / Week]**  
-*(Insert your evidence and commentary here.)*
+**Stage 4 – [21/08 2026 / Week 3]**  
+>Created all placeholder files ready for code as per the intended file structure.
+Created Pong game, teacher helped me with math calculations for ball when colliding with paddle. Changed score files in data. from a .py file to .json. Also changed name of files in game folder from things like "pong_main.py" & "pong_ai.py" to simply be "main.py" and "ai.py", since all games are in separate folders, there is no need to give custom names.
+There was an issue with the collisions of the ball.
+
+>`line 95, in <module>
+    ball_speed_x = -maths.sqrt(total_speed**2-ball_speed_y**2)
+                    ValueError: math domain error`
+
+This was fixed by more help from the teacher
+
 
 *(Add more stages if needed.)*
 
