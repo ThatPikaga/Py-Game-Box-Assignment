@@ -191,6 +191,7 @@
   },
   "active": "515629fe4c020464",
   "lastOpenFiles": [
+    "code/src/games/pong/__pycache__/ai.cpython-313.pyc",
     "code/src/games/pong/ai.py",
     "code/src/games/pong/main.py",
     "code/src/games/pong/__pycache__/pong_ai.cpython-313.pyc",
@@ -201,7 +202,6 @@
     "code/src/games/breakout/breakout_main.py",
     "code/src/games/memory/memory_ai.py",
     "code/src/games/memory/memory_main.py",
-    "code/src/games/memory/__init__.py",
     "Proposal.md",
     "readme.md",
     "Proposal 1.md",

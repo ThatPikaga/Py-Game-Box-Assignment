@@ -231,6 +231,7 @@ There was an issue with the collisions of the ball.
 **Safe Square Root:** Wrapped values in `max(0, ...)` to prevent math errors if `ball_speed_y` ever exceeds `total_speed`.
 **Direction:** Kept the same positive speed for the player bounce and negative speed for the opponent bounce.
 
+A new issue to fix is ball colliding into wall and being stuck inside if the paddle accidently pushes it in
 
 *(Add more stages if needed.)*
 
