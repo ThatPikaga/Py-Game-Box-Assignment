@@ -226,7 +226,10 @@ There was an issue with the collisions of the ball.
     ball_speed_x = -maths.sqrt(total_speed**2-ball_speed_y**2)
                     ValueError: math domain error`
 
-This was fixed by more help from the teacher
+>This was fixed by more help from the teacher:
+ Added `and ball_speed_x < 0` for the player and `and ball_speed_x > 0` for the opponent.
+**Safe Square Root:** Wrapped values in `max(0, ...)` to prevent math errors if `ball_speed_y` ever exceeds `total_speed`.
+**Direction:** Kept the same positive speed for the player bounce and negative speed for the opponent bounce.
 
 
 *(Add more stages if needed.)*
