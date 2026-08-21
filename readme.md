@@ -47,7 +47,8 @@ code/ (Root folder)
 ├── assets_loader.py # Startup routine; loads and scales all images and sounds  
 ├── assets/ (Universal asset storage)  
 	│ ├── sfx/ # UI clicks, game-specific sound & music  
-	│ └── images/ # Carousel covers, backgrounds, sprites  
+	│ └── images/ # Carousel covers, backgrounds, sprites
+	| ├── starynight.py #menu background
 ├── data/ (Persistent arcade score storage)  
 	│ ├── pong_stats.npy  
 	│ ├── spr_stats.npy  
