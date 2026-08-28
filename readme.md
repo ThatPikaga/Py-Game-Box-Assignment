@@ -231,7 +231,24 @@ There was an issue with the collisions of the ball.
 **Safe Square Root:** Wrapped values in `max(0, ...)` to prevent math errors if `ball_speed_y` ever exceeds `total_speed`.
 **Direction:** Kept the same positive speed for the player bounce and negative speed for the opponent bounce.
 
-A new issue to fix is ball colliding into wall and being stuck inside if the paddle accidently pushes it in
+Bug: ball colliding into wall and being stuck inside if the paddle accidently pushes it into the wall. 
+![[Pasted image 20260828113834.png]]]
+On top of this there is a bug where if the user hits the ball perfectly down, it does not collide and bounce off creating a bug where the ball is stuck going up and down. 
+![[Screenshot 2026-08-21 112531.png|459]]
+Issue was that ball speed being 0 at x axis did nothing `= 0`, it has been update to  `<= 0`
+To fix ball collision error. if ball.top <= 0 then ball.top = 0.
+
+**Stage 5 – [21/08 2026 / Week 4]** 
+Built very basic number guesser game with difficulty selector (easy, medium, hard), different amount of tries for each. Also gave it a mode selection (Ai or Local). Ai always selects secret number else then heads or tails between two players to pick who starts and picks a number.  
+A classmate of mine recommended I use a dir file location package in python for my menu game selection when I build it, package is "pathlib".
+`from pathlib import path` is how it needs to be used.
+
+Built basic scissors paper rock without an ai difficulty system.
+For 2 player local mode. P1 has 3 button assigned for Scissors, Paper, & Rock (A, W, D), P2 has (Left_Btn, Up_Btn, &, Right_Btn). Rules: cover hand used to select your option and play against your friend digitally because you obviously can't play in real life. 
+![[Pasted image 20260828131606.png]]
+
+
+
 
 *(Add more stages if needed.)*
 

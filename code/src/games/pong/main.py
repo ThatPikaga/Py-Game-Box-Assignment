@@ -9,7 +9,7 @@ clock = pygame.time.Clock()
 # Screen
 WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Pong with AI")
+pygame.display.set_caption("Pong")
 
 # Colors
 WHITE = (255, 255, 255)
@@ -81,12 +81,16 @@ while True:
     # Wall Collisions (Top/Bottom)
     if ball.top <= 0 or ball.bottom >= HEIGHT:
         ball_speed_y *= -1
+        if ball.top <= 0:
+            ball.top = 0
+        else:
+            ball.bottom = HEIGHT
 
     # Paddle Collisions
     for paddle in [player, opponent]:
         # Paddle Collisions
-        if ball.colliderect(player) and ball_speed_x < 0:
-            ball_speed_x *= -1
+        if ball.colliderect(player) and ball_speed_x <= 0:
+            #ball_speed_x *= -1
             paddle_center = player.centery
             ball_center = ball.centery
             rela_intersec_y = ball_center - paddle_center
@@ -94,8 +98,8 @@ while True:
             ball_speed_y = normalised_intersect * bounce_speed
             ball_speed_x = maths.sqrt(max(0, total_speed**2 - ball_speed_y**2))
 
-        if ball.colliderect(opponent) and ball_speed_x > 0:
-            ball_speed_x *= -1
+        if ball.colliderect(opponent) and ball_speed_x >= 0:
+            #ball_speed_x *= -1
             paddle_center = opponent.centery
             ball_center = ball.centery
             rela_intersec_y = ball_center - paddle_center

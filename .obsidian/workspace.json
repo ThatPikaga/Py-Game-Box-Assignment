@@ -83,7 +83,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200
+    "width": 200,
+    "collapsed": true
   },
   "right": {
     "id": "c6427cb28dc1e5f8",
@@ -191,6 +192,15 @@
   },
   "active": "515629fe4c020464",
   "lastOpenFiles": [
+    "Pasted image 20260828131606.png",
+    "code/src/games/spr/main.py",
+    "code/src/games/guess_number/main.py",
+    "Pasted image 20260828113834.png",
+    "screenshots/Pasted image 20260828113834.png",
+    "screenshots/Screenshot 2026-08-21 112531.png",
+    "screenshots/Screenshot 2026-08-28 112531.png",
+    "screenshots",
+    "Screenshot 2026-08-28 112531.png",
     "code/src/games/pong/__pycache__/ai.cpython-313.pyc",
     "code/src/games/pong/ai.py",
     "code/src/games/pong/main.py",
@@ -198,10 +208,6 @@
     "code/src/games/pong/__pycache__",
     "code/src/games/breakout/__init__.py",
     "code/src/games/breakout/powerups.py",
-    "code/src/games/breakout/breakout_ai.py",
-    "code/src/games/breakout/breakout_main.py",
-    "code/src/games/memory/memory_ai.py",
-    "code/src/games/memory/memory_main.py",
     "Proposal.md",
     "readme.md",
     "Proposal 1.md",
@@ -210,9 +216,6 @@
     "media/Heading (2).png",
     "media/Heading (1).png",
     "media/Pasted image 20260806200301.png",
-    "media/Pasted image 20260806195231.png",
-    "media/Pasted image 20260806195452.png",
-    "media/Pasted image 20260806195820.png",
-    "Pasted image 20260806194607.png"
+    "media/Pasted image 20260806195231.png"
   ]
 }
