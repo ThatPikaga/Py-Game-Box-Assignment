@@ -201,10 +201,10 @@ Source: https://ultimatepopculture.fandom.com/wiki/Tetris_%26_Dr._Mario?file=Tet
 - Changes made from the original plan  
 - Next steps  
 
-**Stage 1 – [06/08/2026 / Week 1]**  
+**Stage 1 - [06/08/2026 / Week 1]**  
 >Completed proposal writing and curating sound assets, some where gathered from https://freesound.org while others were created in Audacity. They have been named and credited in Attribution txt files in their designated folder. Still need to create main loop skeleton, config file structure, and asset loader.
 
-**Stage 2 – [15/08/2026 / Week 2]**  
+**Stage 2 - [15/08/2026 / Week 2]**  
 >Learning about some things in python such as dunders like `__init__'. While we have learnt this in class in the past, I like to refresh if I feel a need. 
  
 >`What does __init__ do in Python?` - https://www.youtube.com/watch?v=VEbuZox5qC4
@@ -214,10 +214,10 @@ Source: https://ultimatepopculture.fandom.com/wiki/Tetris_%26_Dr._Mario?file=Tet
 >`What does __name__ == __main__ do in Python?` - https://www.youtube.com/watch?v=x5IbdKnvt6k
 
 
-**Stage 3 – [19/08/2026 / Week 3]**  
+**Stage 3 - [19/08/2026 / Week 3]**  
 > Created `starrynight.py` to serve as a dynamic main menu background, eliminating the need for heavy GIF file rendering. Fixed a rendering order issue from the previous lesson where the background clearing step was accidentally overwriting the stars. The script generates stars across three distinct depth layers to create a parallax effect (`speed = layer * 0.1`). Stars move downward continuously; once a star goes off-screen (`y > height`), its properties reset and it respawns at `y = 0` to create an infinite loop. Now we need to setup the file structure so that I can get started on coding the skeletons.
 
-**Stage 4 – [21/08 2026 / Week 3]**  
+**Stage 4 - [21/08 2026 / Week 3]**  
 >Created all placeholder files ready for code as per the intended file structure.
 Created Pong game, teacher helped me with math calculations for ball when colliding with paddle. Changed score files in data. from a .py file to .json. Also changed name of files in game folder from things like "pong_main.py" & "pong_ai.py" to simply be "main.py" and "ai.py", since all games are in separate folders, there is no need to give custom names.
 There was an issue with the collisions of the ball.
@@ -232,14 +232,15 @@ There was an issue with the collisions of the ball.
 **Direction:** Kept the same positive speed for the player bounce and negative speed for the opponent bounce.
 
 Bug: ball colliding into wall and being stuck inside if the paddle accidently pushes it into the wall. 
-![[Pasted image 20260828113834.png]]]
+![[Pasted image 20260828113834.png]]
+
 On top of this there is a bug where if the user hits the ball perfectly down, it does not collide and bounce off creating a bug where the ball is stuck going up and down. 
 ![[Screenshot 2026-08-21 112531.png|459]]
 Issue was that ball speed being 0 at x axis did nothing `= 0`, it has been update to  `<= 0`
 To fix ball collision error. if ball.top <= 0 then ball.top = 0.
 
-**Stage 5 – [21/08 2026 / Week 4]** 
-Built very basic number guesser game with difficulty selector (easy, medium, hard), different amount of tries for each. Also gave it a mode selection (Ai or Local). Ai always selects secret number else then heads or tails between two players to pick who starts and picks a number.  
+**Stage 5 - [21/08 2026 / Week 4]** 
+>Built very basic number guesser game with difficulty selector (easy, medium, hard), different amount of tries for each. Also gave it a mode selection (Ai or Local). Ai always selects secret number else then heads or tails between two players to pick who starts and picks a number.  
 A classmate of mine recommended I use a dir file location package in python for my menu game selection when I build it, package is "pathlib".
 `from pathlib import path` is how it needs to be used.
 
@@ -247,6 +248,8 @@ Built basic scissors paper rock without an ai difficulty system.
 For 2 player local mode. P1 has 3 button assigned for Scissors, Paper, & Rock (A, W, D), P2 has (Left_Btn, Up_Btn, &, Right_Btn). Rules: cover hand used to select your option and play against your friend digitally because you obviously can't play in real life. 
 ![[Pasted image 20260828131606.png]]
 
+**Stage 6 - [31/08/2026 / Week 5]**
+Created basic memory match using numbers using numbers as card faces and a basic chequered pattern for backs. Three playstyles to pick on start; Single player, Local vs or Ai vs. 3 modes, Easy (24 cards - 12 pairs), Medium (52 cards - 26 pairs), Hard (104 cards - 52 pairs). Background made to look like generic wood floor -- just for aesthetic. Highest pairs found wins. For single player there is a lives system; Easy (18 lives), Medium (31 lives), and Hard (52 lives), this ensures that there is still a level of competition.
 
 
 
