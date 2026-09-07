@@ -251,6 +251,9 @@ For 2 player local mode. P1 has 3 button assigned for Scissors, Paper, & Rock (A
 **Stage 6 - [31/08/2026 / Week 5]**
 Created basic memory match using numbers using numbers as card faces and a basic chequered pattern for backs. Three playstyles to pick on start; Single player, Local vs or Ai vs. 3 modes, Easy (24 cards - 12 pairs), Medium (52 cards - 26 pairs), Hard (104 cards - 52 pairs). Background made to look like generic wood floor -- just for aesthetic. Highest pairs found wins. For single player there is a lives system; Easy (18 lives), Medium (31 lives), and Hard (52 lives), this ensures that there is still a level of competition.
 
+**Stage 7 - [07/09/2026 / Week 6]**
+Created very basic breakout (Arkanoid) and making sure to import same collision system that I used from pong. Two issues presented: Ball would kill bricks if perfectly on a bricks edge, passing it to the next, secondly ball would not get push up or down from paddle depending on which corner hit. The same ball wall clipping bug fix was used in the same manner to fix both clipping issues found.
+
 
 
 *(Add more stages if needed.)*

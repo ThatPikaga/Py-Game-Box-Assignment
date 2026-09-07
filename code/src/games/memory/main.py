@@ -12,19 +12,19 @@ pygame.display.set_caption("Memory Match")
 clock = pygame.time.Clock()
 
 # --- COLOURS ---
-COLOUR_MENU_BG = (26, 42, 58)           # deep navy
-COLOUR_TEXT_LIGHT = (245, 230, 211)     # warm cream
+COLOUR_MENU_BG = (26, 42, 58)
+COLOUR_TEXT_LIGHT = (245, 230, 211)
 COLOUR_WHITE = (255, 255, 255)
-COLOUR_CARD_FRONT = (255, 255, 255)     # parchment
+COLOUR_CARD_FRONT = (255, 255, 255)
 COLOUR_CARD_BORDER = (217, 22, 22)
 
 COLOUR_CARD_TEXT = (217, 22, 22)
-COLOUR_MATCHED = (160, 176, 176)        # muted grey-blue
+COLOUR_MATCHED = (160, 176, 176)
 COLOUR_HEADER_BG = (44, 62, 80)
-COLOUR_BG_GREEN = (34, 139, 34)         # forest green
+COLOUR_BG_GREEN = (34, 139, 34)
 COLOUR_CARD_BACK = (74, 123, 138)
 COLOUR_RED = (192, 57, 43)
-COLOUR_HEADER_BORDER = (196, 154, 108)  # same gold as card border
+COLOUR_HEADER_BORDER = (196, 154, 108)
 
 # --- FONTS ---
 font_title = pygame.font.SysFont("helvetica", 36, bold=True)
