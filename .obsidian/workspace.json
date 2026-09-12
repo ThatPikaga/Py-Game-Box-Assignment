@@ -83,8 +83,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200,
-    "collapsed": true
+    "width": 200
   },
   "right": {
     "id": "c6427cb28dc1e5f8",
@@ -192,30 +191,31 @@
   },
   "active": "515629fe4c020464",
   "lastOpenFiles": [
+    "code/src/games/spr/__pycache__/mode_2p.cpython-313.pyc.140527084523312",
+    "code/src/games/spr/__pycache__/common.cpython-313.pyc",
+    "code/src/games/spr/common.py",
+    "code/src/games/pong/__pycache__/common.cpython-313.pyc",
+    "code/src/games/pong/common.py",
+    "code/src/games/guess_number/__pycache__/common.cpython-313.pyc.139746887224656",
+    "code/src/games/guess_number/__pycache__/mode_local.cpython-313.pyc.140153501944528",
+    "code/src/games/guess_number/__pycache__/common.cpython-313.pyc.140153501945168",
+    "code/src/games/memory/__pycache__/common.cpython-313.pyc",
+    "code/src/games/memory/common.py",
+    "code/src/games/guess_number/__pycache__/common.cpython-313.pyc.139933235973456",
+    "screenshots/tetrisSinglePlayerV1.png",
+    "screenshots/tetrisTwoPlayerV1.png",
+    "screenshots/breakoutVersion1.png",
+    "screenshots/Pasted image.png",
     "!Pasted image 20260828113834.png.md",
     "readme.md",
     "screenshots/Pasted image 20260828131606.png",
     "screenshots/Pasted image 20260828113834.png",
-    "code/src/games/memory/ai.py",
-    "code/src/games/memory/main.py",
     "Pasted image 20260828131606.png",
-    "code/src/games/spr/main.py",
-    "code/src/games/guess_number/main.py",
     "Pasted image 20260828113834.png",
     "screenshots/Screenshot 2026-08-21 112531.png",
     "screenshots/Screenshot 2026-08-28 112531.png",
-    "screenshots",
-    "Screenshot 2026-08-28 112531.png",
-    "code/src/games/pong/__pycache__/ai.cpython-313.pyc",
-    "code/src/games/pong/ai.py",
-    "code/src/games/pong/main.py",
-    "code/src/games/pong/__pycache__/pong_ai.cpython-313.pyc",
-    "code/src/games/pong/__pycache__",
     "Proposal.md",
     "Proposal 1.md",
-    "Proposal.md.md",
-    "media/Heading (3).png",
-    "media/Heading (2).png",
-    "media/Heading (1).png"
+    "Proposal.md.md"
   ]
 }

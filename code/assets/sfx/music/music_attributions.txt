@@ -1,0 +1,43 @@
+================================================================================
+MUSIC ATTRIBUTIONS
+================================================================================
+
+MAIN MENU & SETTINGS SCREEN
+- File: main_theme.wav
+- Source: https://www.youtube.com/watch?v=rJhP89J-W8c
+- Creator: [@Ladybug-gn1lf]
+
+PONG
+- File: pong.wav
+- Source: https://freesound.org/people/josefpres/sounds/653724/
+- Creator: josefpres
+- License: Creative Commons 0
+
+SCISSORS PAPER ROCK
+- File: SPR.wav
+- Source: https://freesound.org/people/josefpres/sounds/655083/
+- Creator: josefpres
+- License: Creative Commons 0
+
+CONCENTRATION
+- File: concentration.wav
+- Source: https://freesound.org/people/josefpres/sounds/653804/
+- Creator: josefpres
+- License: Creative Commons 0
+
+BREAKOUT
+- File: breakout.wav
+- Source: https://freesound.org/people/josefpres/sounds/657566/
+- Creator: josefpres
+- License: Creative Commons 0
+
+GUESS THE NUMBER
+- File: guessNumber.wav
+- Source: https://freesound.org/people/josefpres/sounds/657651/
+- Creator: josefpres
+- License: Creative Commons 0
+
+TETRIS
+- tetris.wav
+- Creator: GregorQuendel
+- License: https://creativecommons.org/licenses/by-nc/4.0/Follow

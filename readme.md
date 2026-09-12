@@ -18,14 +18,14 @@ An original desktop arcade collection built with Pygame. The app presents a caro
 <div style="page-break-after: always;"></div>
 ### Essential Features
 - **Core games** working with basic graphics, sound, and controls.
-- **Three play modes** per game: human vs. human, human vs. AI, and pure single‑player where applicable (for games like Breakout).
+- **Three play modes** per game: human vs. human, human vs. AI, and pure single‑player where applicable (for games like Breakout). Modes are auto-detected from each game's `__init__.py` — the carousel shows a mode selection screen with buttons built automatically.
 - **Menus and navigation**:
-  - **Main Menu**: A carousel game select, navigated via left/right arrow keys. Press **E** on a selected game to launch; from there, enter username and then choose game mode and difficulty.
-  - **Settings** *(refer to Designs sections)*: Press **S** on the menu to open the settings screen ("General" tab by default). Change things like sound volume and later AI difficulty or other options. The Controls screen can be selected from the side panel inside Settings (as per designs at the bottom of this page). Press **ENTER** to save, **ESC** to exit back to the main menu.
-  - **Scoreboard**: Press **T** on the menu to view saved stats for the currently highlighted game; left/right arrow switches between game scoreboards.
-  - **Game Pause**: Press **ESC** during any game to bring up a classic pause menu (inspired by Angry Birds style) – refer to the inspiration section for reference.
-- **Asset management**: a single config file stores file paths and sizes; a startup routine loads and scales all images and sounds.
-- **Modular code architecture**: the menu returns a state, and the main loop uses a switch/case to run the correct game module – easy to add new games later.
+  - **Main Menu**: A carousel game select, navigated via left/right arrow keys. Press **E** on a selected game to launch; if the game has multiple modes, a mode select screen appears first.
+  - **Pause Menu**: Press **ESC** during any game to bring up the pause overlay with options to resume (ESC), quit to menu (Q), or open settings (S — placeholder for now).
+  - **Settings** *(stub)*: Press **S** on the carousel to open the settings screen. Coming soon.
+  - **Scoreboard** *(stub)*: Press **T** on the carousel to view saved stats. Coming soon.
+- **Asset management**: a single config file stores file paths and sizes; a startup routine loads and scales all images and sounds. Missing files are handled gracefully (no crashes).
+- **Modular code architecture**: each game mode extends `GameBase` from `src/core/game_base.py`, the state machine treats everything the same. Modes are separate `.py` files in each game's folder (`mode_1p.py`, `mode_2p.py`, `mode_ai.py`).
 ---
 
 ### Add‑ons (If time bids)
@@ -254,9 +254,125 @@ Created basic memory match using numbers using numbers as card faces and a basic
 **Stage 7 - [07/09/2026 / Week 6]**
 Created very basic breakout (Arkanoid) and making sure to import same collision system that I used from pong. Two issues presented: Ball would kill bricks if perfectly on a bricks edge, passing it to the next, secondly ball would not get push up or down from paddle depending on which corner hit. The same ball wall clipping bug fix was used in the same manner to fix both clipping issues found.
 
+![[breakoutVersion1.png]]
+
+Built the carousel menu system with the starfield background from starynight.py so the menu looks dynamic instead of a static image. The carousel loads cover art from the assets/gui/cover-art folder using the filenames that match each game — no manual mapping needed per game thanks to a central game registry in settings.py. Left/right arrows scroll through covers, E or Enter launches the selected game.
+
+Also added Tetris as a new game after a suggestion from Dexter, they said it would give the arcade box more depth, and I agree. Gave it a two-player mode inspired by SNES Tetris & Dr. Mario: each player has their own board side by side (P1 uses arrow keys + space, P2 uses WASD + shift), and if one player's stack hits the top of their board the other player wins. The blocks are rendered as coloured rectangles so there are no assets needed thank god.
+
+Wired up a state machine in main.py so the carousel menu can launch any game and ESC returns to the menu. Had to wrap each game in a small class (PongGame, BreakoutGame, etc.) so they all respond to the same handle_event/update/draw interface seeing as the existing games each had their own while loop before, so I left those loops inside if __name__ blocks for standalone testing.
+
+Made settings.py as a central config for all file paths, colours, and game names. Assets loader was updated to read music from the music subfolder inside sfx/ (where the actual .wav files live). Scoreboard and Settings screens are filled out with placeholder text for now. I will be planning to fill them in with saved stats and volume controls.
+
+Added a MusicManager in src/engine/music_manager.py that handles the menu theme and game-specific music switching. It uses pygame.mixer.music so it's lightweight — no threading needed, just plays on top of the game loop. The carousel menu starts the main_theme.wav, and whenever a game launches the wrapper swaps to that game's track (breakout.wav, tetris.wav, etc.). On the SFX side I wired in sounds for Tetris (line clear = num_correct.wav, game over = life_lost.wav), Breakout (paddle hits, brick breaks, powerup collects, life lost), Guess Number (correct/wrong), Scissors Paper Rock (selection confirm), and Memory Match (card flip up/down, match found/wrong). Pong is missing its SFX file still so that one just has nothing play for now — but the placeholders are set up so once I get the pong.wav (the SFX one, not the music one) it'll just work.
+
+*Next session I will fix the draw order (layering) of game covers on main menue along with making sure all game share floating screen size of main menue while allowing fullscreen*. Then I need to implement score saving with .json files (the data/ modules are created but not connected yet), add the "press T for scoreboard" and "press S for settings" navigation from the carousel, and maybe add a visual game-over summary screen to each game.*
 
 
-*(Add more stages if needed.)*
+*Creating base cover art using Canva.com*
+![[screenshot-createingcoverartoncanva-07-09-2026.png]]
+
+*Easy to fix layering issue of main menu*
+![[screenshot-2026-09-07_23-19-55.png]]
+
+**Stage 8 - [09/09/2026 / Major Rewrite]**
+>Holy moly. This was a big one. I basically ripped the whole thing apart and put it back together properly. Here's the rundown of what happened and why.
+
+>The main problem was that every game had its own copy-pasted colours, sizes, and input handling. Pong's controls felt awful because if you held W (up) then pressed S (down), nothing happened until you released W first. My old code only checked KEYDOWN events, not what keys were *currently* being held. So I built `GameKeyHandler` in `input_handler.py` that tracks keys in an ordered list. The most recently pressed key is the "active" one. If you hold W then press S, S becomes active immediately. This made Pong actually playable.
+
+>Another pain point: every game had `WHITE = (255, 255, 255)` and `WIDTH = 950` declared at the top of its own file. Six files. Six times. I moved everything into `src/core/constants.py`, which holds colours, paddle sizes, ball sizes, Tetris piece shapes, all of it. Every game now imports from there. If I want to change the paddle width across every game, I change one number.
+
+>The mode selection was also a mess. Tetris had its own menu screen with hardcoded rects, Memory had its own, Guess Number had its own. Each one did the same thing differently, since I was coding everything in different sessions. I built `ModeSelectScreen` in `src/menu/mode_select.py` that reads a `MODES` dict from each game's `__init__.py` and auto-builds buttons. Now if I add a new mode to a game, I just drop a new `mode_*.py` file in that game's folder and add it to the MODES dict and now the screen builds itself.
+
+>Each game mode now extends `GameBase` from `src/core/game_base.py` so the state machine treats everything the same. Clean `startup()` / `handle_event()` / `update()` / `draw()` / `cleanup()` interface. No more guessing what methods a game has.
+
+>Added a shared pause menu (`PauseMenu` in `src/menu/pause_menu.py`) that every game gets for free. ESC pauses, Q quits to menu, S opens settings, ESC resumes. The wrapper in `main.py` handles event routing so the games themselves don't need to know anything about pause.
+
+>I also fixed the carousel draw order. Before, covers were drawn left-to-right in list order, which meant the right-side cover could overlap the selected one and that made it look unprofessional. Now I split the draw into two passes: first all non-selected covers, then the selected one on top.
+
+>Found and fixed a bug in Memory's `evaluate_match()` where the "flip cards back on mismatch" code was in a broken second `else` clause at the wrong indentation level. The old code had:
+>```python
+>if match: ...
+>else:     # mismatch handling
+>    ...
+>else:     # BUG: this was dead code — cards never flipped back
+>```
+>Took me longer than I'd like to admit staring at that one.
+
+>All game SFX and music loading is handled with try/except. If a sound file is missing, the game just doesn't play that sound instead of crashing.
+
+>**What I learned:** Don't let six files diverge on the same constants. Put them in one place from day one. Also, key handling in games needs to think about *held* keys, not just pressed keys, the distinction makes or breaks gameplay feel.
+
+>**Still to do:** Settings screen and Scoreboard screen (both placeholders), per-game asset manifests (assets.json), actual stat saving/loading from the data/ files, and maybe some polish on the visual side now that the motor runs clean.
+
+>**Files changed/created this stage:**
+>- `src/core/constants.py` - new: shared colours, sizes, speeds
+>- `src/core/game_base.py` - new: base class for all game modes
+>- `src/menu/pause_menu.py` - new: shared ESC-overlay pause
+>- `src/menu/mode_select.py` - new: auto-building mode picker
+>- `src/engine/input_handler.py` - rewritten: proper held-key tracking with "most recent wins" logic
+>- `src/menu/carousel_menu.py` - fixed: draw order (selected on top), mode select integration
+>- `main.py` - updated: pause menu handling, mode select support, new game wrapper
+>- `settings.py` - updated: GAME_REGISTRY with module paths
+>- `src/games/breakout/mode_1p.py` - new rewrite
+>- `src/games/pong/mode_ai.py`, `mode_2p.py` - new rewrites with fixed input
+>- `src/games/tetris/mode_1p.py`, `mode_2p.py` - new rewrites with shared Board class
+>- `src/games/memory/mode_1p.py`, `mode_2p.py`, `mode_ai.py` - new rewrites with fixed match logic
+>- `src/games/guess_number/mode_ai.py`, `mode_local.py` - new rewrites
+>- `src/games/spr/mode_ai.py`, `mode_2p.py` - new rewrites
+>- `code/structure.txt` - new: project structure overview for anyone picking this up
+
+**Stage 9 - [9/09/2026 / DAS + Draw Order Fix]**
+>Smaller session today but two important fixes that make a big difference in feel.
+
+>**Carousel draw order - another try of fixing**
+>The stage 8 fix was just a bandaid: just drew "non-selected first, selected last". That meant left-side covers were drawn in list order (fine), but right-side covers were also drawn in list order, so the furthest right cover would paint over the one next to it. Looked fine in some positions, wrong in others. The proper fix is:
+>1. Left of selected: draw furthest-left first, work inward (so the nearest left cover is on top of the further ones)
+>2. Right of selected: draw closest-to-selected first, work outward (so the nearest right cover paints over the further ones)
+>3. Selected: dead last
+>
+>So for a layout like covers 1 through 6 where 6 is selected, the draw order is: 1, 2, 3, 4, 5, 6 (furthest left first, then closest left, then closest right, then furthest right, then, selected). If 3 is selected from the same layout: 1, 2, 4, 5, 6, 3. Each side stacks properly.
+
+>**Tetris DAS**
+>I'd never actually tested the Tetris movement after the rewrite, I just set generic DAS numbers and moved on. When I actually played it, the piece would start drifting almost immediately when you held a direction, which felt wrong for Tetris. It's fine for Pong/Breakout where you want instant response, but Tetris needs that deliberate "hold, wait for it... there it goes" rhythm.
+>
+>Changed both `mode_1p.py` and `mode_2p.py` to use `DAS_DELAY=167, DAS_REPEAT=16`. Also fixed the DAS check to only repeat the most-recently-held direction (using `get_active()`) instead of blindly checking both left and right each frame, this prevents the two fighting each other if both buttons somehow register.
+>
+>**What I learned:** DAS timing isn't one-size-fits-all. What feels snappy in Pong (instant held-key following) feels twitchy in Tetris. The DAS values exist for a reason, they match the rhythm of placing pieces in a grid where precision matters more than speed.
+
+>**Still to do:** Same as last time - Settings, Scoreboard, stat saving with names. The motor runs. Now I can start polishing. Once this is all done, better AI can be implemented for games like spr, pong, and memory match.
+
+**Stage 10 - [10/09/2026 / Carousel Rework — 3-Item Viewport + Infinite Loop]**
+>Full carousel rewrite. The old system drew all N covers every frame with a clunky z-index sort that broke as soon as you had more than ~5 games. 
+>New approach: only ever show 3 covers, the left neighbor, selected, right neighbor. Draw order is simply 1=left, 2=right, 3=selected (back to front). Scales are exactly 1.0 for selected, 0.8 for neighbors which make it a crisp, predictable with no more fading or magic numbers.
+>
+>**Infinite looping** - Pressing left on the first game wraps to the last, and pressing right on the last wraps to the first. The shortest-path interpolation during scrolling makes it feel like a real carousel rather than a film reel.
+>
+>**Smooth scrolling** - the fractional part of `current_offset` drives a slide transform on all three covers simultaneously so they glide between positions instead of snapping. The scrolling also normalises diffs across the wrap boundary so you never see a full-circle spin.
+>
+>**What I learned:** A 3-slot viewport is way simpler than trying to dynamically order N covers every frame. The modular wrapping math was the only tricky part,  specifically normalising the shortest-path diff so the smooth scroll doesn't take the long way around the circle. Using `_mod_dist` and `_wrap_index` keeps all the wrap logic in two helper functions rather than sprinkled through the update loop.
+>
+>**Still to do:** Same as last time... Settings, Scoreboard, stat saving with names, and then AI. Seeing as the motor now runs well, I can start polishing.
+
+**Stage 11 - [12/09/2026 / common.py - Tidy up of Game Modes]**
+>Another big one, but this time it's all about cleanup. Every game with multiple modes (Pong, SPR, Guess Number, Memory) had the same problem: copy-pasted code. Memory Match was the worst of all. It had three mode files each containing their own card grid logic, menu drawing, and event handling, with minor tweaks between them. It worked, but changing anything meant fixing it in three places.
+>
+>**The fix:** Each multi-mode game now has a `common.py` that holds everything the modes share:
+>- **Pong** - `paddle_bounce()`, `wall_bounce()`, `draw_pong_board()`, and `PongBaseMode` with shared `_update_ball()`, `_check_paddle_hit_left/right()`, and `_check_scoring()`. The AI and 2P modes now just set up their paddles and call the base methods. 50 lines of mode-specifics each vs. 100+ lines of copy-pasted physics.
+>- **Memory Match** - `MemoryBaseMode` handles the entire card grid: flipping, matching, menu drawing, scroll wheel support, game-over overlay. The three modes (`mode_1p.py`, `mode_2p.py`, `mode_ai.py`) only override `_on_match()`, `_on_mismatch()`, `_check_game_over()`, and a few HUD helpers. Mode 1P dropped from 200+ lines to 40. Mode AI went from a tangled mess of "is it my turn yet?" logic to a clean 77 lines with just `_execute_ai_turn()`.
+>- **SPR** - `evaluate_round()`, `draw_title_bar()`, `draw_main_card()`, `draw_game_over_results()`, and `SPRBaseMode` with shared event routing. The 2P and AI modes now only define their key mappings, playing-state UI, and round resolution. No more duplicated "Scissors beats Paper" logic in two files.
+>- **Guess Number** - `GuessNumBaseMode` with shared input validation, difficulty buttons, and the typing/backspace logic. `GuessNumUI` provides static drawing helpers. The AI mode and Local 2P mode just plug in their own flow (coin flip for 2P, immediate start for AI).
+>
+>Breakout only has one mode so it didn't need the treatment, and Tetris already had a shared `Board` class that both modes imported,that was the template I followed for everything else.
+>
+>**What I learned:** If you're copy-pasting between files and changing three things each time, you don't have three modes, it is one mode and two variations. A shared base class with override points is way easier to maintain than three nearly-identical files. Memory's `_on_match()/_on_mismatch()/_check_game_over()` hooks are a good pattern: the base does the heavy lifting, the subclasses just define what *happens* when things turn on.
+>
+>**Still to do:** Settings screen, Scoreboard, stat saving.
+>**Problems to fix:** pong and breakout ball reset positioning 
+
+**Stage 12 - [12/09/2026 / Settings + Scoreboard screen + Username Stat Saving]**
+
+
 
 ---
 

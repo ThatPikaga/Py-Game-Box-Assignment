@@ -11,12 +11,12 @@ class Brick(pygame.Rect):
 def create_grid(rows, cols, width, height, offset_top=60, padding=4):
     bricks = []
     colours = [
-        (255, 0, 0),     # Red
-        (255, 165, 0),   # Orange
-        (255, 255, 0),   # Yellow
-        (0, 255, 0),     # Green
-        (0, 0, 255),     # Blue
-        (128, 0, 128)    # Purple
+        (255, 0, 0), # Red
+        (255, 165, 0), # Orange
+        (255, 255, 0), # Yellow
+        (0, 255, 0), # Green
+        (0, 0, 255), # Blue
+        (128, 0, 128) # Purple
     ]
     
     for row in range(rows):

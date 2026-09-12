@@ -1,0 +1,119 @@
+# =============================================================
+# P Y C A D E   —   P R O J E C T   S T R U C T U R E
+# =============================================================
+#
+# If you're reading this: welcome.
+# Here's how everything fits together.
+#
+# The golden rule: each game lives in its own folder under
+# src/games/ and declares its modes in __init__.py.
+# The rest of my app discovers modes automatically.
+#
+#
+# ==== ROOT =========================================================================
+#
+#   main.py                  — boots pygame, loads assets, runs state machine
+#   settings.py              — window size, FPS, game registry, asset paths
+#   assets_loader.py         — loads all images, sounds, music at startup
+#
+#   assets/                  — all un-compiled media
+#   ├── gui/
+#   │   ├── cover-art/       — game selection images (PNG)
+#   │   └── backgrounds/     — starfield etc.
+#   └── sfx/
+#       ├── music/           — background music (WAV)
+#       └── *.wav/.mp3       — sound effects
+#
+#   data/                    — per-game stats files (scores, high scores)
+#   └── *_stats.py
+#
+#
+# ==== src/engine/ — SHARED ENGINE LAYER ==================================
+#
+#   state_manager.py         — switches between menu / game / pause states
+#   base_state.py            — parent class for all states
+#   input_handler.py         — key tracking with "most recent wins" logic
+#   music_manager.py         — plays/loops/fades background tracks
+#
+#
+# ==== src/core/ — SHARED GAME INFRASTRUCTURE ====================================
+#
+#   constants.py             — ONE file with every colour, size, speed const.
+#                              Every game imports from here.  No more re-
+#                              declaring WHITE = (255,255,255) in six files.
+#   game_base.py             — base class that every game mode inherits from.
+#                              Has startup(), update(), draw(), handle_event()
+#                              and self.pause_requested for the shared pause.
+#
+#
+# ==== src/menu/ — SCREENS ===========================================================
+#
+#   carousel_menu.py         — main game carousel with starfield bg.
+#                              Fixed: selected cover draws LAST so it's on top.
+#   mode_select.py           — generic mode picker. Reads MODES from each
+#                              game's __init__.py and auto-builds buttons.
+#   pause_menu.py            — shared ESC overlay. Q=quit, S=settings, ESC=resume.
+#   settings_menu.py         — placeholder for now
+#   scoreboard.py            — placeholder for now
+#   menu_entry.py            — obsolete, kept for referance
+#
+#
+# ===== src/games/ — EACH GAME =======================================================
+#                                                                                     
+# Each game follows this pattern:
+#
+#   breakout/
+#   ├── __init__.py          — exports MODES dict
+#   ├── mode_1p.py           — each mode in its own file
+#   ├── blocks.py            — brick grid logic (shared between modes)
+#   ├── powerups.py          — falling powerup items
+#   └── main.py              — old standalone (kept for reference, not used)
+#
+#   pong/
+#   ├── __init__.py
+#   ├── mode_ai.py
+#   ├── mode_2p.py
+#   ├── ai.py                — paddle AI
+#   └── main.py              — old
+#
+#   tetris/ ...
+#   memory/ ...
+#   guess_number/ ...
+#   spr/ ...
+#
+#
+# ===== HOW TO ADD A NEW GAME ==========================
+#
+# 1.  Create a folder under src/games/your_game/
+#
+# 2.  Write a __init__.py that imports each mode class and sets:
+#
+#         MODES = {
+#             "1 Player": "mode_1p",
+#             "2 Players": "mode_2p",
+#         }
+#
+# 3.  Create mode_1p.py (extends GameBase from core/game_base.py):
+#
+#         from src.core.game_base import GameBase
+#         from src.core.constants import SCREEN_WIDTH, SCREEN_HEIGHT, ...
+#
+#         class Your1PMode(GameBase):
+#             MODES = ... (auto-detected from __init__.py)
+#
+# 4.  Add the game to settings.py GAME_REGISTRY:
+#
+#         "Your Game": {
+#             "module": "src.games.your_game",
+#             "cover": "Your Cover.png",
+#         }
+#
+# 5.  Place cover art in assets/gui/cover-art/
+#
+# 6.  Add music/sfx keys to assets_loader.py if needed.
+#
+# That's it.  The carousel finds it, the mode select auto-builds
+# buttons, and the wrapper provides the pause menu for free.
+#
+#
+######################################################################################
