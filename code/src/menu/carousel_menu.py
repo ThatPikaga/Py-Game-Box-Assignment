@@ -1,3 +1,7 @@
+
+
+
+
 # ======[ C A R O U S E L   M E N U ]======
 # main game selection screen with starfield background
 # arrow keys scroll, E/Enter launches
@@ -272,7 +276,7 @@ class CarouselMenu:
             self.mode_select.draw(surface)
             return
 
-        # ── Background ──
+        # == Background ==
         if self.starfield:
             self.starfield.draw(surface)
         else:
@@ -287,7 +291,7 @@ class CarouselMenu:
         centre_y = 260
         n = self.n
 
-        # ── Interpolation approach ──
+        # == Interpolation approach ==
         # We treat the carousel as a continuous float offset.
         # For each "slot" (-1 = left, 0 = centre, +1 = right), we figure out
         # which game index belongs there by looking at the integer-rounded

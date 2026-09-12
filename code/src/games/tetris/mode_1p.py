@@ -44,7 +44,7 @@ class Board:
         self._generate_next()
         self._spawn_piece()
 
-    # ── piece helpers ──
+    # ===== piece helpers =====
 
     def _random_piece(self):
         """Pick a random piece name + shape from the constants."""
@@ -75,7 +75,7 @@ class Board:
         """Re-roll the 'next' piece."""
         self.next_piece = self._random_piece()
 
-    # ── rotation & collision ──
+    # ===== rotation & collision =====
 
     @staticmethod
     def _rotated(shape, times):
@@ -98,7 +98,7 @@ class Board:
                         return True
         return False
 
-    # ── locking & line clearing ──
+    # ===== locking & line clearing =====
 
     def _lock(self):
         """Bake the current piece into the grid and clear any full lines."""
@@ -142,7 +142,7 @@ class Board:
             gy += 1
         return gy
 
-    # ── movement API ──
+    # ===== movement API =====
 
     def move_left(self):
         if self.current and not self.game_over:
@@ -273,12 +273,12 @@ class Tetris1PMode(GameBase):
         if self.state != "PLAYING":
             return
 
-        # ── check game over ──
+        # ===== check game over =====
         if self.board.game_over:
             self.state = "GAME_OVER"
             return
 
-        # ── gravity ──
+        # ===== gravity =====
         self.gravity_timer += dt
         if self.gravity_timer >= self.gravity_interval:
             self.gravity_timer = 0
@@ -293,7 +293,7 @@ class Tetris1PMode(GameBase):
         level = self.board.lines_cleared // 10
         self.gravity_interval = max(100, 500 - level * 40)
 
-        # ── DAS (left / right repeat) ──
+        # ===== DAS (left / right repeat) =====
         # only repeat the most-recently-held direction, not both simultaneously
         active = self.input.get_active()
         if active == "LEFT":
@@ -310,11 +310,11 @@ class Tetris1PMode(GameBase):
         ox = (SCREEN_WIDTH - TETRIS_BOARD_W) // 2
         oy = 70
 
-        # ── draw board background & border ──
+        # ===== draw board background & border =====
         pygame.draw.rect(surface, COL_BOARD_BG, (ox, oy, TETRIS_BOARD_W, TETRIS_BOARD_H))
         pygame.draw.rect(surface, COL_BOARD_BDR, (ox, oy, TETRIS_BOARD_W, TETRIS_BOARD_H), 2)
 
-        # ── draw locked cells ──
+        # ===== draw locked cells =====
         for r in range(TETRIS_ROWS):
             for c in range(TETRIS_COLS):
                 clr = self.board.get_grid_cell(r, c)
@@ -324,7 +324,7 @@ class Tetris1PMode(GameBase):
                             TETRIS_CELL - 2, TETRIS_CELL - 2)
                     pygame.draw.rect(surface, colour, rect)
 
-        # ── draw ghost piece + current piece ──
+        # ===== draw ghost piece + current piece =====
         if self.board.current and not self.board.game_over:
             name, shape, px, py, rot = self.board.current
             rotated = Board._rotated(shape, rot)
@@ -348,14 +348,14 @@ class Tetris1PMode(GameBase):
                             (gx, cy, TETRIS_CELL - 2, TETRIS_CELL - 2)
                         )
 
-        # ── score ──
+        # ===== score =====
         score_text = self.font_large.render(f"Score: {self.board.score}", True, COL_TEXT)
         surface.blit(score_text, (ox, oy - 45))
 
         lines_text = self.font_body.render(f"Lines: {self.board.lines_cleared}", True, COL_TEXT)
         surface.blit(lines_text, (ox, oy - 20))
 
-        # ── next piece preview ──
+        # ===== next piece preview =====
         if self.board.next_piece:
             nx = ox + TETRIS_BOARD_W + 20
             ny = oy + 40
@@ -374,7 +374,7 @@ class Tetris1PMode(GameBase):
                              preview_cell - 2, preview_cell - 2)
                         )
 
-        # ── GAME OVER overlay ──
+        # ===== GAME OVER overlay =====
         if self.state == "GAME_OVER":
             overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
             overlay.fill((0, 0, 0, 180))

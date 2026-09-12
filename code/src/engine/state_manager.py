@@ -1,4 +1,4 @@
-# state_manager.py — Handles switching between menu, games, scoreboard, etc.
+# state_manager.py - Handles switching between menu, games, scoreboard, etc.
 # Inspired by the Clear Code Pygame state machine tutorial
 
 import pygame
@@ -15,7 +15,7 @@ class StateManager:
     def change(self, state_name, persist=None):
         # Switch to a new state, optionally passing data
         if state_name not in self.states:
-            print(f"  [StateManager] Unknown state '{state_name}' — staying put.")
+            print(f"  [StateManager] Unknown state '{state_name}' - staying put.")
             return
 
         self.current.cleanup()

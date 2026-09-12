@@ -20,7 +20,7 @@ class PongAIMode(PongBaseMode):
         self.name = "Pong Vs AI"
         self.state = "PLAYING"
 
-        # ── objects —─
+        # === objects ===
         self.player = make_paddle_rect(50)
         self.opponent = make_paddle_rect_right()
         self.ball = make_ball_rect()
@@ -57,7 +57,7 @@ class PongAIMode(PongBaseMode):
         if self.state != "PLAYING":
             return
 
-        # ── player movement (fixed: uses most-recent held key) ──
+        # === player movement (fixed: uses most-recent held key) ===
         active = self.input.get_active()
         if active == "P1_UP":
             self.player.y -= TOTAL_SPEED

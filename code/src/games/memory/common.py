@@ -10,7 +10,7 @@ import random
 from src.core.game_base import GameBase
 from src.core.constants import * # Colours
 
-# ── Memory Specific Settings ───────────────────────────────────────
+# == Memory Specific Settings =======================================
 MEMORY_GRID_PAD_X = 12
 MEMORY_GRID_PAD_Y = 12
 MEMORY_GRID_START_Y = 100
@@ -30,13 +30,13 @@ STATE_MENU = "MENU"
 STATE_PLAYING = "PLAYING"
 STATE_GAME_OVER = "GAME_OVER"
 
-# ── UI Layout Rects ────────────────────────────────────────────────
+# == UI Layout Rects ================================================
 MENU_RECT = pygame.Rect(200, 100, 600, 550)
 GAME_OVER_BOX = pygame.Rect(250, 280, 500, 180)
 HUD_RECT = pygame.Rect(30, 15, SCREEN_WIDTH - 60, 60)
 
 
-# ── Classes ────────────────────────────────────────────────────────
+# == Classes ========================================================
 class Card:
     def __init__(self, value, index):
         self.value = value
@@ -89,7 +89,7 @@ class MenuButton:
         return self.rect.collidepoint(pos)
 
 
-# ── Base Mode ──────────────────────────────────────────────────────
+# == Base Mode ======================================================
 class MemoryBaseMode(GameBase):
     menu_title = "MEMORY MATCH"
     scroll_hint = "* Use Mouse Wheel to scroll *"

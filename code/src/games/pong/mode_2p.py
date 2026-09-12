@@ -17,7 +17,7 @@ class Pong2PMode(PongBaseMode):
         super().__init__()
         self.name = "Pong 2 Players"
 
-        # ── objects —─
+        # ====== objects =====
         self.p1 = make_paddle_rect(50)
         self.p2 = make_paddle_rect_right()
         self.ball = make_ball_rect()

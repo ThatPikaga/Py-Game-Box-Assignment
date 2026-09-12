@@ -1,4 +1,4 @@
-# ======[ M E M O R Y   —   V S   A I ]======
+# ======[ M E M O R Y   --   V S   A I ]======
 
 import random
 import pygame

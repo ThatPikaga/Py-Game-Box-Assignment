@@ -12,8 +12,8 @@
 import pygame
 from src.core.constants import SCREEN_WIDTH, SCREEN_HEIGHT
 
-# ── Arcade-style action map ────────────────────────────────────────
-# maps logical actions to physical keys — easy to remap later
+# ========================= Arcade-style action map ========================================
+# maps logical actions to physical keys - easy to remap later
 _ACTION_MAP = {
     "MOVE_UP":      pygame.K_UP,
     "MOVE_DOWN":    pygame.K_DOWN,
@@ -90,7 +90,7 @@ class KeyTracker:
         return (elapsed - delay) % repeat < 20
 
     def clear(self):
-        """Reset everything — use when switching states."""
+        """Reset everything - use when switching states."""
         self._held_actions.clear()
         self._press_times.clear()
 
@@ -102,7 +102,7 @@ class KeyTracker:
         return None
 
 
-# ── Game-specific key maps ─────────────────────────────────────────
+# ========================= Game-specific key maps =========================================
 # Each game has its own logical keys; the handler maps them generically
 
 GAME_KEY_MAPS = {

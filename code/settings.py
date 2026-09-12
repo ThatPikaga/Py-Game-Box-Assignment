@@ -34,9 +34,6 @@ DATA_DIR = os.path.join(BASE_DIR, "data")
 FPS = 60
 CAPTION = "PyCade - Retro Arcade Box"
 
-# == Fonts ========================================================
-# FONT_TITLE_SIZE, FONT_HEADER_SIZE, FONT_BODY_SIZE imported from constants
-
 # == Carousel ======================================================
 CAROUSEL_VISIBLE = 3
 CAROUSEL_COVER_W = 400
@@ -44,10 +41,12 @@ CAROUSEL_COVER_H = 400
 CAROUSEL_COVER_Y = 260
 CAROUSEL_GAP = 40
 
-# == Game Registry ========================================
+# =============== Game Registry ========================================================================
 # Order determines position in the carousel
 # Each entry: display_name -> (module_prefix, cover_filename)
-# The game's __init__.py exports MODES so the mode select screen works
+# The game's __init__.py exports MODES so the mode select screen works, make sure that
+# you make correct edits to the __init__.py of your game and include it in here to make
+# sure it loads.
 
 GAME_REGISTRY = {
     "Breakout": {

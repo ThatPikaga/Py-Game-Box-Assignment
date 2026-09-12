@@ -1,5 +1,5 @@
-# ======[ B R E A K O U T   —   1   P L A Y E R ]======
-# single player breakout — smash all the bricks
+# ======[ B R E A K O U T   --   1   P L A Y E R ]======
+# single player breakout - smash all the bricks
 # input uses the new handler so holding left then pressing right
 # actually moves right without releasing left (same key-repeat fix as pong)
 
@@ -75,7 +75,7 @@ class Breakout1PMode(GameBase):
         return None
 
     def update(self, dt):
-        # ── paddle movement (fixed: most-recent key held) ──
+        # =============== paddle movement (fixed: most-recent key held) =================
         active = self.input.get_active()
         if active in ("MOVE_LEFT", "MOVE_LEFT_ALT"):
             self.paddle.x -= PADDLE_MAX_SPEED
