@@ -1,7 +1,3 @@
-
-
-
-
 # ======[ C A R O U S E L   M E N U ]======
 # main game selection screen with starfield background
 # arrow keys scroll, E/Enter launches
@@ -21,6 +17,7 @@ import sys
 import os
 import importlib
 from src.menu.mode_select import ModeSelectScreen
+from src.menu.name_entry import NameEntryScreen
 
 
 class CarouselMenu:
@@ -32,7 +29,7 @@ class CarouselMenu:
     def __init__(self):
         self.name = "MAIN_MENU"
         self.done = False
-        self.next_state = None       # can be "MODE_SELECT" or the mode obj directly
+        self.next_state = None # can be "MODE_SELECT" or the mode obj directly
         self.persist = {}
         self.selected_index = 0
         self.font_title = None
@@ -50,13 +47,16 @@ class CarouselMenu:
         self._cover_cache = {}
 
         # mode select screen we might show
-        self.mode_select = None
+        self.mode_select = None      
+        # name entry screen we might show (comes before mode select)
+        self.name_entry = None
 
     def startup(self, persist):
         self.persist = persist
         self.done = False
         self.next_state = None
         self.mode_select = None
+        self.name_entry = None
         self._cover_cache = {}
 
         settings = persist.get("settings")
@@ -110,6 +110,55 @@ class CarouselMenu:
         return raw % self.n
 
     def handle_event(self, event):
+        # if name entry is active, route to that first
+        if self.name_entry:
+            self.name_entry.handle_event(event)
+            if self.name_entry.done:
+                if self.name_entry.next_state == "MAIN_MENU":
+                    # User cancelled - go back to carousel
+                    self.name_entry = None
+                    return
+                
+                # Username confirmed - store it and proceed to mode select or launch
+                self.persist["player_username"] = self.name_entry.username
+                
+                # Now check if we should show mode select or launch directly
+                game_name = self.name_entry.game_name
+                module_prefix = self.persist.get("pending_game_module", "")
+                
+                try:
+                    mod = importlib.import_module(f"{module_prefix}")
+                    modes = getattr(mod, "MODES", None)
+                except:
+                    modes = None
+                
+                if modes and len(modes) > 0:
+                    # Show mode select screen
+                    self.mode_select = ModeSelectScreen(game_name, module_prefix, modes)
+                    self.mode_select.selected_label = list(modes.keys())[0]
+                else:
+                    # Launch game directly
+                    try:
+                        for attr_name in dir(mod):
+                            attr = getattr(mod, attr_name)
+                            # classes defined directly in a package's __init__.py have
+                            # __module__ == module_prefix, NOT "module_prefix.__init__"
+                            # (that was the bug - this check never matched anything,
+                            # so any game without a MODES dict, like Breakout, silently
+                            # failed to launch here)
+                            if isinstance(attr, type) and attr.__module__ == module_prefix:
+                                game_instance = attr()
+                                self.persist["launched_game"] = game_instance
+                                self.persist["game_name"] = game_name
+                                self.done = True
+                                self.next_state = game_instance
+                                return
+                    except Exception as e:
+                        print(f"  [Carousel] Error loading default class from {module_prefix}: {e}")
+                
+                self.name_entry = None
+            return
+        
         # if mode select is active, route to that instead
         if self.mode_select:
             self.mode_select.handle_event(event)
@@ -130,11 +179,11 @@ class CarouselMenu:
                 self._play_select()
                 self._launch_game()
             elif event.key == pygame.K_t:
-                # Scoreboard — placeholder for now
-                pass
+                # Scoreboard - open with current game context
+                self._open_scoreboard()
             elif event.key == pygame.K_s:
-                # Settings — placeholder for now
-                pass
+                # Settings - open with main menu context
+                self._open_settings()
 
     def _play_nav(self):
         if self.sfx and "menu_nav" in self.sfx:
@@ -147,7 +196,8 @@ class CarouselMenu:
             except: pass
 
     def _launch_game(self):
-        """Check if game has modes; if so show mode select, else launch directly."""
+        """Check if game has modes; if so show mode select, else launch directly.
+        Now shows name entry screen first to collect player username."""
         if not self.entries:
             return
 
@@ -155,37 +205,42 @@ class CarouselMenu:
         game_name = entry["name"]
         module_prefix = entry["module_prefix"]
         print(f"  [Carousel] Selected: {game_name}")
-
-        # Try to import the game's __init__.py to get MODES
-        try:
-            mod = importlib.import_module(f"{module_prefix}")
-            modes = getattr(mod, "MODES", None)
-        except Exception as e:
-            print(f"  [Carousel] Could not import {module_prefix}: {e}")
-            modes = None
-
-        if modes and len(modes) > 0:
-            # Game has multiple modes — show mode select screen
-            print(f"  [Carousel] {game_name} has modes: {list(modes.keys())}")
-            self.mode_select = ModeSelectScreen(game_name, module_prefix, modes)
-            self.mode_select.selected_label = list(modes.keys())[0]
-        else:
-            # No modes — maybe the module has a class we can instantiate directly
-            print(f"  [Carousel] {game_name} has no modes, launching default")
-            try:
-                for attr_name in dir(mod):
-                    attr = getattr(mod, attr_name)
-                    if isinstance(attr, type) and attr.__module__ == f"{module_prefix}.__init__":
-                        game_instance = attr()
-                        self.persist["launched_game"] = game_instance
-                        self.persist["game_name"] = game_name
-                        self.done = True
-                        self.next_state = game_instance
-                        return
-            except Exception as e:
-                print(f"  [Carousel] Error loading default class from {module_prefix}: {e}")
-
+ 
+        # Store module prefix for later use after name entry
+        self.persist["pending_game_module"] = module_prefix
+        
+        # Show name entry screen first
+        self.name_entry = NameEntryScreen(game_name)
+ 
+    def _open_scoreboard(self):
+        """Open scoreboard for the currently selected game."""
+        if not self.entries:
+            return
+        
+        entry = self.entries[self.selected_index]
+        game_name = entry["name"]
+        
+        # Set context and launch scoreboard
+        self.persist["scoreboard_context"] = game_name
+        self.persist["settings_context"] = game_name  # Also set settings context for reference
+        self.done = True
+        self.next_state = "SCOREBOARD"
+        print(f"  [Carousel] Opening scoreboard for {game_name}")
+    
+    def _open_settings(self):
+        """Open settings menu with main menu context."""
+        self.persist["settings_context"] = "MAIN_MENU"
+        self.persist["context_module"] = None
+        self.done = True
+        self.next_state = "SETTINGS"
+        print("  [Carousel] Opening settings (main menu context)")
+ 
     def update(self, dt):
+        # if name entry is active, update that first
+        if self.name_entry:
+            self.name_entry.update(dt)
+            return
+        
         # if mode select is active, update that instead
         if self.mode_select:
             self.mode_select.update(dt)
@@ -271,6 +326,11 @@ class CarouselMenu:
         return cached
 
     def draw(self, surface):
+        # if name entry is active, draw that first
+        if self.name_entry:
+            self.name_entry.draw(surface)
+            return
+        
         # if mode select is active, draw that instead
         if self.mode_select:
             self.mode_select.draw(surface)
@@ -360,7 +420,7 @@ class CarouselMenu:
 
         # instructions
         instr = self.font_body.render(
-            "< L E F T / R I G H T >  to browse    E  to launch    E S C  to quit",
+            "< LEFT / RIGHT >  to browse     E  to launch     T  for Scoreboard      S for Settings       E S C  to quit",
             True, (150, 150, 180)
         )
         surface.blit(instr, (W // 2 - instr.get_width() // 2, H - 50))

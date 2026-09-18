@@ -370,8 +370,74 @@ Added a MusicManager in src/engine/music_manager.py that handles the menu theme 
 >**Still to do:** Settings screen, Scoreboard, stat saving.
 >**Problems to fix:** pong and breakout ball reset positioning 
 
-**Stage 12 - [12/09/2026 / Settings + Scoreboard screen + Username Stat Saving]**
+**Stage 12 - [16/09/2026 / Settings + Scoreboard screen & Username Stat Saving]**
+>Big session today. finally filled in two major placeholders that have been staring at me for a few days now. The arcade box now has a proper settings system and a scoreboard that actually shows something useful, though not without running into some tricky state machine bugs along the way.
 
+**Settings Menu - Context-Aware Audio & Controls**  
+>The old settings screen was literally three lines of placeholder text. Now it's a full two-tab interface (General and Controls) that saves per-context settings to JSON files in `data/settings/`. The key insight here is "context", if you open settings from the main menu, you're tweaking main menu volume. If you open it from inside Tetris (via pause menu), you're tweaking Tetris-specific volume and controls. Same for any other game.
+>
+- **General tab:** SFX Volume slider (0-100%) with ON/OFF toggle, Music Volume slider (0-100%) with ON/OFF toggle, and a "Learn more?" button that loads context-appropriate info from `src/info/*.txt` files into a scrollable popup window.
+- **Controls tab:** Shows key bindings for the current context. Main menu just says "uses default navigation", but games show their actual bindings (Pong shows P1/P2 up/down, Tetris shows movement/rotate/drop, etc.). Clicking a binding waits 5 seconds for you to press a new key.
+- All settings save to JSON files named like `main_menu.json`, `tetris_settings.json`, `pong_settings.json`, etc. The audio settings apply immediately via `pygame.mixer` — music volume uses the MusicManager's `set_volume()`, and SFX toggles actually stop/start playback. Documentation for mixer methods came from [https://www.pygame.org/docs/ref/mixer.html](https://www.pygame.org/docs/ref/mixer.html), which I used for getting the volume chaining (`Sound.set_volume` × `Channel.set_volume` = final volume).
+
+**Scoreboard - Username-Based Stats Display**  
+The scoreboard used to say "Coming soon". Now, when you press T on a game in the carousel, it loads that game's stats JSON and displays the top 10 players by score. The display shows rank, username, score, and games played in a clean table format, with top 3 ranks getting gold highlighting.
+
+**How Stats Work Now (Username System)**  
+Here's the flow: When a player launches a game, they first see a name entry screen (max 12 characters). They type their name and confirm. That username becomes their identifier for this session. When they exit the game, their score gets saved to `data/[game]_stats.json` under their username key. The JSON structure looks like:
+
+{
+  "Zen": { "score": 1500, "games_played": 1 },
+  "Tim": { "score": 800, "games_played": 3 }
+}
+
+Next time the player opens the scoreboard from the main menu, they'll see their name ranked against others. Different games have different stat fields (Tetris uses `score`, Pong might use `wins`, etc.), but the scoreboard adapts by checking for common field names.
+
+**Challenges & Bug Fixes Encountered**  
+While implementing this, I asked for help because pressing **S** on the carousel wasn't bringing up the settings screen at all. No crash, no error, it just did nothing. Same with **T** for the scoreboard. It turned out `settings_menu.py` was fine; the actual bug was in `main.py`'s state transition logic.
+
+- **The silent `pass`:** Found this in `main.py`: `if isinstance(next_obj, GameBase) or hasattr(next_obj, "startup"): ... else: pass`. That `pass` was doing exactly what it says: nothing. `carousel._open_settings()` and `_open_scoreboard()` both set `next_state` to a plain string (`"SETTINGS"` / `"SCOREBOARD"`), not a game object, so it fell straight into the `else` branch and got quietly swallowed. Changed it to check `isinstance(next_obj, str) and next_obj in state_machine.states` and call `state_machine.change(next_obj, persist)`.
+- **Pause menu dead end:** Opening Settings from the pause menu (**S** while paused) was also just sitting there doing nothing. `GameWrapperState` was correctly setting `game_wrapper.done = True` and `game_wrapper.next_state = "SETTINGS"`, but `main.py`'s loop only ever checked for `"MAIN_MENU"`. Added the missing `elif` to handle this transition.
+- **Accidental app quit:** While tracing through that, I found a nastier bug: the ESC-quits-the-app check on the carousel only checked `mode_select`, not `name_entry`. So if you pressed ESC while typing your player name (meant to cancel back to the carousel), it quit the entire application instead. Added `and not carousel.name_entry` to that check.
+- **Module path mismatch:** In `carousel_menu.py`'s direct-launch path for games without a `MODES` dict (like Breakout), the check `attr.__module__ == f"{module_prefix}.__init__"` could never be true, because a class defined directly inside a package's `__init__.py` has `__module__` equal to the package path itself. Changed the comparison to just `attr.__module__ == module_prefix`.
+- **Blank UI polish:** The Controls tab was blank for Guess Number and Memory Match since neither has bindings set up in `_init_ui`. Added a "no custom key bindings yet" message so it's not an empty, broken-looking box.
+
+**Files Changed/Created:**
+
+- `src/menu/settings_menu.py` — Complete rewrite: tabs, volume sliders, toggles, binding UI, Learn more popup, JSON save/load, and added "no custom key bindings yet" message for applicable games.
+- `src/menu/scoreboard.py` — Complete rewrite: loads game-specific stats JSON, displays top 10 leaderboard.
+- `src/menu/carousel_menu.py` — Added `_open_scoreboard()` and `_open_settings()` methods, wired **T** and **S** keys, fixed `__module__` check in the mode-less direct-launch path.
+- `src/menu/pause_menu.py` — Updated `handle_key()` to return game context tuple for settings navigation.
+- `main.py` — Fixed carousel → SETTINGS/SCOREBOARD transition (was a dead `pass`), game wrapper → SETTINGS transition (was missing entirely), ESC-quits-app check now also respects `name_entry` being open, added SETTINGS and SCOREBOARD states to state machine.
+- `data/settings/` — New directory created automatically for storing per-context settings JSON files.
+
+**What I learned:**  
+Context matters. A "one size fits all" settings file would've been easier but wrong — users expect their Tetris controls to be separate from Pong controls, and main menu volume to be independent of game volume. The pygame.mixer documentation was essential for understanding how Sound volumes chain with Channel volumes and music volumes. JSON is way better than `.npy` for stats when you want human-readable files that can store named entries (usernames).  
+Furthermore, a state machine is only as good as the code watching for its transitions. `SettingsMenu`, `Scoreboard`, `carousel.done`/`next_state` were all written correctly, but `main.py`'s dispatcher had one dead `pass` and one missing `elif`, which was enough to make two entire screens act like they didn't exist. It's worth actually testing _every_ entry point (carousel AND pause menu) after wiring up a new screen, instead of just the one I remembered to try.
+
+**Still to do:**
+- Make each game save stats on exit with the username.
+- Fix per-game settings menu so they persist correctly across sessions.
+- _Known limitation:_ Settings opened from the pause menu dumps you back to the main carousel on Back/Save/Enter instead of resuming the paused game underneath (same as Scoreboard already does). Didn't touch that yet, since it'd mean changing what `GameWrapperState.cleanup()` does to a mid-game session, and I don't want to guess at that without checking what each game's own `cleanup()` does first.
+
+**Stage 13 - [18/09/2026 / Mode Difficulty Menu]**
+Making & Updating Difficulties of games for further layer of depth.
+>Pong:
+- Classic - Basic AI + normal ball movement
+- Advanced - Fast randomised ball movement + Basic AI
+- Hell - Ball speed +1 every time hit by paddle, resets on death + Better AI with better ball detection
+
+Breakout:
+
+Memory Match:
+Difficulties already made, need to update ai of game. 
+
+Need to make general `difficulty_select.py` to select same way as per mode select. Instead of being inside of `/*game` it will be inside `/*game/difficulties/*difficulty.py`. For example, Pong will be `/pong/diffuculties/` inside it would be `/diff_1.py`, `/diff_2.py`, `/diff_3.py`. Then the buttons would be displayed the same way as per the `__init__.py` files, we can simply add 
+>DIFFICULTIES = {
+"Classic": "diff_1",
+"Advanced": "diff_2",
+"Hell": "diff_3",
+}
 
 
 ---

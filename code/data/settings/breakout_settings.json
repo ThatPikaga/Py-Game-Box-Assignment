@@ -1,0 +1,10 @@
+{
+  "sfx_volume": 0.345,
+  "music_volume": 0.5,
+  "sfx_enabled": true,
+  "music_enabled": true,
+  "bindings": {
+    "Left": 1073741904,
+    "Right": 1073741903
+  }
+}

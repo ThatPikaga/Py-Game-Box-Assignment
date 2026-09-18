@@ -3,7 +3,7 @@
 # Once you set it here, every game and the carousel reads it
 #
 # Game-logic constants (colours, sizes, tetris shapes etc.) live in
-# src/core/constants.py and are *the* source of truth.  This file
+# src/core/constants.py and are the source of truth.  This file
 # imports those shared values and only adds operational config:
 # asset paths, the game registry, and carousel layout.
 

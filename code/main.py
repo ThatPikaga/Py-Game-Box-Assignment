@@ -1,8 +1,5 @@
 # main.py - App entry point; runs the core state machine loop
 # PyCade Retro Arcade Box
-#
-# Major rework: now supports pause menu (shared across all games),
-# dynamic mode selection, and the new GameBase interface.
 
 import pygame
 import sys
@@ -82,16 +79,20 @@ class GameWrapperState(BaseState):
 
         # == pause menu handling ================================
         if self.pause.active:
-            result = self.pause.handle_key(event.key) if event.type == pygame.KEYDOWN else None
+            game_name = self.persist.get("game_name", "")
+            result = self.pause.handle_key(event.key, game_name) if event.type == pygame.KEYDOWN else None
             if result == "RESUME":
                 self.pause.close()
             elif result == "MAIN_MENU":
                 self.done = True
                 self.next_state = "MAIN_MENU"
-            elif result == "SETTINGS":
-                # go to settings (stub for now - just resume)
-                print("  [Wrapper] Settings from pause - stub, resuming game.")
-                self.pause.close()
+            elif isinstance(result, tuple) and result[0] == "SETTINGS":
+                # Go to settings with game context
+                game_context = result[1] if result[1] else self.game_name
+                self.persist["settings_context"] = game_context
+                self.persist["context_module"] = getattr(self.game_instance, "__module__", None)
+                self.done = True
+                self.next_state = "SETTINGS"
             return
 
         # == normal event routing ==============================
@@ -190,10 +191,14 @@ def main():
     # build states
     carousel = CarouselMenu()
     game_wrapper = GameWrapperState()
+    settings_menu = SettingsMenu()
+    scoreboard = Scoreboard()
 
     state_machine = StateManager("MAIN_MENU", {
         "MAIN_MENU": carousel,
         "GAME_WRAPPER": game_wrapper,
+        "SETTINGS": settings_menu,
+        "SCOREBOARD": scoreboard,
     })
 
     carousel.startup(persist)
@@ -211,8 +216,10 @@ def main():
             # ESC from carousel quits the app
             if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 if state_machine.current_name == "MAIN_MENU":
-                    # check if mode select is active - if so, let it handle esc
-                    if not carousel.mode_select:
+                    # check if mode select OR name entry is active - if so, let it handle esc
+                    # (was only checking mode_select, so ESC while typing your name was
+                    # quitting the whole app instead of just cancelling the name entry)
+                    if not carousel.mode_select and not carousel.name_entry:
                         running = False
                         break
 
@@ -220,18 +227,22 @@ def main():
 
         state_machine.update(dt)
 
-        # check if carousel wants to launch a game / show mode select
+        # check if carousel wants to launch a game / show mode select / open a named screen
         if carousel.done and carousel.next_state:
             next_obj = carousel.next_state
-            # next_state could be a mode object (GameBase) or just the mode_select handled it
+            # next_state could be a mode object (GameBase) launching a game,
+            # or a plain string naming a screen to switch to (e.g. "SETTINGS", "SCOREBOARD")
             if isinstance(next_obj, GameBase) or hasattr(next_obj, "startup"):
                 # it's a game mode object - launch it
                 persist["launched_game"] = next_obj
                 persist["game_name"] = carousel.entries[carousel.selected_index]["name"]
                 state_machine.change("GAME_WRAPPER", persist)
-            else:
-                # fallback: the old style where next_state was just a name string
-                pass
+            elif isinstance(next_obj, str) and next_obj in state_machine.states:
+                # named screen request. this used to just be a bare "pass" here,
+                # which is why pressing S or T on the carousel did nothing at all -
+                # carousel.done/next_state got set correctly but nothing ever
+                # actually called state_machine.change() for it
+                state_machine.change(next_obj, persist)
             carousel.done = False
             carousel.next_state = None
 
@@ -240,6 +251,26 @@ def main():
             state_machine.change("MAIN_MENU", persist)
             game_wrapper.done = False
             game_wrapper.next_state = None
+        # check if game wrapper wants to open settings (S from the pause menu).
+        # this branch didn't exist before, so pressing S while paused set
+        # done=True/next_state="SETTINGS" and then just... sat there, since
+        # nothing was watching for "SETTINGS" coming from the game wrapper
+        elif game_wrapper.done and game_wrapper.next_state == "SETTINGS":
+            state_machine.change("SETTINGS", persist)
+            game_wrapper.done = False
+            game_wrapper.next_state = None
+        
+        # check if settings wants to go back
+        if settings_menu.done and settings_menu.next_state == "MAIN_MENU":
+            state_machine.change("MAIN_MENU", persist)
+            settings_menu.done = False
+            settings_menu.next_state = None
+        
+        # check if scoreboard wants to go back
+        if scoreboard.done and scoreboard.next_state == "MAIN_MENU":
+            state_machine.change("MAIN_MENU", persist)
+            scoreboard.done = False
+            scoreboard.next_state = None
 
         # draw
         state_machine.draw(screen)

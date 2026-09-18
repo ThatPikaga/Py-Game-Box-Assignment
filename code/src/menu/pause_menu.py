@@ -1,13 +1,13 @@
 # ======[ P A U S E   M E N U ]======
 # shared overlay that any game can pop up when you hit ESC
-# Q → quit to main menu, S → settings (static for now), ESC → resume
+# Q to quit to main menu, S for settings, & ESC to resume
 
 import pygame
 from src.core.constants import *
 
 class PauseMenu:
     """
-    This isn't a full state machine state — it's a translucent overlay
+    This isn't a full state machine state. It is a translucent overlay
     that gets drawn on top of whatever game is running. The wrapper
     handles the event routing before the game sees anything.
     """
@@ -29,10 +29,10 @@ class PauseMenu:
         self.active = True
 
     def close(self):
-        """Hide it — resume the game."""
+        """resume the game."""
         self.active = False
 
-    def handle_key(self, key):
+    def handle_key(self, key, game_name=None):
         """
         Process pause-specific keys.
         Returns None (stay paused), "RESUME", "MAIN_MENU", or "SETTINGS".
@@ -42,7 +42,8 @@ class PauseMenu:
         elif key == pygame.K_q:
             return "MAIN_MENU"
         elif key == pygame.K_s:
-            return "SETTINGS"
+            # Return SETTINGS with game context
+            return ("SETTINGS", game_name)
         return None
 
     def draw(self, surface):
@@ -63,12 +64,8 @@ class PauseMenu:
 
         # ── option list ──
         for i, (key, action) in enumerate(self.options):
-            txt = f"{key}  —  {action}"
+            txt = f"{key}  |  {action}"
             rendered = self.font_body.render(txt, True, COL_TEXT)
             x = w // 2 - rendered.get_width() // 2
             y = h // 2 - 30 + i * 40
             surface.blit(rendered, (x, y))
-
-        # small footnote
-        foot = self.font_body.render("(settings is a placeholder for now)", True, COL_TEXT_MUTED)
-        surface.blit(foot, (w // 2 - foot.get_width() // 2, h // 2 + 90))

@@ -131,7 +131,7 @@ class ModeSelectScreen:
                  btn["rect"].centery - label_surf.get_height() // 2))
 
         # hint at the bottom
-        hint = self.font_body.render("/\ \/ to navigate   E N T E R to select   E S C to go back", True, COL_TEXT_MUTED)
+        hint = self.font_body.render(r"/\ \/ to navigate   E N T E R to select   E S C to go back", True, COL_TEXT_MUTED)
         surface.blit(hint, (SCREEN_WIDTH // 2 - hint.get_width() // 2, SCREEN_HEIGHT - 40))
 
     def cleanup(self):
