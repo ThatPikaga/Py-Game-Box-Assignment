@@ -60,18 +60,12 @@ def random_ai_choice():
 def draw_title_bar(surface, title="Scissors  Paper  Rock",
                    subtitle=None, title_colour=COL_YELLOW,
                    subtitle_colour=COL_TEXT_MUTED):
-    """Draw the game title and optional subtitle."""
-    title_font = pygame.font.Font(None, FONT_TITLE_SIZE)
-    body_font = pygame.font.Font(None, FONT_BODY_SIZE)
-
-    title_surf = title_font.render(title, True, title_colour)
+    title_surf = title_font().render(title, True, title_colour)
     title_rect = title_surf.get_rect(center=(SCREEN_WIDTH // 2, 60))
     surface.blit(title_surf, title_rect)
 
     if subtitle:
-        sub_surf = body_font.render(subtitle, True, subtitle_colour)
-        sub_rect = sub_surf.get_rect(center=(SCREEN_WIDTH // 2, 100))
-        surface.blit(sub_surf, sub_rect)
+        sub_surf = body_font().render(subtitle, True, subtitle_colour)
 
 
 def draw_main_card(surface, w=700, h=420):
@@ -85,40 +79,32 @@ def draw_game_over_results(surface, card, p1_choice, p2_choice,
                            winner_text, detail_text,
                            p1_label="Player 1", p2_label="Player 2",
                            p1_colour=COL_PLAYER, p2_colour=COL_AI):
-    """Draw the game over results inside a card: winner, picks, detail."""
-    header_font = pygame.font.Font(None, FONT_HEADER_SIZE)
-    body_font = pygame.font.Font(None, FONT_BODY_SIZE)
-
     # Winner message
     win_colour = COL_GREEN
-    win_surf = header_font.render(winner_text, True, win_colour)
+    win_surf = header_font().render(winner_text, True, win_colour)
     win_rect = win_surf.get_rect(center=(card.centerx, card.top + 60))
     surface.blit(win_surf, win_rect)
 
     # P1 choice
-    p1_surf = body_font.render(f"{p1_label}:  {p1_choice}", True, p1_colour)
+    p1_surf = body_font().render(f"{p1_label}:  {p1_choice}", True, p1_colour)
     p1_rect = p1_surf.get_rect(center=(card.centerx, card.top + 120))
     surface.blit(p1_surf, p1_rect)
 
     # P2 choice
-    p2_surf = body_font.render(f"{p2_label}:  {p2_choice}", True, p2_colour)
+    p2_surf = body_font().render(f"{p2_label}:  {p2_choice}", True, p2_colour)
     p2_rect = p2_surf.get_rect(center=(card.centerx, card.top + 160))
     surface.blit(p2_surf, p2_rect)
 
     # Detail
-    detail_surf = body_font.render(detail_text, True, COL_TEXT_MUTED)
+    detail_surf = body_font().render(detail_text, True, COL_TEXT_MUTED)
     detail_rect = detail_surf.get_rect(center=(card.centerx, card.top + 210))
     surface.blit(detail_surf, detail_rect)
-
 
 def draw_menu_button(surface, rect, label="Main Menu",
                      bg_colour=COL_YELLOW, text_colour=COL_BLACK):
     """Draw a clickable menu button."""
-    body_font = pygame.font.Font(None, FONT_BODY_SIZE)
     pygame.draw.rect(surface, bg_colour, rect, border_radius=8)
-    btn_lbl = body_font.render(label, True, text_colour)
-    btn_rect = btn_lbl.get_rect(center=rect.center)
-    surface.blit(btn_lbl, btn_rect)
+    btn_lbl = body_font().render(label, True, text_colour)
 
 
 # == Base Mode =========================================================
@@ -143,9 +129,9 @@ class SPRBaseMode(GameBase):
 
     def __init__(self):
         super().__init__()
-        self.font_title = pygame.font.Font(None, FONT_TITLE_SIZE)
-        self.font_header = pygame.font.Font(None, FONT_HEADER_SIZE)
-        self.font_body = pygame.font.Font(None, FONT_BODY_SIZE)
+        self.font_title = title_font()
+        self.font_header = header_font()
+        self.font_body = body_font()
 
         # Main Menu button (for GAME_OVER state)
         btn_w, btn_h = 200, 50

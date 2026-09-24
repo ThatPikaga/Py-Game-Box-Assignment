@@ -402,25 +402,17 @@ While implementing this, I asked for help because pressing **S** on the carousel
 - **Module path mismatch:** In `carousel_menu.py`'s direct-launch path for games without a `MODES` dict (like Breakout), the check `attr.__module__ == f"{module_prefix}.__init__"` could never be true, because a class defined directly inside a package's `__init__.py` has `__module__` equal to the package path itself. Changed the comparison to just `attr.__module__ == module_prefix`.
 - **Blank UI polish:** The Controls tab was blank for Guess Number and Memory Match since neither has bindings set up in `_init_ui`. Added a "no custom key bindings yet" message so it's not an empty, broken-looking box.
 
-**Files Changed/Created:**
-
-- `src/menu/settings_menu.py` — Complete rewrite: tabs, volume sliders, toggles, binding UI, Learn more popup, JSON save/load, and added "no custom key bindings yet" message for applicable games.
-- `src/menu/scoreboard.py` — Complete rewrite: loads game-specific stats JSON, displays top 10 leaderboard.
-- `src/menu/carousel_menu.py` — Added `_open_scoreboard()` and `_open_settings()` methods, wired **T** and **S** keys, fixed `__module__` check in the mode-less direct-launch path.
-- `src/menu/pause_menu.py` — Updated `handle_key()` to return game context tuple for settings navigation.
-- `main.py` — Fixed carousel → SETTINGS/SCOREBOARD transition (was a dead `pass`), game wrapper → SETTINGS transition (was missing entirely), ESC-quits-app check now also respects `name_entry` being open, added SETTINGS and SCOREBOARD states to state machine.
-- `data/settings/` — New directory created automatically for storing per-context settings JSON files.
 
 **What I learned:**  
-Context matters. A "one size fits all" settings file would've been easier but wrong — users expect their Tetris controls to be separate from Pong controls, and main menu volume to be independent of game volume. The pygame.mixer documentation was essential for understanding how Sound volumes chain with Channel volumes and music volumes. JSON is way better than `.npy` for stats when you want human-readable files that can store named entries (usernames).  
-Furthermore, a state machine is only as good as the code watching for its transitions. `SettingsMenu`, `Scoreboard`, `carousel.done`/`next_state` were all written correctly, but `main.py`'s dispatcher had one dead `pass` and one missing `elif`, which was enough to make two entire screens act like they didn't exist. It's worth actually testing _every_ entry point (carousel AND pause menu) after wiring up a new screen, instead of just the one I remembered to try.
+The pygame.mixer documentation was essential for understanding how Sound volumes chain with Channel volumes and music volumes. A state machine is only as good as the code watching for its transitions. `SettingsMenu`, `Scoreboard`, `carousel.done`/`next_state` were all written correctly, but `main.py`'s dispatcher had one dead `pass` and one missing `elif`, which was enough to make two entire screens act like they didn't exist. It's worth actually testing _every_ entry point (carousel AND pause menu) after wiring up a new screen.
 
 **Still to do:**
 - Make each game save stats on exit with the username.
-- Fix per-game settings menu so they persist correctly across sessions.
-- _Known limitation:_ Settings opened from the pause menu dumps you back to the main carousel on Back/Save/Enter instead of resuming the paused game underneath (same as Scoreboard already does). Didn't touch that yet, since it'd mean changing what `GameWrapperState.cleanup()` does to a mid-game session, and I don't want to guess at that without checking what each game's own `cleanup()` does first.
+- _Known limitation:_ Settings opened from the pause menu dumps you back to the main carousel on Back/Save/Enter instead of resuming the paused game underneath (same as Scoreboard already does). Need to update it to be an overlay... not changed state.
 
-**Stage 13 - [18/09/2026 / Mode Difficulty Menu]**
+
+
+**Stage 13 - [18/09/2026 / Mode Difficulty Menu + pong update]**
 Making & Updating Difficulties of games for further layer of depth.
 >Pong:
 - Classic - Basic AI + normal ball movement
@@ -432,14 +424,89 @@ Breakout:
 Memory Match:
 Difficulties already made, need to update ai of game. 
 
-Need to make general `difficulty_select.py` to select same way as per mode select. Instead of being inside of `/*game` it will be inside `/*game/difficulties/*difficulty.py`. For example, Pong will be `/pong/diffuculties/` inside it would be `/diff_1.py`, `/diff_2.py`, `/diff_3.py`. Then the buttons would be displayed the same way as per the `__init__.py` files, we can simply add 
+Made the general `difficulty_select.py` to select same way as per mode select. Instead of being inside of `/*game` it will be inside `/*game/difficulties/*difficulty.py`. For example, Pong will be `/pong/diffuculties/` inside it would be `/diff_1.py`, `/diff_2.py`, `/diff_3.py`. Then the buttons would be displayed the same way as per the `__init__.py` files, we can simply add 
 >DIFFICULTIES = {
 "Classic": "diff_1",
 "Advanced": "diff_2",
 "Hell": "diff_3",
 }
 
+>Implemented all of this for Pong - difficulty select now shows right after mode select, confirmed that's the order I wanted it in. Reused `mode_select.py`'s exact pattern like planned: `difficulty_select.py` reads a `DIFFICULTIES` dict and builds buttons the same way, and `src/games/pong/difficulties/__init__.py` exports `DIFFICULTIES = {"Classic": "diff_1", "Advanced": "diff_2", "Hell": "diff_3"}` just like the plan said.
 
+>**Keeping each difficulty down to a few lines**
+I like to keep my code minimised and object oriented, making a difficulty file isn't a rewritten game, it's just a handful of overridden class attributes. Made a `Difficulty` base class (`src/core/difficulty_base.py`, engine-level so any future game's difficulties can reuse it) with just `name`/`description`, then a `PongDifficulty` subclass (`src/games/pong/difficulties/_base.py`) with Pong's actual tuning knobs and sane defaults. `diff_1.py` (Classic) barely has to override anything:
+
+>```python
+>class Difficulty(PongDifficulty):
+>    name = "Classic"
+>    description = "Basic AI, steady ball speed. Good for learning the ropes."
+>```
+>`diff_2.py` (Advanced) just bumps `ball_base_speed` and flips `randomise_ball` on. `diff_3.py` (Hell) is the only one that touches the AI fields so far.
+
+>**Wiring it up**
+>`carousel_menu.py` now holds onto the mode instance I just built (`pending_launch_instance`) and checks `{module_prefix}.difficulties` for a `DIFFICULTIES` dictionary before launching. If there isn't one, it launches exactly like before, which is why Breakout, Memory Match etc. are completely unaffected until they get their own `difficulties/` folder. If there is one, it shows `DifficultySelectScreen`, and once a difficulty's picked it just gets slapped onto the mode instance as `mode_instance.difficulty = diff_obj` before launch. `PongBaseMode._apply_difficulty()` (called from `mode_ai.py`/`mode_2p.py`'s own `startup()`) reads that off and sets ball speed + AI tuning from it.
+
+>**Making the ball/AI actually difficulty-aware**
+>`paddle_bounce()` used to always normalise the ball to the fixed `TOTAL_SPEED` constant on every single bounce, which would've completely ignored any difficulty's ball speed and made "+1 speed every hit" impossible. Gave it optional `total_speed`/`bounce_speed` params (default exactly matches the old hardcoded behaviour, so Breakout, which also reads `TOTAL_SPEED`/`BOUNCE_SPEED` from `constants.py`, isn't affected at all). `PongBaseMode` now tracks `_current_speed` (ramps up in `_on_paddle_hit()` when `difficulty.speed_up_on_hit` is set) and `_base_speed` (what `reset_ball()` puts it back to — `reset_ball()` already runs on every single score, so "resets on death" came for free).
+
+>**The AI — keeping Hell beatable**
+>Classic and Advanced both use the exact same "Basic AI" as before (`ai.py`'s original chase-the-ball's-current-y logic, untouched). Hell turns on `predictive=True`, which works out where the ball will actually BE by the time it reaches the paddle, including bouncing the prediction off the top/bottom walls in the maths. On its own that'd be a perfect wall, so two things keep it beatable: `ai_error=14` mixes a few px of random misjudgement into the target every frame, and the AI only starts predicting once the ball's actually heading its way — if it's moving away, the AI just drifts back to the middle instead of camping the exact spot, so an angled return shot has room to work. Paddle speed's still capped too (`ai_speed=9`), so a sharp angle late in a sped-up Hell rally can still outrun it.
+
+>**Files changed/created this stage:**
+>- `src/core/difficulty_base.py` — new: generic `Difficulty` base class (name + description)
+>- `src/menu/difficulty_select.py` — new: `DifficultySelectScreen`, same pattern as `mode_select.py`
+>- `src/games/pong/difficulties/__init__.py` — new: `DIFFICULTIES` dict
+>- `src/games/pong/difficulties/_base.py` — new: `PongDifficulty` shared defaults
+>- `src/games/pong/difficulties/diff_1.py`, `diff_2.py`, `diff_3.py` — new: Classic/Advanced/Hell
+>- `src/games/pong/ai.py` — rewritten: added predictive targeting + error for Hell, Basic mode untouched
+>- `src/games/pong/common.py` — `paddle_bounce()` takes optional `total_speed`/`bounce_speed`; `PongBaseMode` gained `_apply_difficulty()`, `_on_paddle_hit()`, and a difficulty-aware `reset_ball()`
+>- `src/games/pong/mode_ai.py` / `mode_2p.py` — call `_apply_difficulty()` in `startup()`; `mode_ai.py` also feeds the AI ball velocity + screen height now
+>- `src/menu/carousel_menu.py` — mode select now routes through a difficulty check before launching (`_has_difficulties`, `_proceed_to_difficulty_or_launch`), `__module__` bug fixed again
+>- `main.py` — `difficulty_select` added to the ESC-quits-app guard
+
+>**Still to do:** Breakout and the rest still need their own `difficulties/` folders. The pattern's the same (a `_base.py` with defaults, `diff_N.py` files overriding a few attributes, a `DIFFICULTIES` dict in `__init__.py`) but the actual numbers depend on what each game's AI/physics. Memory Match already has difficulties made and just needs to be updated to use them before we can start upgrading its Ai.
+
+>**Follow-up - player paddle speed** - [24/09/2026]
+>Turned out changing numbers in the difficulty files wasn't doing anything to the player's own paddle - it was still moving at a flat speed no matter what. Reason: `mode_ai.py` and `mode_2p.py` were moving the player paddle with the hardcoded `TOTAL_SPEED` constant straight from `constants.py` (`self.player.y -= TOTAL_SPEED`). Every other speed in this system (ball, AI) went through `self.difficulty`, but player movement was never wired up to it at all.
+
+>Digging into `constants.py` to figure out the least messy way to fix this, found `PADDLE_MAX_SPEED = 8` just sitting there completely unused. `TOTAL_SPEED` was doing double duty the whole time — ball physics AND player paddle movement — which is really two unrelated things that happened to share the same number (8) by coincidence💀. Rather than keep overloading `TOTAL_SPEED` (which still needs to stay put for the ball - `paddle_bounce()`/`BOUNCE_SPEED` depend on it), I gave the player paddle its own dedicated `paddle_speed` field on `PongDifficulty`, defaulting to `PADDLE_MAX_SPEED` when no difficulty's attached. Same pattern as everything else this stage: `_apply_difficulty()` pulls it off `self.difficulty` in `startup()`, mode files just read `self.paddle_speed` instead of the constant directly.
+
+>**Why this needed its own value per difficulty** 
+>This is really about giving the player a fair fight, not just "more depth". On Hell, `ai_speed` was already set to 9 - meaning the AI could out-move the player paddle, which was stuck at the old flat 8, on top of the AI being predictive and the ball constantly speeding up. That combination is what was making Hell feel nearly impossible - the AI had a genuine raw-speed advantage before the smarter targeting even came into it. Set `paddle_speed` to 10 for Hell specifically (faster than the AI's own 9) so the player's raw moevemtns are actually ahead, and the AI's edge comes entirely from prediction/ball speed rather than just being able to physically outrun the player too. 
+
+>**Files changed in this small variable change:**
+>- `src/games/pong/difficulties/_base.py` — added `paddle_speed` (default `8`, matches `PADDLE_MAX_SPEED`)
+>- `src/games/pong/common.py` — `PongBaseMode` now tracks `self.paddle_speed`, set in `_apply_difficulty()`
+>- `src/games/pong/mode_ai.py`, `mode_2p.py` — player (and P1/P2) movement reads `self.paddle_speed` instead of the `TOTAL_SPEED` constant directly
+
+> **Changes still to be made in Pong:**
+> - Fix ball reset. Ball must launch outward from centre of player paddle via use of Space key (enter for P2)
+> - Add SFX
+
+> **General Updates still to be made**
+> - Update all other games to include new difficulty system
+> - Fix settings implementation (make overlay instead of change state😅) 
+> - Apply universal custom font - https://www.pygame.org/docs/ref/font.html 
+
+**Universal Custom Font & Tetris Refactor** - [24/09/2026]
+
+> Finally tackled the custom font implementation and did some much-needed housekeeping on the Tetris files👀.
+> 
+> **The Font Situation:** I made my `constants.py` set up with `title_font()`, `body_font()`, and `header_font()` helpers pointing to "Press Start 2P", but _none_ of the menu or game files were actually using them. Every single screen was still hardcoding `pygame.font.Font(None, ...)` which explicitly tells Pygame to ignore the custom font and use the system default. Also had a crash on startup because `assets_loader.py` was missing the `"fonts": {}` dictionary key, and `constants.py` was trying to use `path.join` without importing `os` — took a solid 15 minutes to figure that out.
+> 
+> **The Fix:** Went through every menu (`carousel_menu.py`, `mode_select.py`, `difficulty_select.py`, `scoreboard.py`, `settings_menu.py`, `pause_menu.py`, `name_entry.py`) and the SPR game files, swapping out the hardcoded `None` calls for the centralised helper functions. Now, changing the font or its sizes in `constants.py` acts as the single source of truth and updates the entire arcade box instantly.
+> 
+> **Tetris Refactor (Goodbye 500-line files🥹):** Tetris was the only game without a `common.py`, resulting in `mode_1p.py` and `mode_2p.py` being bloated with duplicated `Board` logic and grid-drawing code — completely forgot to updated it. Extracted the entire `Board` class (piece spawning, rotation, wall-kicks, line clearing) and a `draw_board_grid_and_pieces()` helper into a new `src/games/tetris/common.py`. This chopped the mode files down significantly and makes the 2P mode much cleaner since it just imports the shared board and drawing logic. Applied the new custom fonts to Tetris while I was in there.
+
+> **Changes still to be made in Pong:**
+> 
+> - Fix ball reset. Ball must launch outward from centre of player paddle via use of Space key (enter for P2)
+> - Add SFX
+
+> **General Updates still to be made**
+> 
+> - Update all other games to include new difficulty system
+> - Fix settings implementation
 ---
 
 ## Evaluation and Review

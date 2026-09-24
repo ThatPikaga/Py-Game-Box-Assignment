@@ -1,3 +1,7 @@
+
+
+
+
 # ======[ C A R O U S E L   M E N U ]======
 # main game selection screen with starfield background
 # arrow keys scroll, E/Enter launches
@@ -18,7 +22,8 @@ import os
 import importlib
 from src.menu.mode_select import ModeSelectScreen
 from src.menu.name_entry import NameEntryScreen
-
+from src.menu.difficulty_select import DifficultySelectScreen
+from src.core.constants import title_font, body_font
 
 class CarouselMenu:
     # How finely we quantize cover sizes before caching a scaled surface.
@@ -29,7 +34,7 @@ class CarouselMenu:
     def __init__(self):
         self.name = "MAIN_MENU"
         self.done = False
-        self.next_state = None # can be "MODE_SELECT" or the mode obj directly
+        self.next_state = None       # can be "MODE_SELECT" or the mode obj directly
         self.persist = {}
         self.selected_index = 0
         self.font_title = None
@@ -47,9 +52,20 @@ class CarouselMenu:
         self._cover_cache = {}
 
         # mode select screen we might show
-        self.mode_select = None      
+        self.mode_select = None
+        
         # name entry screen we might show (comes before mode select)
         self.name_entry = None
+
+        # difficulty select screen we might show (comes after mode select,
+        # only if the game has a difficulties/ package - see _has_difficulties)
+        self.difficulty_select = None
+
+        # holds the mode instance while difficulty_select is up, so we've
+        # got something to attach the chosen difficulty to and launch once
+        # the player actually picks one
+        self.pending_launch_instance = None
+        self.pending_launch_name = None
 
     def startup(self, persist):
         self.persist = persist
@@ -57,6 +73,9 @@ class CarouselMenu:
         self.next_state = None
         self.mode_select = None
         self.name_entry = None
+        self.difficulty_select = None
+        self.pending_launch_instance = None
+        self.pending_launch_name = None
         self._cover_cache = {}
 
         settings = persist.get("settings")
@@ -65,8 +84,8 @@ class CarouselMenu:
             print("[CarouselMenu] Missing settings/assets in persist!")
             return
 
-        self.font_title = pygame.font.Font(None, settings.FONT_TITLE_SIZE)
-        self.font_body = pygame.font.Font(None, settings.FONT_BODY_SIZE)
+        self.font_title = title_font()
+        self.font_body = body_font()
         self.settings = settings
 
         # Build entries from GAME_REGISTRY
@@ -110,6 +129,30 @@ class CarouselMenu:
         return raw % self.n
 
     def handle_event(self, event):
+        # if difficulty select is up, route to that first (it's the last
+        # step before actually launching, so it takes priority over
+        # everything below it too)
+        if self.difficulty_select:
+            self.difficulty_select.handle_event(event)
+            if self.difficulty_select.done:
+                diff_obj = self.difficulty_select.next_state
+                self.difficulty_select = None
+                if diff_obj is None:
+                    # ESC'd out - drop the pending launch, back to browsing
+                    self.pending_launch_instance = None
+                    self.pending_launch_name = None
+                    return
+                # stamp the chosen difficulty onto the mode instance and launch -
+                # PongBaseMode._apply_difficulty() picks this up in startup()
+                self.pending_launch_instance.difficulty = diff_obj
+                self.persist["launched_game"] = self.pending_launch_instance
+                self.persist["game_name"] = self.pending_launch_name
+                self.done = True
+                self.next_state = self.pending_launch_instance
+                self.pending_launch_instance = None
+                self.pending_launch_name = None
+            return
+
         # if name entry is active, route to that first
         if self.name_entry:
             self.name_entry.handle_event(event)
@@ -137,24 +180,25 @@ class CarouselMenu:
                     self.mode_select = ModeSelectScreen(game_name, module_prefix, modes)
                     self.mode_select.selected_label = list(modes.keys())[0]
                 else:
-                    # Launch game directly
+                    # Launch game directly - single-mode game, no MODES dict
+                    game_instance = None
                     try:
                         for attr_name in dir(mod):
                             attr = getattr(mod, attr_name)
-                            # classes defined directly in a package's __init__.py have
-                            # __module__ == module_prefix, NOT "module_prefix.__init__"
-                            # (that was the bug - this check never matched anything,
-                            # so any game without a MODES dict, like Breakout, silently
-                            # failed to launch here)
+                            # classes defined directly in a package's __init__.py
+                            # have __module__ == module_prefix, NOT
+                            # "module_prefix.__init__" - that was the bug here,
+                            # this loop could never actually find anything
                             if isinstance(attr, type) and attr.__module__ == module_prefix:
                                 game_instance = attr()
-                                self.persist["launched_game"] = game_instance
-                                self.persist["game_name"] = game_name
-                                self.done = True
-                                self.next_state = game_instance
-                                return
+                                break
                     except Exception as e:
                         print(f"  [Carousel] Error loading default class from {module_prefix}: {e}")
+
+                    if game_instance:
+                        self._proceed_to_difficulty_or_launch(game_instance, game_name, module_prefix)
+                    else:
+                        print(f"  [Carousel] No launchable class found in {module_prefix}")
                 
                 self.name_entry = None
             return
@@ -163,9 +207,12 @@ class CarouselMenu:
         if self.mode_select:
             self.mode_select.handle_event(event)
             if self.mode_select.done:
-                self.done = True
-                self.next_state = self.mode_select.next_state   # the mode object
+                mode_obj = self.mode_select.next_state    # the mode object, or None if ESC'd out
+                game_name = self.mode_select.display_name
+                module_prefix = self.mode_select.module_prefix
                 self.mode_select = None
+                if mode_obj is not None:
+                    self._proceed_to_difficulty_or_launch(mode_obj, game_name, module_prefix)
             return
 
         if event.type == pygame.KEYDOWN:
@@ -205,13 +252,47 @@ class CarouselMenu:
         game_name = entry["name"]
         module_prefix = entry["module_prefix"]
         print(f"  [Carousel] Selected: {game_name}")
- 
+
         # Store module prefix for later use after name entry
         self.persist["pending_game_module"] = module_prefix
         
         # Show name entry screen first
         self.name_entry = NameEntryScreen(game_name)
- 
+
+    def _has_difficulties(self, module_prefix):
+        """
+        Check if this game defines a difficulties/ package with a
+        DIFFICULTIES dict, e.g. src/games/pong/difficulties/__init__.py.
+        Most games don't have one yet, so this just quietly returns None
+        instead of blowing up - same pattern as the MODES lookup above.
+        """
+        try:
+            diff_mod = importlib.import_module(f"{module_prefix}.difficulties")
+            difficulties = getattr(diff_mod, "DIFFICULTIES", None)
+            return difficulties if difficulties else None
+        except Exception:
+            return None
+
+    def _proceed_to_difficulty_or_launch(self, game_instance, game_name, module_prefix):
+        """
+        Common landing spot once we know exactly which mode we're about
+        to launch, whether that came from mode select or the mode-less
+        direct-launch path. If the game has a difficulties/ package, show
+        difficulty select next; otherwise launch straight away like it
+        always used to.
+        """
+        difficulties = self._has_difficulties(module_prefix)
+        if difficulties:
+            self.pending_launch_instance = game_instance
+            self.pending_launch_name = game_name
+            self.difficulty_select = DifficultySelectScreen(game_name, module_prefix, difficulties)
+            self.difficulty_select.selected_label = list(difficulties.keys())[0]
+        else:
+            self.persist["launched_game"] = game_instance
+            self.persist["game_name"] = game_name
+            self.done = True
+            self.next_state = game_instance
+
     def _open_scoreboard(self):
         """Open scoreboard for the currently selected game."""
         if not self.entries:
@@ -234,7 +315,7 @@ class CarouselMenu:
         self.done = True
         self.next_state = "SETTINGS"
         print("  [Carousel] Opening settings (main menu context)")
- 
+
     def update(self, dt):
         # if name entry is active, update that first
         if self.name_entry:
@@ -245,6 +326,11 @@ class CarouselMenu:
         if self.mode_select:
             self.mode_select.update(dt)
             return
+
+        # if difficulty select is up, update that first
+        if self.difficulty_select:
+            self.difficulty_select.update(dt)
+            return    
 
         # smooth scroll with wrapping — shortest-path interpolation
         if self.n > 0:
@@ -326,6 +412,11 @@ class CarouselMenu:
         return cached
 
     def draw(self, surface):
+        # if difficulty select is up, draw that first
+        if self.difficulty_select:
+            self.difficulty_select.draw(surface)
+            return
+
         # if name entry is active, draw that first
         if self.name_entry:
             self.name_entry.draw(surface)
@@ -420,7 +511,7 @@ class CarouselMenu:
 
         # instructions
         instr = self.font_body.render(
-            "< LEFT / RIGHT >  to browse     E  to launch     T  for Scoreboard      S for Settings       E S C  to quit",
+            "< LEFT / RIGHT >  to browse   |   E  to launch   |   ESC  to quit",
             True, (150, 150, 180)
         )
         surface.blit(instr, (W // 2 - instr.get_width() // 2, H - 50))

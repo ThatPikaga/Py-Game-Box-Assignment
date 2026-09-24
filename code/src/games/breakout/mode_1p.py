@@ -7,14 +7,7 @@ import pygame
 import math as maths
 import random
 from src.core.game_base import GameBase
-from src.core.constants import (
-    SCREEN_WIDTH, SCREEN_HEIGHT,
-    COL_WHITE, COL_BLACK, COL_TEXT,
-    PADDLE_W, PADDLE_H, BALL_SIZE,
-    PADDLE_MAX_SPEED, TOTAL_SPEED, BOUNCE_SPEED,
-    ROWS, COLS, PADDING, OFFSET_TOP,
-    FONT_TITLE_SIZE, FONT_BODY_SIZE,
-)
+from src.core.constants import *
 from src.engine.input_handler import GameKeyHandler
 from src.games.breakout.blocks import create_grid
 from src.games.breakout.powerups import PowerUp
@@ -44,8 +37,8 @@ class Breakout1PMode(GameBase):
             "MOVE_RIGHT_ALT": pygame.K_d,
         })
 
-        self.font_big = pygame.font.Font(None, FONT_TITLE_SIZE)
-        self.font_body = pygame.font.Font(None, FONT_BODY_SIZE)
+        self.font_title = title_font()
+        self.font_body = body_font()
 
     def startup(self, persist):
         super().startup(persist)

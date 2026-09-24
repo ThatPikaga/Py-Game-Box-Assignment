@@ -59,10 +59,9 @@ class Scoreboard:
     def startup(self, persist):
         self.persist = persist
         self.done = False
-        self.next_state = None
-        self.font_title = pygame.font.Font(None, FONT_TITLE_SIZE)
-        self.font_body = pygame.font.Font(None, FONT_BODY_SIZE)
-        self.font_small = pygame.font.Font(None, FONT_HEADER_SIZE)
+        self.font_title = title_font()
+        self.font_body = body_font()
+        self.font_small = header_font()
         
         # Get game context from persist
         self.game_name = persist.get("scoreboard_context", persist.get("settings_context", "Unknown"))

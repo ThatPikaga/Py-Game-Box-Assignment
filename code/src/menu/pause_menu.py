@@ -14,8 +14,8 @@ class PauseMenu:
 
     def __init__(self):
         self.active = False
-        self.font_title = pygame.font.Font(None, FONT_TITLE_SIZE)
-        self.font_body = pygame.font.Font(None, FONT_BODY_SIZE)
+        self.font_title = title_font()
+        self.font_body = body_font()
 
         # labels so I can adjust positioning in one spot
         self.options = [

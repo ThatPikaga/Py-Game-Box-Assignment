@@ -4,6 +4,7 @@
 # triplets eighteen times across six files like a madman
 
 import pygame
+import os
 
 # == Window / Screen ================================================
 # these get referenced by settings.py too but this is the source of truth
@@ -97,15 +98,17 @@ MEMORY_CARD_H = 75
 
 
 
-# == Font sizes (None = pygame default font) ========================
+# == Font sizes ===================================================
 FONT_TITLE_SIZE = 42
 FONT_HEADER_SIZE = 28
-FONT_BODY_SIZE = 20
+FONT_BODY_SIZE = 13
+
+CUSTOM_FONT_PATH = os.path.join("assets", "fonts", "PressStart", "PressStart2P-Regular.ttf")
 
 # Helper: quick font grab so I don't pygame.font.Font() everywhere
-def make_font(size, bold=False, name=None):
-    """Return a font. Name=None uses pygame default (good enough)."""
+def make_font(size, bold=False, name=CUSTOM_FONT_PATH):
     return pygame.font.Font(name, size)
+
 
 def title_font():
     return make_font(FONT_TITLE_SIZE)

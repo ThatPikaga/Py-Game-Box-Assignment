@@ -27,8 +27,8 @@ class ModeSelectScreen:
         self.done = False
         self.next_state = None # will hold the instantiated mode object
 
-        self.font_title = pygame.font.Font(None, FONT_TITLE_SIZE)
-        self.font_body = pygame.font.Font(None, FONT_BODY_SIZE)
+        self.font_title = title_font()
+        self.font_body = body_font()
 
         # build button rects - stacked vertically in the centre
         self.buttons = []
@@ -131,7 +131,7 @@ class ModeSelectScreen:
                  btn["rect"].centery - label_surf.get_height() // 2))
 
         # hint at the bottom
-        hint = self.font_body.render(r"/\ \/ to navigate   E N T E R to select   E S C to go back", True, COL_TEXT_MUTED)
+        hint = self.font_body.render(r"/\ \/ to navigate   ENTER to select   ESC to go back", True, COL_TEXT_MUTED)
         surface.blit(hint, (SCREEN_WIDTH // 2 - hint.get_width() // 2, SCREEN_HEIGHT - 40))
 
     def cleanup(self):

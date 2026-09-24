@@ -1,8 +1,5 @@
 # ======[ T E T R I S   —   2   P L A Y E R ]======
 # local multiplayer Tetris (SNES Dr. Mario style)
-# two boards side-by-side; if one player's stack hits the top of
-# THEIR OWN board (not the window), the OTHER player wins.
-# Each player has separate input and DAS timing.
 
 import pygame
 import random
@@ -15,10 +12,10 @@ from src.core.constants import (
     COL_DARK_RED, COL_GHOST, COL_LOSE, COL_WIN,
     COL_TEXT_MUTED, COL_PLAYER, COL_DARK_GREEN,
     PC, SH, PN,
-    FONT_TITLE_SIZE, FONT_BODY_SIZE,
+    title_font, body_font,
 )
 from src.engine.input_handler import GameKeyHandler, GAME_KEY_MAPS
-from src.games.tetris.mode_1p import Board  # reuse the Board class
+from src.games.tetris.common import Board, draw_board_grid_and_pieces
 
 # board positions
 P1_OX = 50
@@ -49,8 +46,9 @@ class Tetris2PMode(GameBase):
         self.gravity_timer = 0
         self.gravity_interval = 167
 
-        self.font_large = pygame.font.Font(None, FONT_TITLE_SIZE)
-        self.font_body = pygame.font.Font(None, FONT_BODY_SIZE)
+        # Custom fonts from constants.py
+        self.font_large = title_font()
+        self.font_body = body_font()
 
         self.state = "PLAYING"
         self.winner_msg = ""
@@ -110,7 +108,7 @@ class Tetris2PMode(GameBase):
             if not self.board2.game_over:
                 self.board2.move_down()
 
-        # DAS for P1 — NES-style 500ms delay then rapid repeat
+        # DAS for P1
         active1 = self.p1_input.get_active()
         if active1 == "LEFT":
             if self.p1_input.das("LEFT", self.DAS_DELAY, self.DAS_REPEAT):
@@ -119,7 +117,7 @@ class Tetris2PMode(GameBase):
             if self.p1_input.das("RIGHT", self.DAS_DELAY, self.DAS_REPEAT):
                 self.board1.move_right()
 
-        # DAS for P2 — same NES-style timing
+        # DAS for P2
         active2 = self.p2_input.get_active()
         if active2 == "LEFT":
             if self.p2_input.das("LEFT", self.DAS_DELAY, self.DAS_REPEAT):
@@ -142,9 +140,17 @@ class Tetris2PMode(GameBase):
     def draw(self, surface):
         surface.fill(COL_BG)
 
-        # draw both boards
-        self._draw_board(surface, self.board1, P1_OX, BOARD_OY, "P1")
-        self._draw_board(surface, self.board2, P2_OX, BOARD_OY, "P2")
+        # draw both boards using common helper
+        draw_board_grid_and_pieces(surface, self.board1, P1_OX, BOARD_OY)
+        draw_board_grid_and_pieces(surface, self.board2, P2_OX, BOARD_OY)
+
+        # P1 HUD
+        lbl1 = self.font_body.render(f"P1: {self.board1.score}", True, COL_WIN)
+        surface.blit(lbl1, (P1_OX, BOARD_OY - 30))
+
+        # P2 HUD
+        lbl2 = self.font_body.render(f"P2: {self.board2.score}", True, COL_DARK_GREEN)
+        surface.blit(lbl2, (P2_OX, BOARD_OY - 30))
 
         # hint between boards
         hint = self.font_body.render("First to top loses!", True, COL_TEXT_MUTED)
@@ -159,42 +165,6 @@ class Tetris2PMode(GameBase):
             surface.blit(wl, (SCREEN_WIDTH // 2 - wl.get_width() // 2, 400))
             sub = self.font_body.render("Press E or ENTER to return", True, COL_TEXT)
             surface.blit(sub, (SCREEN_WIDTH // 2 - sub.get_width() // 2, 480))
-
-    def _draw_board(self, surface, board, ox, oy, label):
-        pygame.draw.rect(surface, COL_BOARD_BG, (ox, oy, TETRIS_BOARD_W, TETRIS_BOARD_H))
-        pygame.draw.rect(surface, COL_BOARD_BDR, (ox, oy, TETRIS_BOARD_W, TETRIS_BOARD_H), 2)
-
-        for r in range(TETRIS_ROWS):
-            for c in range(TETRIS_COLS):
-                clr = board.get_grid_cell(r, c)
-                if clr:
-                    pygame.draw.rect(surface, PC.get(clr, COL_DARK_GREEN),
-                                     (ox + c * TETRIS_CELL + 1, oy + r * TETRIS_CELL + 1,
-                                      TETRIS_CELL - 2, TETRIS_CELL - 2))
-
-        if board.current and not board.game_over:
-            n, s, px, py, rot = board.current
-            srot = board._rotated(s, rot)
-            gy = board._ghost_y()
-            for ri, row in enumerate(srot):
-                for ci, v in enumerate(row):
-                    if v:
-                        pygame.draw.rect(surface, COL_GHOST,
-                                         (ox + (px + ci) * TETRIS_CELL + 1,
-                                          oy + (gy + ri) * TETRIS_CELL + 1,
-                                          TETRIS_CELL - 2, TETRIS_CELL - 2), 1)
-                        pygame.draw.rect(surface, PC.get(n, COL_DARK_GREEN),
-                                         (ox + (px + ci) * TETRIS_CELL + 1,
-                                          oy + (py + ri) * TETRIS_CELL + 1,
-                                          TETRIS_CELL - 2, TETRIS_CELL - 2))
-
-        lbl = self.font_body.render(f"{label}: {board.score}", True, COL_WIN if label == "P1" else COL_DARK_GREEN)
-        surface.blit(lbl, (ox, oy - 30))
-
-        if board.game_over:
-            ov = pygame.Surface((TETRIS_BOARD_W, TETRIS_BOARD_H), pygame.SRCALPHA)
-            ov.fill((0, 0, 0, 140))
-            surface.blit(ov, (ox, oy))
 
     def cleanup(self):
         self.p1_input.clear()

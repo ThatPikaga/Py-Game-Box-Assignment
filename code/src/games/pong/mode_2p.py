@@ -1,4 +1,3 @@
-# ======[ P O N G   —   2   P L A Y E R ]======
 # local 2-player pong on the same keyboard
 # P1 uses W/S, P2 uses UP/DOWN
 
@@ -40,6 +39,7 @@ class Pong2PMode(PongBaseMode):
 
     def startup(self, persist):
         super().startup(persist)
+        self._apply_difficulty()  # ball speed only here - no self.ai in 2P mode
         self.p1_score = 0
         self.p2_score = 0
         self.reset_ball()
@@ -55,18 +55,18 @@ class Pong2PMode(PongBaseMode):
         # P1 movement
         a1 = self.p1_input.get_active()
         if a1 == "P1_UP":
-            self.p1.y -= TOTAL_SPEED
+            self.p1.y -= self.paddle_speed
         elif a1 == "P1_DOWN":
-            self.p1.y += TOTAL_SPEED
+            self.p1.y += self.paddle_speed
         self.p1.top = max(0, self.p1.top)
         self.p1.bottom = min(SCREEN_HEIGHT, self.p1.bottom)
 
         # P2 movement
         a2 = self.p2_input.get_active()
         if a2 == "P2_UP":
-            self.p2.y -= TOTAL_SPEED
+            self.p2.y -= paddle_speed
         elif a2 == "P2_DOWN":
-            self.p2.y += TOTAL_SPEED
+            self.p2.y += paddle_speed
         self.p2.top = max(0, self.p2.top)
         self.p2.bottom = min(SCREEN_HEIGHT, self.p2.bottom)
 
@@ -96,7 +96,7 @@ class Pong2PMode(PongBaseMode):
             self.p1, self.p2, self.ball,
             self.p1_score, self.p2_score,
             p1_colour=COL_PLAYER, p2_colour=COL_AI,
-            font_big=self.font_big, font_body=self.font_body,
+            font_big=self.font_title, font_body=self.font_body,
         )
 
         # labels

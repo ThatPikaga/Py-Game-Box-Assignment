@@ -26,8 +26,8 @@ class InfoPopup:
     def __init__(self):
         self.active = False
         self.text_content = ""
-        self.font_title = pygame.font.Font(None, FONT_TITLE_SIZE)
-        self.font_body = pygame.font.Font(None, FONT_BODY_SIZE)
+        self.font_title = title_font()
+        self.font_body = body_font()
         self.scroll_offset = 0
         self.max_lines_visible = 12
     
@@ -227,9 +227,9 @@ class SettingsMenu:
         self.persist = persist
         self.done = False
         self.next_state = None
-        self.font_title = pygame.font.Font(None, FONT_TITLE_SIZE)
-        self.font_body = pygame.font.Font(None, FONT_BODY_SIZE)
-        self.font_small = pygame.font.Font(None, 18)
+        self.font_title = title_font()
+        self.font_body = body_font()
+        self.font_small = make_font(18)
         
         # Get context from persist (which state opened settings)
         self.context = persist.get("settings_context", "MAIN_MENU")

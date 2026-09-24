@@ -16,10 +16,10 @@ class NameEntryScreen:
         self.done = False
         self.next_state = None  # Will be "MODE_SELECT" or the game mode object
 
-        self.font_title = pygame.font.Font(None, FONT_TITLE_SIZE)
-        self.font_body = pygame.font.Font(None, FONT_BODY_SIZE)
-        self.font_small = pygame.font.Font(None, 24)
-        self.font_error = pygame.font.Font(None, FONT_BODY_SIZE)
+        self.font_title = title_font()
+        self.font_body = body_font()
+        self.font_small = make_font(14)
+        self.font_error = body_font()
 
         # Input box
         self.input_rect = pygame.Rect(SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT // 2 - 20, 300, 50)

@@ -48,7 +48,11 @@ class GameWrapperState(BaseState):
         # the old-style direct class from the carousel
         self.game_instance = persist.get("launched_game")
         self.game_name = persist.get("game_name", "Unknown")
-        self.font_body = pygame.font.Font(None, 28)
+        
+        # Grabs medium pixel font, or safely falls back to None if asset loading fails
+        loaded_fonts = persist.get("assets", {}).get("fonts", {})
+        self.font_body = loaded_fonts.get("main_medium", pygame.font.Font(None, 24))
+        
         self.music = persist.get("assets", {}).get("music_manager", None)
         self.pause.close()  # ensure pause is off at start
 
@@ -137,7 +141,10 @@ class GameWrapperState(BaseState):
         if not self.game_instance:
             surface.fill((5, 5, 15))
             txt = self.font_body.render(f"Loading: {self.game_name}...", True, (255, 215, 0))
-            surface.blit(txt, (475 - txt.get_width() // 2, 460))
+            
+            # Dynamically reads settings screen dimensions to pin text dead centre
+            screen_w = self.persist["settings"].SCREEN_WIDTH
+            surface.blit(txt, (screen_w // 2 - txt.get_width() // 2, 460))
             return
 
         # draw the game
@@ -149,6 +156,7 @@ class GameWrapperState(BaseState):
 
         # draw pause overlay on top
         self.pause.draw(surface)
+
 
     def cleanup(self):
         """Stop game music when returning to carousel."""
@@ -216,10 +224,11 @@ def main():
             # ESC from carousel quits the app
             if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 if state_machine.current_name == "MAIN_MENU":
-                    # check if mode select OR name entry is active - if so, let it handle esc
-                    # (was only checking mode_select, so ESC while typing your name was
-                    # quitting the whole app instead of just cancelling the name entry)
-                    if not carousel.mode_select and not carousel.name_entry:
+                    # check if mode select, name entry, OR difficulty select is
+                    # active - if so, let it handle esc instead of quitting.
+                    # difficulty_select is new; same bug as the name_entry one
+                    # would've bitten it if it wasn't added here too
+                    if not carousel.mode_select and not carousel.name_entry and not carousel.difficulty_select:
                         running = False
                         break
 

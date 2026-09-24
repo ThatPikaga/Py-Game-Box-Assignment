@@ -1,7 +1,4 @@
-# ======[ P O N G   —   V S   A I ]======
 # single player pong against the AI
-# input fixed: uses GameKeyHandler so you can hold W then press S
-# without releasing W — the most recent key wins
 
 import pygame
 import math as maths
@@ -43,6 +40,7 @@ class PongAIMode(PongBaseMode):
 
     def startup(self, persist):
         super().startup(persist)
+        self._apply_difficulty()  # pulls ball speed + AI tuning off self.difficulty, if any
         self.state = "PLAYING"
         self.player_score = 0
         self.opponent_score = 0
@@ -60,15 +58,16 @@ class PongAIMode(PongBaseMode):
         # === player movement (fixed: uses most-recent held key) ===
         active = self.input.get_active()
         if active == "P1_UP":
-            self.player.y -= TOTAL_SPEED
+            self.player.y -= self.paddle_speed
         elif active == "P1_DOWN":
-            self.player.y += TOTAL_SPEED
+            self.player.y += self.paddle_speed
 
         self.player.top = max(0, self.player.top)
         self.player.bottom = min(SCREEN_HEIGHT, self.player.bottom)
 
-        # AI movement
-        self.ai.move(self.opponent, self.ball)
+        # AI movement (extra args only matter if this difficulty's AI is
+        # predictive - AI.move() just ignores them for the Basic AI)
+        self.ai.move(self.opponent, self.ball, self.ball_speed_x, self.ball_speed_y, SCREEN_HEIGHT)
         self.opponent.top = max(0, self.opponent.top)
         self.opponent.bottom = min(SCREEN_HEIGHT, self.opponent.bottom)
 
@@ -98,7 +97,7 @@ class PongAIMode(PongBaseMode):
             self.player, self.opponent, self.ball,
             self.player_score, self.opponent_score,
             p1_colour=COL_WHITE, p2_colour=COL_WHITE,
-            font_big=self.font_big, font_body=self.font_body,
+            font_big=self.font_title, font_body=self.font_body,
         )
 
     def cleanup(self):

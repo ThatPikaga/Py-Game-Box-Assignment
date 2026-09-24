@@ -6,13 +6,26 @@ import os
 
 # Import settings inside the function to avoid circular import issues
 def load_assets(settings):
-    # Load all cover art images, sounds, and backgrounds. Returns a dict."""
     assets = {
         "covers": {},
         "sfx": {},
         "music": {},
+        "fonts": {},
         "background": None,
     }
+    
+    # Load Fonts
+    font_path = os.path.join("assets", "fonts", "Press_Start_2P", "PressStart2P-Regular.ttf")
+    try:
+        assets["fonts"]["main_small"] = pygame.font.Font(font_path, 16)
+        assets["fonts"]["main_medium"] = pygame.font.Font(font_path, 24)
+        assets["fonts"]["main_large"] = pygame.font.Font(font_path, 48)
+        print(f"  [OK] Custom font loaded successfully.")
+    except Exception as e:
+        print(f"  [!!] Could not load custom font at {font_path}: {e}")
+        assets["fonts"]["main_small"] = pygame.font.Font(None, 16)
+        assets["fonts"]["main_medium"] = pygame.font.Font(None, 24)
+        assets["fonts"]["main_large"] = pygame.font.Font(None, 48)
 
     #  Load cover art 
     for game_name, filename in settings.COVER_FILES.items():
