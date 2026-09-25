@@ -9,5 +9,5 @@ class Difficulty(PongDifficulty):
     speed_up_amount = 1
     ai_speed = 9
     ai_predictive = True
-    ai_error = 250
-    paddle_speed = 9
+    ai_error = 10
+    paddle_speed = 10

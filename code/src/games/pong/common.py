@@ -157,7 +157,14 @@ class PongBaseMode(GameBase):
         self.ball.y += self.ball_speed_y
 
         # top/bottom wall bounce
+        old_speed_y = self.ball_speed_y
         self.ball_speed_y = wall_bounce(self.ball, self.ball_speed_x, self.ball_speed_y)
+        if old_speed_y != self.ball_speed_y:
+            if self.sfx.get("ball_obj_hit"):
+                try:
+                    self.sfx["ball_obj_hit"].play()
+                except:
+                    pass
 
     def _check_paddle_hit_left(self, paddle):
         """Player/left-paddle collision. Updates ball speed in-place."""
@@ -182,10 +189,13 @@ class PongBaseMode(GameBase):
             self._on_paddle_hit()
 
     def _on_paddle_hit(self):
-        """Hell-style difficulties: ball gets a bit faster every paddle
-        hit. reset_ball() (called on every score, see _check_scoring)
-        brings _current_speed back down to the difficulty's base speed,
-        so this only ramps up within a single rally."""
+        """Play paddle-hit sound and optionally speed up the ball."""
+        if self.sfx.get("padel_hit"):
+            try:
+                self.sfx["padel_hit"].play()
+            except:
+                pass
+
         if self.difficulty and getattr(self.difficulty, "speed_up_on_hit", False):
             self._current_speed += getattr(self.difficulty, "speed_up_amount", 1)
 
@@ -214,10 +224,20 @@ class PongBaseMode(GameBase):
         """Check if ball went past left/right edges. Returns True if scored."""
         scored = False
         if self.ball.left <= 0:
+            if self.sfx.get("ball_gone"):
+                try:
+                    self.sfx["ball_gone"].play()
+                except:
+                    pass
             self._on_right_scored()
             self.reset_ball()
             scored = True
         if self.ball.right >= SCREEN_WIDTH:
+            if self.sfx.get("ball_gone"):
+                try:
+                    self.sfx["ball_gone"].play()
+                except:
+                    pass
             self._on_left_scored()
             self.reset_ball()
             scored = True

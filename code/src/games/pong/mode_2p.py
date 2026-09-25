@@ -64,9 +64,9 @@ class Pong2PMode(PongBaseMode):
         # P2 movement
         a2 = self.p2_input.get_active()
         if a2 == "P2_UP":
-            self.p2.y -= paddle_speed
+            self.p2.y -= self.paddle_speed
         elif a2 == "P2_DOWN":
-            self.p2.y += paddle_speed
+            self.p2.y += self.paddle_speed
         self.p2.top = max(0, self.p2.top)
         self.p2.bottom = min(SCREEN_HEIGHT, self.p2.bottom)
 
@@ -83,12 +83,12 @@ class Pong2PMode(PongBaseMode):
         self._check_scoring()
 
     def _on_left_scored(self):
-        """P2 scored (ball went past P1's left edge)."""
-        self.p2_score += 1
+        """P1 scored (ball went past P2's left edge)."""
+        self.p1_score += 1
 
     def _on_right_scored(self):
-        """P1 scored (ball went past P2's right edge)."""
-        self.p1_score += 1
+        """P2 scored (ball went past P1's right edge)."""
+        self.p2_score += 1
 
     def draw(self, surface):
         draw_pong_board(
