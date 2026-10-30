@@ -9,6 +9,7 @@ from src.engine.input_handler import GameKeyHandler
 from src.games.pong.common import (
     PongBaseMode, make_paddle_rect, make_paddle_rect_right,
     make_ball_rect, draw_pong_board,
+    PONG_WIN_SCORE, PONG_PLAY_AGAIN_RECT, draw_pong_game_over,
 )
 
 class Pong2PMode(PongBaseMode):
@@ -40,8 +41,10 @@ class Pong2PMode(PongBaseMode):
     def startup(self, persist):
         super().startup(persist)
         self._apply_difficulty()  # ball speed only here - no self.ai in 2P mode
+        self.state = "PLAYING"
         self.p1_score = 0
         self.p2_score = 0
+        self.winner_msg = ""
         self.reset_ball()
         self.p1_input.clear()
         self.p2_input.clear()
@@ -49,9 +52,19 @@ class Pong2PMode(PongBaseMode):
     def handle_event(self, event):
         self.p1_input.handle_event(event)
         self.p2_input.handle_event(event)
+        if self.state == "GAME_OVER":
+            if event.type == pygame.KEYDOWN and event.key in (pygame.K_RETURN, pygame.K_e):
+                return "PLAY_AGAIN"
+            if (event.type == pygame.MOUSEBUTTONDOWN and event.button == 1
+                    and PONG_PLAY_AGAIN_RECT.collidepoint(event.pos)):
+                return "PLAY_AGAIN"
+            return super().handle_event(event)
         return super().handle_event(event)
 
     def update(self, dt):
+        if self.state != "PLAYING":
+            return
+
         # P1 movement
         a1 = self.p1_input.get_active()
         if a1 == "P1_UP":
@@ -85,10 +98,16 @@ class Pong2PMode(PongBaseMode):
     def _on_left_scored(self):
         """P1 scored (ball went past P2's left edge)."""
         self.p1_score += 1
+        if self.p1_score >= PONG_WIN_SCORE:
+            self.winner_msg = "Player 1 Wins!"
+            self.state = "GAME_OVER"
 
     def _on_right_scored(self):
         """P2 scored (ball went past P1's right edge)."""
         self.p2_score += 1
+        if self.p2_score >= PONG_WIN_SCORE:
+            self.winner_msg = "Player 2 Wins!"
+            self.state = "GAME_OVER"
 
     def draw(self, surface):
         draw_pong_board(
@@ -102,8 +121,10 @@ class Pong2PMode(PongBaseMode):
         # labels
         p1l = self.font_body.render("P1 (W/S)", True, COL_TEXT_MUTED)
         p2l = self.font_body.render("P2 (Up/Down)", True, COL_TEXT_MUTED)
-        surface.blit(p1l, (SCREEN_WIDTH // 4 - p1l.get_width() // 2, 60))
-        surface.blit(p2l, (3 * SCREEN_WIDTH // 4 - p2l.get_width() // 2, 60))
+        surface.blit(p1l, (SCREEN_WIDTH // 4 - p1l.get_width() // 2, scale_y(60)))
+        surface.blit(p2l, (3 * SCREEN_WIDTH // 4 - p2l.get_width() // 2, scale_y(60)))
+        if self.state == "GAME_OVER":
+            draw_pong_game_over(surface, self.winner_msg)
 
     def cleanup(self):
         self.p1_input.clear()

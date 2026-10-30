@@ -1,56 +1,48 @@
-# Keeps track of what's currently playing so we don't restart the same track
+# Keeps track of the current music and applies the volume from Settings.
 
 import pygame
 
+
 class MusicManager:
-    """Simple music manager. Call play(track_key) with a key from assets["music_tracks"]."""
+    """Plays launcher music and music found in each game's own folder."""
 
     def __init__(self, music_tracks):
-        self.tracks = music_tracks      # {name: filepath}
+        self.tracks = music_tracks
         self.current_track = None
         self.volume = 0.5
         self.enabled = True
 
     def play(self, track_key, loop=-1, fade_ms=500):
-        """
-        Start playing a track. If it's already playing, do nothing.
-        track_key: key into self.tracks (e.g. "main_theme", "breakout")
-        loop: -1 = infinite, 0 = once
-        fade_ms: crossfade duration in ms
-        """
-        if not self.enabled:
-            return
-
-        if track_key == self.current_track and pygame.mixer.music.get_busy():
-            return  # already playing
-
+        """Play a track by its registered key, even if it is currently muted."""
         path = self.tracks.get(track_key)
         if not path:
-            print(f"  [MusicManager] No track registered for '{track_key}'")
+            print(f"[MusicManager] No music file found for '{track_key}'")
             return
 
         try:
+            if track_key == self.current_track and pygame.mixer.music.get_busy():
+                return
             pygame.mixer.music.load(path)
-            pygame.mixer.music.set_volume(self.volume)
+            pygame.mixer.music.set_volume(self.volume if self.enabled else 0)
             pygame.mixer.music.play(loops=loop, fade_ms=fade_ms)
             self.current_track = track_key
-            print(f"  [MusicManager] Now playing: {track_key}")
-        except Exception as e:
-            print(f"  [MusicManager] Failed to play {track_key}: {e}")
+            print(f"[MusicManager] Now playing: {track_key}")
+        except Exception as error:
+            print(f"[MusicManager] Could not play {track_key}: {error}")
 
     def stop(self, fade_ms=300):
-        # Stop current music with fade-out.
         if pygame.mixer.music.get_busy():
             pygame.mixer.music.fadeout(fade_ms)
         self.current_track = None
 
-    def set_volume(self, vol):
-        self.volume = max(0.0, min(1.0, vol))
-        pygame.mixer.music.set_volume(self.volume)
+    def set_volume(self, volume):
+        self.volume = max(0.0, min(1.0, volume))
+        pygame.mixer.music.set_volume(self.volume if self.enabled else 0)
+
+    def set_enabled(self, enabled):
+        self.enabled = bool(enabled)
+        pygame.mixer.music.set_volume(self.volume if self.enabled else 0)
 
     def toggle(self):
-        # Toggle music on/off.
-        self.enabled = not self.enabled
-        if not self.enabled:
-            self.stop(200)
+        self.set_enabled(not self.enabled)
         return self.enabled

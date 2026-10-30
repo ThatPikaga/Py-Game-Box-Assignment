@@ -27,7 +27,11 @@ class GameBase:
     def startup(self, persist):
         """Called when the state machine starts/resumes this mode."""
         self.persist = persist
-        self.sfx = persist.get("assets", {}).get("sfx", {})
+        assets = persist.get("assets", {})
+        game_name = persist.get("game_name", "")
+
+        # A game only receives sounds from its own folder. Launcher sounds stay separate.
+        self.sfx = assets.get("game_sfx", {}).get(game_name, {})
         self.pause_requested = False
 
     def handle_event(self, event):
@@ -51,3 +55,11 @@ class GameBase:
     def cleanup(self):
         """Called before switching away."""
         pass
+
+    def get_scoreboard_data(self):
+        """Optionally return a score or named metric for the scoreboard.
+
+        Return None when the game has no number worth ranking. The launcher
+        still saves that the game was played.
+        """
+        return None

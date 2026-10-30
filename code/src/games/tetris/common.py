@@ -2,7 +2,7 @@
 import pygame
 import random
 from src.core.constants import (
-    SCREEN_WIDTH, SCREEN_HEIGHT,
+    SCREEN_WIDTH, SCREEN_HEIGHT, scale_size,
     TETRIS_COLS, TETRIS_ROWS, TETRIS_CELL,
     TETRIS_BOARD_W, TETRIS_BOARD_H,
     COL_BG, COL_BOARD_BG, COL_BOARD_BDR, COL_TEXT, COL_TEXT_MUTED,
@@ -117,6 +117,17 @@ class Board:
                     pass
 
         self._spawn_piece()
+        return cleared
+
+    def add_garbage_rows(self, count):
+        """Push the stack up and add one partly-filled row for each line scored."""
+        for _ in range(count):
+            if any(cell is not None for cell in self.grid[0]):
+                self.game_over = True
+            self.grid.pop(0)
+            row = ["G"] * TETRIS_COLS
+            row[random.randrange(TETRIS_COLS)] = None
+            self.grid.append(row)
 
     def _ghost_y(self):
         """Where would the current piece land if hard-dropped?"""
@@ -142,19 +153,21 @@ class Board:
                 self.current[2] = x + 1
 
     def move_down(self):
-        """Soft drop one cell. Locks the piece if it can't go further."""
+        """Soft drop one cell. Returns cleared rows if the piece locks."""
         if self.current and not self.game_over:
             _, shape, x, y, rot = self.current
             if not self._collides(self._rotated(shape, rot), x, y + 1):
                 self.current[3] = y + 1
             else:
-                self._lock()
+                return self._lock()
+        return 0
 
     def hard_drop(self):
-        """Drop straight to the ghost position and lock immediately."""
+        """Drop straight to the ghost position and return how many rows cleared."""
         if self.current and not self.game_over:
             self.current[3] = self._ghost_y()
-            self._lock()
+            return self._lock()
+        return 0
 
     def rotate(self):
         """Try to rotate the current piece, with wall-kicks left/right."""
@@ -178,7 +191,7 @@ class Board:
 def draw_board_grid_and_pieces(surface, board, ox, oy):
     """Draws the board background, locked cells, current piece, ghost piece, and game-over dimming."""
     pygame.draw.rect(surface, COL_BOARD_BG, (ox, oy, TETRIS_BOARD_W, TETRIS_BOARD_H))
-    pygame.draw.rect(surface, COL_BOARD_BDR, (ox, oy, TETRIS_BOARD_W, TETRIS_BOARD_H), 2)
+    pygame.draw.rect(surface, COL_BOARD_BDR, (ox, oy, TETRIS_BOARD_W, TETRIS_BOARD_H), scale_size(2))
 
     # locked cells
     for r in range(TETRIS_ROWS):
@@ -186,8 +199,8 @@ def draw_board_grid_and_pieces(surface, board, ox, oy):
             clr = board.get_grid_cell(r, c)
             if clr:
                 pygame.draw.rect(surface, PC.get(clr, COL_DARK_GREEN),
-                                 (ox + c * TETRIS_CELL + 1, oy + r * TETRIS_CELL + 1,
-                                  TETRIS_CELL - 2, TETRIS_CELL - 2))
+                                 (ox + c * TETRIS_CELL + scale_size(1), oy + r * TETRIS_CELL + scale_size(1),
+                                  TETRIS_CELL - scale_size(2), TETRIS_CELL - scale_size(2)))
 
     # current + ghost piece
     if board.current and not board.game_over:
@@ -199,14 +212,14 @@ def draw_board_grid_and_pieces(surface, board, ox, oy):
                 if v:
                     # ghost outline
                     pygame.draw.rect(surface, COL_GHOST,
-                                     (ox + (px + ci) * TETRIS_CELL + 1,
-                                      oy + (gy + ri) * TETRIS_CELL + 1,
-                                      TETRIS_CELL - 2, TETRIS_CELL - 2), 1)
+                                     (ox + (px + ci) * TETRIS_CELL + scale_size(1),
+                                      oy + (gy + ri) * TETRIS_CELL + scale_size(1),
+                                      TETRIS_CELL - scale_size(2), TETRIS_CELL - scale_size(2)), scale_size(1))
                     # actual piece
                     pygame.draw.rect(surface, PC.get(n, COL_DARK_GREEN),
-                                     (ox + (px + ci) * TETRIS_CELL + 1,
-                                      oy + (py + ri) * TETRIS_CELL + 1,
-                                      TETRIS_CELL - 2, TETRIS_CELL - 2))
+                                     (ox + (px + ci) * TETRIS_CELL + scale_size(1),
+                                      oy + (py + ri) * TETRIS_CELL + scale_size(1),
+                                      TETRIS_CELL - scale_size(2), TETRIS_CELL - scale_size(2)))
 
     # dim board if game over
     if board.game_over:

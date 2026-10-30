@@ -41,9 +41,9 @@ class SPR2PMode(SPRBaseMode):
 
         # Move the menu button lower for 2P layout
         self.menu_btn = pygame.Rect(
-            SCREEN_WIDTH // 2 - 100,
-            SCREEN_HEIGHT // 2 + 140,
-            200, 50,
+            SCREEN_WIDTH // 2 - scale_x(100),
+            SCREEN_HEIGHT // 2 + scale_y(140),
+            scale_x(200), scale_y(50),
         )
 
     # =================================================================
@@ -73,44 +73,44 @@ class SPR2PMode(SPRBaseMode):
 
     def _draw_playing(self, surface, card):
         prompt = self.font_header.render("Both players choose simultaneously:", True, COL_TEXT)
-        prompt_rect = prompt.get_rect(center=(card.centerx, card.top + 40))
+        prompt_rect = prompt.get_rect(center=(card.centerx, card.top + scale_y(40)))
         surface.blit(prompt, prompt_rect)
 
         # === P1 side ===
-        p1_card = pygame.Rect(card.left + 30, card.top + 80, 300, 280)
+        p1_card = pygame.Rect(card.left + scale_x(30), card.top + scale_y(80), scale_x(300), scale_y(280))
         pygame.draw.rect(surface, COL_PLAYER, p1_card, border_radius=8, width=2)
 
         p1_hdr = self.font_header.render("Player 1", True, COL_PLAYER)
-        p1_hdr_rect = p1_hdr.get_rect(center=(p1_card.centerx, p1_card.top + 25))
+        p1_hdr_rect = p1_hdr.get_rect(center=(p1_card.centerx, p1_card.top + scale_y(25)))
         surface.blit(p1_hdr, p1_hdr_rect)
 
         p1_status = self.font_body.render(
             "Locked In!" if self.p1_choice else "Waiting...",
             True, COL_PLAYER if self.p1_choice else COL_TEXT_MUTED,
         )
-        p1_stat_rect = p1_status.get_rect(center=(p1_card.centerx, p1_card.top + 60))
+        p1_stat_rect = p1_status.get_rect(center=(p1_card.centerx, p1_card.top + scale_y(60)))
         surface.blit(p1_status, p1_stat_rect)
 
         p1_hint = self.font_body.render(
             f"Choice: {self.p1_choice}" if self.p1_choice else "[A] Scissors  [W] Paper  [D] Rock",
             True, COL_TEXT,
         )
-        p1_hint_rect = p1_hint.get_rect(center=(p1_card.centerx, p1_card.top + 100))
+        p1_hint_rect = p1_hint.get_rect(center=(p1_card.centerx, p1_card.top + scale_y(100)))
         surface.blit(p1_hint, p1_hint_rect)
 
         # === P2 side ===
-        p2_card = pygame.Rect(card.right - 330, card.top + 80, 300, 280)
+        p2_card = pygame.Rect(card.right - scale_x(330), card.top + scale_y(80), scale_x(300), scale_y(280))
         pygame.draw.rect(surface, COL_AI, p2_card, border_radius=8, width=2)
 
         p2_hdr = self.font_header.render("Player 2", True, COL_AI)
-        p2_hdr_rect = p2_hdr.get_rect(center=(p2_card.centerx, p2_card.top + 25))
+        p2_hdr_rect = p2_hdr.get_rect(center=(p2_card.centerx, p2_card.top + scale_y(25)))
         surface.blit(p2_hdr, p2_hdr_rect)
 
         p2_status = self.font_body.render(
             "Locked In!" if self.p2_choice else "Waiting...",
             True, COL_AI if self.p2_choice else COL_TEXT_MUTED,
         )
-        p2_stat_rect = p2_status.get_rect(center=(p2_card.centerx, p2_card.top + 60))
+        p2_stat_rect = p2_status.get_rect(center=(p2_card.centerx, p2_card.top + scale_y(60)))
         surface.blit(p2_status, p2_stat_rect)
 
         p2_hint = self.font_body.render(
@@ -118,7 +118,7 @@ class SPR2PMode(SPRBaseMode):
             else "[left] Scissors  [up] Paper  [right] Rock",
             True, COL_TEXT,
         )
-        p2_hint_rect = p2_hint.get_rect(center=(p2_card.centerx, p2_card.top + 100))
+        p2_hint_rect = p2_hint.get_rect(center=(p2_card.centerx, p2_card.top + scale_y(100)))
         surface.blit(p2_hint, p2_hint_rect)
 
         # === cross-card status ===
@@ -136,7 +136,7 @@ class SPR2PMode(SPRBaseMode):
             colour = COL_GREEN
 
         status_surf = self.font_header.render(msg, True, colour)
-        status_rect = status_surf.get_rect(center=(card.centerx, card.bottom - 35))
+        status_rect = status_surf.get_rect(center=(card.centerx, card.bottom - scale_y(35)))
         surface.blit(status_surf, status_rect)
 
     def _draw_game_over(self, surface, card):

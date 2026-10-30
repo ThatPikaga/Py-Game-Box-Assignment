@@ -1,0 +1,9 @@
+GUESS THE NUMBER
+
+Try to discover the secret number between 1 and 1000.
+Type a numbered guess and press ENTER to submit it; use BACKSPACE to correct your entry.
+Feedback tells you whether the secret number is higher or lower, 
+so narrow down the range with each attempt. 
+
+The difficulty setting changes the number of guesses available. 
+In the local two-player mode, one player chooses the secret number and the other tries to guess it.

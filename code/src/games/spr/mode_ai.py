@@ -32,6 +32,7 @@ class SPRAIMode(SPRBaseMode):
         self.state = "PLAYING"
         self.player_choice = ""
         self.ai_choice = ""
+        self.difficulty = None
 
     # =================================================================
     #   E V E N T S
@@ -51,34 +52,34 @@ class SPRAIMode(SPRBaseMode):
 
     def _draw_playing(self, surface, card):
         prompt = self.font_header.render("Pick your weapon:", True, COL_TEXT)
-        prompt_rect = prompt.get_rect(center=(card.centerx, card.top + 50))
+        prompt_rect = prompt.get_rect(center=(card.centerx, card.top + scale_y(50)))
         surface.blit(prompt, prompt_rect)
 
         # draw the three choice buttons
         labels = [("A", "Scissors"), ("W", "Paper"), ("D", "Rock")]
         colours = [COL_PLAYER, COL_YELLOW, COL_AI]
-        btn_w, btn_h, gap = 160, 60, 20
+        btn_w, btn_h, gap = scale_x(160), scale_y(60), scale_x(20)
         total_w = 3 * btn_w + 2 * gap
         start_x = card.centerx - total_w // 2
 
         for i, (key, name) in enumerate(labels):
             bx = start_x + i * (btn_w + gap)
-            by = card.top + 110
+            by = card.top + scale_y(110)
             btn_rect = pygame.Rect(bx, by, btn_w, btn_h)
             pygame.draw.rect(surface, colours[i], btn_rect, border_radius=8)
 
             # key hint
             hint = self.font_body.render(f"[{key}]", True, COL_BLACK)
-            hint_rect = hint.get_rect(center=(btn_rect.centerx, btn_rect.centery - 10))
+            hint_rect = hint.get_rect(center=(btn_rect.centerx, btn_rect.centery - scale_y(10)))
             surface.blit(hint, hint_rect)
 
             lbl = self.font_body.render(name, True, COL_BLACK)
-            lbl_rect = lbl.get_rect(center=(btn_rect.centerx, btn_rect.centery + 14))
+            lbl_rect = lbl.get_rect(center=(btn_rect.centerx, btn_rect.centery + scale_y(14)))
             surface.blit(lbl, lbl_rect)
 
         # status hint at the bottom of the card
         hint = self.font_body.render("Press A / W / D to make your move", True, COL_TEXT_MUTED)
-        hint_rect = hint.get_rect(center=(card.centerx, card.bottom - 30))
+        hint_rect = hint.get_rect(center=(card.centerx, card.bottom - scale_y(30)))
         surface.blit(hint, hint_rect)
 
     def _draw_game_over(self, surface, card):
@@ -95,7 +96,14 @@ class SPRAIMode(SPRBaseMode):
     def _play_round(self, player_choice):
         """Evaluate one round: player picks, AI picks, declare winner."""
         self.player_choice = player_choice
-        self.ai_choice = random_ai_choice()
+        # Higher difficulties are more likely to choose the move that beats yours.
+        # Yes.. the ai is a cheater who waits for you.
+        counter_chance = getattr(self.difficulty, "counter_chance", 0.0)
+        if random.random() < counter_chance:
+            winning_moves = {"Scissors": "Rock", "Paper": "Scissors", "Rock": "Paper"}
+            self.ai_choice = winning_moves[player_choice]
+        else:
+            self.ai_choice = random_ai_choice()
 
         self.winner_text, self.detail_text = evaluate_round(
             self.player_choice, self.ai_choice,

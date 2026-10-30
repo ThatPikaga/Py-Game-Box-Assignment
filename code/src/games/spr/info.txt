@@ -1,0 +1,7 @@
+SCISSORS PAPER ROCK
+
+Choose Rock, Paper, or Scissors and compete against another local player or the computer, 
+depending on the selected mode. For Player 1, press A for Scissors, W for Paper, or D for Rock. 
+In local two-player mode, Player 2 uses LEFT for Scissors, UP for Paper, and RIGHT for Rock. 
+Rock beats Scissors, Scissors beats Paper, and Paper beats Rock; matching choices are a draw. 
+In Vs AI, difficulty changes how likely the computer is to choose a move that counters yours.

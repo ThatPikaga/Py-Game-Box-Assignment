@@ -18,14 +18,17 @@ class Breakout1PMode(GameBase):
         self.name = "Breakout 1 Player"
 
         self.paddle = pygame.Rect(SCREEN_WIDTH // 2 - PADDLE_W // 2,
-                                   SCREEN_HEIGHT - 50, PADDLE_W, PADDLE_H)
+                                   SCREEN_HEIGHT - scale_y(50), PADDLE_W, PADDLE_H)
         self.ball = pygame.Rect(SCREEN_WIDTH // 2 - BALL_SIZE // 2,
                                  SCREEN_HEIGHT // 2, BALL_SIZE, BALL_SIZE)
 
-        self.ball_speed_x = 4
-        self.ball_speed_y = -4
+        self.ball_speed_x = scale_size(4)
+        self.ball_speed_y = -scale_size(4)
         self.lives = 3
         self.score = 0
+        self.game_over = False
+        self.paddle_speed = PADDLE_MAX_SPEED
+        self.ball_total_speed = TOTAL_SPEED
         self.bricks = []
         self.powerups = []
 
@@ -39,11 +42,25 @@ class Breakout1PMode(GameBase):
 
         self.font_title = title_font()
         self.font_body = body_font()
+        self.play_again_btn = pygame.Rect(
+            SCREEN_WIDTH // 2 - scale_x(110),
+            SCREEN_HEIGHT // 2 + scale_y(80),
+            scale_x(220), scale_y(48),
+        )
 
     def startup(self, persist):
         super().startup(persist)
-        self.lives = 3
+        difficulty = getattr(self, "difficulty", None)
+        self.lives = getattr(difficulty, "lives", 3)
+        if difficulty:
+            self.paddle_speed = scale_size(difficulty.paddle_speed)
+            self.ball_total_speed = scale_size(difficulty.ball_speed)
+        else:
+            # These shared defaults are already scaled in constants.py.
+            self.paddle_speed = PADDLE_MAX_SPEED
+            self.ball_total_speed = TOTAL_SPEED
         self.score = 0
+        self.game_over = False
         self.powerups.clear()
         self.reset_ball()
         self._reset_bricks()
@@ -51,13 +68,13 @@ class Breakout1PMode(GameBase):
 
     def _reset_bricks(self):
         brick_w = (SCREEN_WIDTH - (PADDING * (COLS + 1))) // COLS
-        brick_h = 20
+        brick_h = scale_y(20)
         self.bricks = create_grid(ROWS, COLS, brick_w, brick_h, OFFSET_TOP, PADDING)
 
     def reset_ball(self):
-        self.ball.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT - 100)
-        self.ball_speed_x = random.choice([-4, 4])
-        self.ball_speed_y = -4
+        self.ball.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT - scale_y(100))
+        self.ball_speed_x = random.choice([-1, 1]) * self.ball_total_speed * 0.4
+        self.ball_speed_y = -maths.sqrt(max(0, self.ball_total_speed ** 2 - self.ball_speed_x ** 2))
         self.paddle.width = PADDLE_W
         self.paddle.centerx = SCREEN_WIDTH // 2
 
@@ -65,15 +82,24 @@ class Breakout1PMode(GameBase):
         self.input.handle_event(event)
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
             self.pause_requested = True
+        if self.game_over:
+            if event.type == pygame.KEYDOWN and event.key in (pygame.K_RETURN, pygame.K_e):
+                return "PLAY_AGAIN"
+            if (event.type == pygame.MOUSEBUTTONDOWN and event.button == 1
+                    and self.play_again_btn.collidepoint(event.pos)):
+                return "PLAY_AGAIN"
         return None
 
     def update(self, dt):
+        if self.game_over:
+            return
+
         # =============== paddle movement (fixed: most-recent key held) =================
         active = self.input.get_active()
         if active in ("MOVE_LEFT", "MOVE_LEFT_ALT"):
-            self.paddle.x -= PADDLE_MAX_SPEED
+            self.paddle.x -= self.paddle_speed
         elif active in ("MOVE_RIGHT", "MOVE_RIGHT_ALT"):
-            self.paddle.x += PADDLE_MAX_SPEED
+            self.paddle.x += self.paddle_speed
 
         self.paddle.left = max(0, self.paddle.left)
         self.paddle.right = min(SCREEN_WIDTH, self.paddle.right)
@@ -101,9 +127,9 @@ class Breakout1PMode(GameBase):
                 except: pass
             if self.lives <= 0:
                 self.lives = 0
-                self.score = 0
-                self._reset_bricks()
+                self.game_over = True
                 self.powerups.clear()
+                return
             self.reset_ball()
 
         # paddle collision
@@ -114,8 +140,8 @@ class Breakout1PMode(GameBase):
             ri = bc - pc
             ni = ri / (self.paddle.width / 2)
             ni = max(-0.9, min(0.9, ni))
-            self.ball_speed_x = ni * BOUNCE_SPEED
-            self.ball_speed_y = -maths.sqrt(max(0, TOTAL_SPEED**2 - self.ball_speed_x**2))
+            self.ball_speed_x = ni * (self.ball_total_speed - scale_size(1))
+            self.ball_speed_y = -maths.sqrt(max(0, self.ball_total_speed**2 - self.ball_speed_x**2))
             if self.sfx.get("padel_hit"):
                 try: self.sfx["padel_hit"].play()
                 except: pass
@@ -163,9 +189,9 @@ class Breakout1PMode(GameBase):
             p.update()
             if p.colliderect(self.paddle):
                 if p.type == 'EXPAND':
-                    self.paddle.width = min(200, self.paddle.width + 30)
+                    self.paddle.width = min(scale_size(200), self.paddle.width + scale_size(30))
                 elif p.type == 'SHRINK':
-                    self.paddle.width = max(60, self.paddle.width - 30)
+                    self.paddle.width = max(scale_size(60), self.paddle.width - scale_size(30))
                 elif p.type == 'SLOW':
                     pass  # simplified — could adjust ball speed
                 elif p.type == 'FAST':
@@ -198,9 +224,24 @@ class Breakout1PMode(GameBase):
 
         # HUD
         st = self.font_body.render(f"Score: {self.score}", True, COL_WHITE)
-        surface.blit(st, (20, 15))
+        surface.blit(st, (scale_x(20), scale_y(15)))
         lt = self.font_body.render(f"Lives: {self.lives}", True, COL_WHITE)
-        surface.blit(lt, (SCREEN_WIDTH - 120, 15))
+        surface.blit(lt, (SCREEN_WIDTH - scale_x(120), scale_y(15)))
+
+        if self.game_over:
+            overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
+            overlay.fill((0, 0, 0, 190))
+            surface.blit(overlay, (0, 0))
+            title = self.font_title.render("GAME OVER", True, COL_LOSE)
+            score = self.font_body.render(f"Final score: {self.score}", True, COL_WHITE)
+            hint = self.font_body.render("Press E / ENTER or select Play Again", True, COL_TEXT_MUTED)
+            surface.blit(title, title.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - scale_y(45))))
+            surface.blit(score, score.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + scale_y(10))))
+            surface.blit(hint, hint.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + scale_y(48))))
+            pygame.draw.rect(surface, COL_DARK_RED, self.play_again_btn, border_radius=7)
+            pygame.draw.rect(surface, COL_GOLD, self.play_again_btn, 2, border_radius=7)
+            button = self.font_body.render("PLAY AGAIN", True, COL_WHITE)
+            surface.blit(button, button.get_rect(center=self.play_again_btn.center))
 
     def cleanup(self):
         self.input.clear()

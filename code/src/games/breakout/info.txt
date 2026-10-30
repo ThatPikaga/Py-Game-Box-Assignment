@@ -1,0 +1,9 @@
+BREAKOUT
+
+Break the wall of bricks by bouncing the ball off your paddle.
+Move the paddle LEFT and RIGHT with the arrow keys, or use A and D.
+Keep the ball in play, aim for the remaining bricks,
+and collect power-ups when you can. 
+Letting the ball fall past your paddle costs a life. 
+Clear the bricks and try to beat your previous score. 
+The available difficulty settings adjust the challenge.

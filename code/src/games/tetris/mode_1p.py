@@ -5,7 +5,7 @@ import pygame
 import random
 from src.core.game_base import GameBase
 from src.core.constants import (
-    SCREEN_WIDTH, SCREEN_HEIGHT,
+    SCREEN_WIDTH, SCREEN_HEIGHT, scale_x, scale_y, scale_size,
     TETRIS_COLS, TETRIS_ROWS, TETRIS_CELL,
     TETRIS_BOARD_W, TETRIS_BOARD_H,
     COL_BG, COL_BOARD_BG, COL_BOARD_BDR, COL_TEXT,
@@ -25,6 +25,8 @@ class Tetris1PMode(GameBase):
         super().__init__()
         self.name = "Tetris 1 Player"
         self.state = "PLAYING"
+        self.difficulty = None
+        self.gravity_base_interval = 500
 
         self.board = Board()
 
@@ -48,6 +50,11 @@ class Tetris1PMode(GameBase):
         # Custom fonts from constants.py
         self.font_large = title_font()
         self.font_body = body_font()
+        self.play_again_btn = pygame.Rect(
+            SCREEN_WIDTH // 2 - scale_x(110),
+            SCREEN_HEIGHT // 2 + scale_y(80),
+            scale_x(220), scale_y(48),
+        )
 
     def startup(self, persist):
         """Reset everything — called by the state machine on enter."""
@@ -58,7 +65,8 @@ class Tetris1PMode(GameBase):
         self.board = Board()
         self.board.sfx = self.sfx
 
-        self.gravity_interval = 167
+        self.gravity_base_interval = getattr(self.difficulty, "gravity_interval", 500)
+        self.gravity_interval = self.gravity_base_interval
         self.gravity_timer = 0
         self.input.clear()
 
@@ -67,12 +75,11 @@ class Tetris1PMode(GameBase):
         action = self.input.handle_event(event)
 
         if self.state == "GAME_OVER":
-            # E or ENTER or mouse click → back to mode select
-            if event.type == pygame.KEYDOWN:
-                if event.key in (pygame.K_e, pygame.K_RETURN):
-                    return "MAIN_MENU"
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                return "MAIN_MENU"
+            if event.type == pygame.KEYDOWN and event.key in (pygame.K_e, pygame.K_RETURN):
+                return "PLAY_AGAIN"
+            if (event.type == pygame.MOUSEBUTTONDOWN and event.button == 1
+                    and self.play_again_btn.collidepoint(event.pos)):
+                return "PLAY_AGAIN"
 
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
             self.pause_requested = True
@@ -111,7 +118,7 @@ class Tetris1PMode(GameBase):
 
         # gravity speeds up as you get better
         level = self.board.lines_cleared // 10
-        self.gravity_interval = max(100, 500 - level * 40)
+        self.gravity_interval = max(80, self.gravity_base_interval - level * 40)
 
         # ===== DAS (left / right repeat) =====
         active = self.input.get_active()
@@ -127,27 +134,27 @@ class Tetris1PMode(GameBase):
         surface.fill(COL_BG)
 
         ox = (SCREEN_WIDTH - TETRIS_BOARD_W) // 2
-        oy = 70
+        oy = scale_y(70)
 
         # Draw board grid, pieces, and game-over dimming using common helper
         draw_board_grid_and_pieces(surface, self.board, ox, oy)
 
         # ===== HUD =====
         score_text = self.font_large.render(f"Score: {self.board.score}", True, COL_TEXT)
-        surface.blit(score_text, (ox, oy - 45))
+        surface.blit(score_text, (ox, oy - scale_y(45)))
 
         lines_text = self.font_body.render(f"Lines: {self.board.lines_cleared}", True, COL_TEXT)
-        surface.blit(lines_text, (ox, oy - 20))
+        surface.blit(lines_text, (ox, oy - scale_y(20)))
 
         # ===== next piece preview =====
         if self.board.next_piece:
-            nx = ox + TETRIS_BOARD_W + 20
-            ny = oy + 40
+            nx = ox + TETRIS_BOARD_W + scale_x(20)
+            ny = oy + scale_y(40)
             label = self.font_body.render("Next:", True, COL_TEXT)
-            surface.blit(label, (nx, ny - 30))
+            surface.blit(label, (nx, ny - scale_y(30)))
 
             nn, ns = self.board.next_piece
-            preview_cell = 20  # smaller cells for the preview
+            preview_cell = scale_size(20)  # smaller cells for the preview
             for ri, row in enumerate(ns):
                 for ci, cell in enumerate(row):
                     if cell:
@@ -155,7 +162,7 @@ class Tetris1PMode(GameBase):
                         pygame.draw.rect(
                             surface, colour,
                             (nx + ci * preview_cell, ny + ri * preview_cell,
-                             preview_cell - 2, preview_cell - 2)
+                             preview_cell - scale_size(2), preview_cell - scale_size(2))
                         )
 
         # ===== GAME OVER overlay =====
@@ -166,15 +173,19 @@ class Tetris1PMode(GameBase):
 
             go_text = self.font_large.render("GAME OVER", True, COL_LOSE)
             surface.blit(go_text, (SCREEN_WIDTH // 2 - go_text.get_width() // 2,
-                                   SCREEN_HEIGHT // 2 - 60))
+                                   SCREEN_HEIGHT // 2 - scale_y(60)))
 
             score_final = self.font_body.render(f"Final Score: {self.board.score}", True, COL_TEXT)
             surface.blit(score_final, (SCREEN_WIDTH // 2 - score_final.get_width() // 2,
                                        SCREEN_HEIGHT // 2))
 
-            sub_text = self.font_body.render("Press E or ENTER to return", True, COL_TEXT)
+            sub_text = self.font_body.render("Press E / ENTER or select Play Again", True, COL_TEXT)
             surface.blit(sub_text, (SCREEN_WIDTH // 2 - sub_text.get_width() // 2,
-                                    SCREEN_HEIGHT // 2 + 40))
+                                    SCREEN_HEIGHT // 2 + scale_y(35)))
+            pygame.draw.rect(surface, COL_DARK_RED, self.play_again_btn, border_radius=7)
+            pygame.draw.rect(surface, COL_WIN, self.play_again_btn, 2, border_radius=7)
+            button = self.font_body.render("PLAY AGAIN", True, COL_TEXT)
+            surface.blit(button, button.get_rect(center=self.play_again_btn.center))
 
     def cleanup(self):
         """Clean up input state when switching away."""

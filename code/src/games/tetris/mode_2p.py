@@ -5,7 +5,7 @@ import pygame
 import random
 from src.core.game_base import GameBase
 from src.core.constants import (
-    SCREEN_WIDTH, SCREEN_HEIGHT,
+    SCREEN_WIDTH, SCREEN_HEIGHT, scale_x, scale_y,
     TETRIS_COLS, TETRIS_ROWS, TETRIS_CELL,
     TETRIS_BOARD_W, TETRIS_BOARD_H,
     COL_BG, COL_BOARD_BG, COL_BOARD_BDR, COL_TEXT,
@@ -18,14 +18,14 @@ from src.engine.input_handler import GameKeyHandler, GAME_KEY_MAPS
 from src.games.tetris.common import Board, draw_board_grid_and_pieces
 
 # board positions
-P1_OX = 50
-P2_OX = SCREEN_WIDTH - 50 - TETRIS_BOARD_W
-BOARD_OY = 70
+P1_OX = scale_x(50)
+P2_OX = SCREEN_WIDTH - scale_x(50) - TETRIS_BOARD_W
+BOARD_OY = scale_y(70)
 
 class Tetris2PMode(GameBase):
     """
     Two boards, two players, one winner.
-    P1: arrows + space.  P2: WASD + shift.
+    P1: WASD + space.  P2: arrows + shift.
     First player to top-out on their own board loses.
     """
 
@@ -44,11 +44,17 @@ class Tetris2PMode(GameBase):
         self.DAS_REPEAT = 16    # then zip across (~60 Hz)
 
         self.gravity_timer = 0
-        self.gravity_interval = 167
+        self.gravity_interval = 500
+        self.difficulty = None
 
         # Custom fonts from constants.py
         self.font_large = title_font()
         self.font_body = body_font()
+        self.play_again_btn = pygame.Rect(
+            SCREEN_WIDTH // 2 - scale_x(110),
+            SCREEN_HEIGHT // 2 + scale_y(80),
+            scale_x(220), scale_y(48),
+        )
 
         self.state = "PLAYING"
         self.winner_msg = ""
@@ -61,6 +67,7 @@ class Tetris2PMode(GameBase):
         self.board1.sfx = self.sfx
         self.board2.sfx = self.sfx
         self.gravity_timer = 0
+        self.gravity_interval = getattr(self.difficulty, "gravity_interval", 500)
         self.winner_msg = ""
         self.p1_input.clear()
         self.p2_input.clear()
@@ -71,26 +78,34 @@ class Tetris2PMode(GameBase):
         if self.state == "PLAYING" and not self.board1.game_over:
             if action == "LEFT": self.board1.move_left()
             elif action == "RIGHT": self.board1.move_right()
-            elif action == "DOWN": self.board1.move_down()
+            elif action == "DOWN":
+                cleared = self.board1.move_down()
+                if cleared: self.board2.add_garbage_rows(cleared)
             elif action == "ROTATE": self.board1.rotate()
-            elif action == "DROP": self.board1.hard_drop()
+            elif action == "DROP":
+                cleared = self.board1.hard_drop()
+                if cleared: self.board2.add_garbage_rows(cleared)
 
         # P2 input
         action2 = self.p2_input.handle_event(event)
         if self.state == "PLAYING" and not self.board2.game_over:
             if action2 == "LEFT": self.board2.move_left()
             elif action2 == "RIGHT": self.board2.move_right()
-            elif action2 == "DOWN": self.board2.move_down()
+            elif action2 == "DOWN":
+                cleared = self.board2.move_down()
+                if cleared: self.board1.add_garbage_rows(cleared)
             elif action2 == "ROTATE": self.board2.rotate()
-            elif action2 == "DROP": self.board2.hard_drop()
+            elif action2 == "DROP":
+                cleared = self.board2.hard_drop()
+                if cleared: self.board1.add_garbage_rows(cleared)
 
-        # GAME_OVER state: E/ENTER/mouse returns to mode select
+        # Game-over controls return to the mode selector for replay.
         if self.state == "GAME_OVER":
-            if event.type == pygame.KEYDOWN:
-                if event.key in (pygame.K_e, pygame.K_RETURN):
-                    return "MAIN_MENU"
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                return "MAIN_MENU"
+            if event.type == pygame.KEYDOWN and event.key in (pygame.K_e, pygame.K_RETURN):
+                return "PLAY_AGAIN"
+            if (event.type == pygame.MOUSEBUTTONDOWN and event.button == 1
+                    and self.play_again_btn.collidepoint(event.pos)):
+                return "PLAY_AGAIN"
 
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
             self.pause_requested = True
@@ -104,9 +119,11 @@ class Tetris2PMode(GameBase):
         if self.gravity_timer >= self.gravity_interval:
             self.gravity_timer = 0
             if not self.board1.game_over:
-                self.board1.move_down()
+                cleared = self.board1.move_down()
+                if cleared: self.board2.add_garbage_rows(cleared)
             if not self.board2.game_over:
-                self.board2.move_down()
+                cleared = self.board2.move_down()
+                if cleared: self.board1.add_garbage_rows(cleared)
 
         # DAS for P1
         active1 = self.p1_input.get_active()
@@ -146,15 +163,15 @@ class Tetris2PMode(GameBase):
 
         # P1 HUD
         lbl1 = self.font_body.render(f"P1: {self.board1.score}", True, COL_WIN)
-        surface.blit(lbl1, (P1_OX, BOARD_OY - 30))
+        surface.blit(lbl1, (P1_OX, BOARD_OY - scale_y(30)))
 
         # P2 HUD
         lbl2 = self.font_body.render(f"P2: {self.board2.score}", True, COL_DARK_GREEN)
-        surface.blit(lbl2, (P2_OX, BOARD_OY - 30))
+        surface.blit(lbl2, (P2_OX, BOARD_OY - scale_y(30)))
 
         # hint between boards
         hint = self.font_body.render("First to top loses!", True, COL_TEXT_MUTED)
-        surface.blit(hint, (SCREEN_WIDTH // 2 - hint.get_width() // 2, 20))
+        surface.blit(hint, (SCREEN_WIDTH // 2 - hint.get_width() // 2, scale_y(20)))
 
         # game over overlay
         if self.state == "GAME_OVER":
@@ -162,9 +179,13 @@ class Tetris2PMode(GameBase):
             ov.fill((0, 0, 0, 180))
             surface.blit(ov, (0, 0))
             wl = self.font_large.render(self.winner_msg, True, COL_DARK_GREEN)
-            surface.blit(wl, (SCREEN_WIDTH // 2 - wl.get_width() // 2, 400))
-            sub = self.font_body.render("Press E or ENTER to return", True, COL_TEXT)
-            surface.blit(sub, (SCREEN_WIDTH // 2 - sub.get_width() // 2, 480))
+            surface.blit(wl, (SCREEN_WIDTH // 2 - wl.get_width() // 2, scale_y(400)))
+            sub = self.font_body.render("Press E / ENTER or select Play Again", True, COL_TEXT)
+            surface.blit(sub, (SCREEN_WIDTH // 2 - sub.get_width() // 2, scale_y(470)))
+            pygame.draw.rect(surface, COL_DARK_RED, self.play_again_btn, border_radius=7)
+            pygame.draw.rect(surface, COL_WIN, self.play_again_btn, 2, border_radius=7)
+            button = self.font_body.render("PLAY AGAIN", True, COL_TEXT)
+            surface.blit(button, button.get_rect(center=self.play_again_btn.center))
 
     def cleanup(self):
         self.p1_input.clear()

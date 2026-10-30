@@ -1,0 +1,7 @@
+TETRIS
+
+Arrange falling blocks, known as tetrominoes, to form complete horizontal lines.
+Completed lines disappear and earn points, while gaps make it harder to keep the stack low.
+In Single Player, use LEFT/RIGHT to move, DOWN to step a piece down, UP to rotate,
+and SPACE to hard-drop it. In two-player mode,
+Player 1 uses A/D/S/W and SPACE; Player 2 uses the arrow keys and RIGHT SHIFT to drop. Plan ahead as the pieces fall faster at higher difficulties, and keep the stack from reaching the top.

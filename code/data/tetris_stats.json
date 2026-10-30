@@ -1,0 +1,102 @@
+{
+  "TESTER": {
+    "score": 100,
+    "best_score": 100,
+    "last_score": 100,
+    "games_played": 1,
+    "wins": 1,
+    "last_result": "Win",
+    "last_mode": "Tetris2PMode"
+  },
+  "FFS": {
+    "score": 0,
+    "best_score": 0,
+    "last_score": 0,
+    "metric_label": "Score",
+    "metric_value": 0,
+    "best_metric_value": 0,
+    "games_played": 1,
+    "wins": 0,
+    "last_result": "Exited game",
+    "last_mode": "Tetris1PMode",
+    "last_played": "2026-10-17T15:42:24"
+  },
+  "CSDF": {
+    "score": 100,
+    "best_score": 100,
+    "last_score": 100,
+    "metric_label": "Score",
+    "metric_value": 100,
+    "best_metric_value": 100,
+    "games_played": 1,
+    "wins": 0,
+    "last_result": "Exited game",
+    "last_mode": "Tetris1PMode",
+    "last_played": "2026-10-17T19:47:34"
+  },
+  "SD": {
+    "score": 0,
+    "best_score": 0,
+    "last_score": 0,
+    "metric_label": "Score",
+    "metric_value": 0,
+    "best_metric_value": 0,
+    "games_played": 1,
+    "wins": 0,
+    "last_result": "Exited game",
+    "last_mode": "Tetris1PMode",
+    "last_played": "2026-10-17T19:48:20"
+  },
+  "DSF": {
+    "score": 0,
+    "best_score": 0,
+    "last_score": 0,
+    "metric_label": "Score",
+    "metric_value": 0,
+    "best_metric_value": 0,
+    "games_played": 1,
+    "wins": 0,
+    "last_result": "Loss",
+    "last_mode": "Tetris2PMode",
+    "last_played": "2026-10-17T20:32:23"
+  },
+  "DDF": {
+    "score": 0,
+    "best_score": 0,
+    "last_score": 0,
+    "metric_label": "Score",
+    "metric_value": 0,
+    "best_metric_value": 0,
+    "games_played": 1,
+    "wins": 0,
+    "last_result": "Loss",
+    "last_mode": "Tetris2PMode",
+    "last_played": "2026-10-17T20:32:35"
+  },
+  "SS": {
+    "score": 100,
+    "best_score": 100,
+    "last_score": 0,
+    "metric_label": "Score",
+    "metric_value": 0,
+    "best_metric_value": 100,
+    "games_played": 6,
+    "wins": 0,
+    "last_result": "Exited game",
+    "last_mode": "Tetris1PMode",
+    "last_played": "2026-10-30T11:34:19"
+  },
+  "RULE34ISCOOL": {
+    "score": 0,
+    "best_score": 0,
+    "last_score": 0,
+    "metric_label": "Score",
+    "metric_value": 0,
+    "best_metric_value": 0,
+    "games_played": 1,
+    "wins": 0,
+    "last_result": "Exited game",
+    "last_mode": "Tetris1PMode",
+    "last_played": "2026-10-21T14:06:43"
+  }
+}

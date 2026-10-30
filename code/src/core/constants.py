@@ -7,9 +7,30 @@ import pygame
 import os
 
 # == Window / Screen ================================================
-# these get referenced by settings.py too but this is the source of truth
-SCREEN_WIDTH = 950
-SCREEN_HEIGHT = 950
+# Change these two values to resize the whole game box.
+SCREEN_WIDTH = 1030
+SCREEN_HEIGHT = 1030
+
+# The menus and games were first laid out for this size. These helpers
+# scale their positions and game pieces when a different size is chosen.
+BASE_SCREEN_WIDTH = 1030
+BASE_SCREEN_HEIGHT = 1030
+
+
+def scale_x(value):
+    """Scale a horizontal position or width to the chosen screen size."""
+    return round(value * SCREEN_WIDTH / BASE_SCREEN_WIDTH)
+
+
+def scale_y(value):
+    """Scale a vertical position or height to the chosen screen size."""
+    return round(value * SCREEN_HEIGHT / BASE_SCREEN_HEIGHT)
+
+
+def scale_size(value):
+    """Scale square items using the smaller screen ratio so they still fit."""
+    ratio = min(SCREEN_WIDTH / BASE_SCREEN_WIDTH, SCREEN_HEIGHT / BASE_SCREEN_HEIGHT)
+    return max(1, round(value * ratio))
 
 # == COLOURS! ============================================
 COL_BG          = (5, 5, 15)
@@ -52,24 +73,24 @@ COL_GREEN       = (45, 207, 0)
 
 
 # == Paddle / Ball defaults (Pong & Breakout) ========================================
-PADDLE_W = 120
-PADDLE_H = 15
-PONG_PADDLE_W = 15
-PONG_PADDLE_H = 120
-BALL_SIZE = 15
-PADDLE_MAX_SPEED = 8
-TOTAL_SPEED = 8
-BOUNCE_SPEED = TOTAL_SPEED - 1
+PADDLE_W = scale_size(120)
+PADDLE_H = scale_size(15)
+PONG_PADDLE_W = scale_size(15)
+PONG_PADDLE_H = scale_size(120)
+BALL_SIZE = scale_size(15)
+PADDLE_MAX_SPEED = scale_size(8)
+TOTAL_SPEED = scale_size(8)
+BOUNCE_SPEED = TOTAL_SPEED - scale_size(1)
 
 
 # == Brick Layout for Breakout==================================================
 ROWS = 6
 COLS = 15
-PADDING = 3
-OFFSET_TOP = 60
+PADDING = scale_size(3)
+OFFSET_TOP = scale_y(60)
 
 # == Tetris ========================================================
-TETRIS_COLS, TETRIS_ROWS, TETRIS_CELL = 10, 20, 28
+TETRIS_COLS, TETRIS_ROWS, TETRIS_CELL = 10, 20, scale_size(28)
 TETRIS_BOARD_W = TETRIS_COLS * TETRIS_CELL
 TETRIS_BOARD_H = TETRIS_ROWS * TETRIS_CELL
 
@@ -93,8 +114,8 @@ SH = {
 PN = list(SH.keys())
 
 # == Memory Card ====================================================
-MEMORY_CARD_W = 55
-MEMORY_CARD_H = 75
+MEMORY_CARD_W = scale_size(55)
+MEMORY_CARD_H = scale_size(75)
 
 
 
@@ -102,12 +123,14 @@ MEMORY_CARD_H = 75
 FONT_TITLE_SIZE = 42
 FONT_HEADER_SIZE = 28
 FONT_BODY_SIZE = 13
+FONT_BUTTON_SIZE = 9
 
 CUSTOM_FONT_PATH = os.path.join("assets", "fonts", "PressStart", "PressStart2P-Regular.ttf")
 
 # Helper: quick font grab so I don't pygame.font.Font() everywhere
 def make_font(size, bold=False, name=CUSTOM_FONT_PATH):
-    return pygame.font.Font(name, size)
+    # Text scales with the smaller screen dimension to keep it readable.
+    return pygame.font.Font(name, scale_size(size))
 
 
 def title_font():

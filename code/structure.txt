@@ -1,119 +1,226 @@
-# =============================================================
-# P Y C A D E   —   P R O J E C T   S T R U C T U R E
-# =============================================================
-#
-# If you're reading this: welcome.
-# Here's how everything fits together.
-#
-# The golden rule: each game lives in its own folder under
-# src/games/ and declares its modes in __init__.py.
-# The rest of my app discovers modes automatically.
-#
-#
-# ==== ROOT =========================================================================
-#
-#   main.py                  — boots pygame, loads assets, runs state machine
-#   settings.py              — window size, FPS, game registry, asset paths
-#   assets_loader.py         — loads all images, sounds, music at startup
-#
-#   assets/                  — all un-compiled media
-#   ├── gui/
-#   │   ├── cover-art/       — game selection images (PNG)
-#   │   └── backgrounds/     — starfield etc.
-#   └── sfx/
-#       ├── music/           — background music (WAV)
-#       └── *.wav/.mp3       — sound effects
-#
-#   data/                    — per-game stats files (scores, high scores)
-#   └── *_stats.py
-#
-#
-# ==== src/engine/ — SHARED ENGINE LAYER ==================================
-#
-#   state_manager.py         — switches between menu / game / pause states
-#   base_state.py            — parent class for all states
-#   input_handler.py         — key tracking with "most recent wins" logic
-#   music_manager.py         — plays/loops/fades background tracks
-#
-#
-# ==== src/core/ — SHARED GAME INFRASTRUCTURE ====================================
-#
-#   constants.py             — ONE file with every colour, size, speed const.
-#                              Every game imports from here.  No more re-
-#                              declaring WHITE = (255,255,255) in six files.
-#   game_base.py             — base class that every game mode inherits from.
-#                              Has startup(), update(), draw(), handle_event()
-#                              and self.pause_requested for the shared pause.
-#
-#
-# ==== src/menu/ — SCREENS ===========================================================
-#
-#   carousel_menu.py         — main game carousel with starfield bg.
-#                              Fixed: selected cover draws LAST so it's on top.
-#   mode_select.py           — generic mode picker. Reads MODES from each
-#                              game's __init__.py and auto-builds buttons.
-#   pause_menu.py            — shared ESC overlay. Q=quit, S=settings, ESC=resume.
-#   settings_menu.py         — placeholder for now
-#   scoreboard.py            — placeholder for now
-#   menu_entry.py            — obsolete, kept for referance
-#
-#
-# ===== src/games/ — EACH GAME =======================================================
-#                                                                                     
-# Each game follows this pattern:
-#
-#   breakout/
-#   ├── __init__.py          — exports MODES dict
-#   ├── mode_1p.py           — each mode in its own file
-#   ├── blocks.py            — brick grid logic (shared between modes)
-#   ├── powerups.py          — falling powerup items
-#   └── main.py              — old standalone (kept for reference, not used)
-#
-#   pong/
-#   ├── __init__.py
-#   ├── mode_ai.py
-#   ├── mode_2p.py
-#   ├── ai.py                — paddle AI
-#   └── main.py              — old
-#
-#   tetris/ ...
-#   memory/ ...
-#   guess_number/ ...
-#   spr/ ...
-#
-#
-# ===== HOW TO ADD A NEW GAME ==========================
-#
-# 1.  Create a folder under src/games/your_game/
-#
-# 2.  Write a __init__.py that imports each mode class and sets:
-#
-#         MODES = {
-#             "1 Player": "mode_1p",
-#             "2 Players": "mode_2p",
-#         }
-#
-# 3.  Create mode_1p.py (extends GameBase from core/game_base.py):
-#
-#         from src.core.game_base import GameBase
-#         from src.core.constants import SCREEN_WIDTH, SCREEN_HEIGHT, ...
-#
-#         class Your1PMode(GameBase):
-#             MODES = ... (auto-detected from __init__.py)
-#
-# 4.  Add the game to settings.py GAME_REGISTRY:
-#
-#         "Your Game": {
-#             "module": "src.games.your_game",
-#             "cover": "Your Cover.png",
-#         }
-#
-# 5.  Place cover art in assets/gui/cover-art/
-#
-# 6.  Add music/sfx keys to assets_loader.py if needed.
-#
-# That's it.  The carousel finds it, the mode select auto-builds
-# buttons, and the wrapper provides the pause menu for free.
-#
-#
-######################################################################################
+PyCade Game Box - Project and Game-Maker Guide
+================================================
+
+This guide explains how to run the launcher and add a game without editing the launcher itself.
+
+1. Run the launcher
+-------------------
+
+Requirements: Python 3 and Pygame (see code/requirements.txt).
+
+Windows:
+  1. Open the code folder.
+  2. Run run.bat.
+  3. If Pygame is missing, run: python -m pip install -r requirements.txt
+
+macOS or Linux:
+  1. Open a terminal in the code folder.
+  2. Run: python3 -m pip install -r requirements.txt
+  3. Run: ./run.sh (or python3 main.py).
+
+Run from inside code so the relative files and folders are easy to find. The launcher
+also builds most asset paths from its own location.
+
+2. What happens when it starts?
+-------------------------------
+
+1. main.py starts Pygame and loads fonts, the menu background, and launcher sounds.
+2. assets_loader.py scans code/src/games for folders containing __init__.py.
+3. Each discovered game gets its name, cover art, sounds, and music from its own folder.
+4. The carousel shows the discovered games. It asks for a username before launching a game.
+5. If the game has a MODES dictionary, the launcher shows the mode selector.
+6. If the game has a difficulties/ package, the shared difficulty selector is shown.
+   Memory Match keeps its own difficulty menu.
+7. Press S for Settings or T for the selected game's Scoreboard. Both open as overlays,
+   so the menu or paused game underneath stays in place. Press ESC or use Back to close.
+8. The shared wrapper handles the pause menu and sends the user back to the carousel.
+9. When the game closes, the result helper saves a play record for the entered username.
+
+3. Folder layout
+----------------
+
+code/
+  main.py                 Starts the app and connects the screens.
+  settings.py             Window size, colours and launcher settings; not a game list.
+  assets_loader.py        Finds games and loads their covers, sounds and music.
+  assets/
+    fonts/                Font files used by the menus.
+    gui/backgrounds/      Main menu background code/assets.
+    sfx/menu_nav.wav      Launcher navigation sound.
+    sfx/menu_select.wav   Launcher selection sound.
+    sfx/music/main_theme.wav  Main menu music.
+  data/                   Saved *_stats.json files and settings JSON files.
+  src/
+    core/                 GameBase, shared constants, difficulty and result saving.
+    engine/               State switching, input handling and music playback.
+    menu/                 Carousel, name entry, mode/difficulty selectors, settings,
+                          pause menu and scoreboard.
+    games/                One folder per game, including each game's own assets.
+
+4. How to add your own game
+---------------------------
+
+Create one new folder inside code/src/games. Use a short folder name with lowercase
+letters and underscores, for example:
+
+  code/src/games/my_game/
+    __init__.py
+    mode_1p.py
+    my_game_boxcover.png
+    coin.wav
+    my_game_music.ogg
+
+You do not have to add your game to settings.py, edit assets_loader.py, make a central
+cover mapping, or edit the carousel. The launcher finds the new folder automatically.
+
+Step A - Give it a name and list its modes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In __init__.py, add a readable name and a MODES dictionary. Each value is the Python
+module containing that mode (without the .py ending):
+
+  GAME_NAME = "My Game"
+  MODES = {
+      "Single Player": "mode_1p",
+  }
+
+For a two-mode game, list both modules, for example "Single Player": "mode_1p" and
+"Two Players": "mode_2p". The text on the left is what players see in the launcher.
+The text on the right must match a Python file in the same folder.
+
+Step B - Write each mode
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Each mode class should inherit from GameBase, imported from src.core.game_base, and
+provide startup(persist), handle_event(event), update(dt), draw(surface), and cleanup().
+Call super().startup(persist) at the start of startup so the wrapper can provide the
+standard pause request and load the sounds belonging to this game. The game should not
+start its own Pygame window or main loop; the launcher already runs those.
+
+Example outline for mode_1p.py:
+
+  from src.core.game_base import GameBase
+
+  class MyGameMode(GameBase):
+      def startup(self, persist):
+          super().startup(persist)
+          self.score = 0
+
+      def handle_event(self, event):
+          return super().handle_event(event)
+
+      def update(self, dt):
+          pass
+
+      def draw(self, surface):
+          pass
+
+The outline only shows the required shape. Add your own game logic and drawing inside
+those methods. The window defaults to 1030 x 1030. To change the resolution, edit only
+SCREEN_WIDTH and SCREEN_HEIGHT near the top of src/core/constants.py, then restart the
+app. The scale_x(), scale_y(), and scale_size() helpers resize positions, game pieces,
+UI elements and fonts from the original design size, so menus and games follow the new
+resolution. Leave BASE_SCREEN_WIDTH and BASE_SCREEN_HEIGHT unchanged, and do not edit
+each game's layout separately.
+
+Step C - Add cover art
+~~~~~~~~~~~~~~~~~~~~~~
+
+Put one image in the root of your game folder whose filename ends with _boxcover.png,
+_boxcover.jpg, or _boxcover.jpeg. For example, my_game_boxcover.png. The launcher finds
+and scales it automatically. If it cannot find a cover, the game still appears with a
+placeholder cover so a missing image does not prevent launch.
+
+Step D - Add sound and music
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Put sound effects directly in your game folder as .wav, .mp3, or .ogg files. The name
+without the extension becomes the sound key, in lowercase snake_case. For example,
+coin.wav can be played with self.sfx["coin"].play(). Check that the file exists before
+playing it so the game still works when a sound is optional.
+
+For background music, use music.wav or a filename ending in _music.wav, _music.mp3, or
+_music.ogg (for example, my_game_music.ogg). The launcher finds and plays it when the
+game starts. Keep menu_nav.wav, menu_select.wav and main_theme.wav in code/assets/sfx/
+and code/assets/sfx/music/ because those belong to the launcher, not an individual game.
+
+The Settings screen changes the volume of all loaded game sounds and launcher sounds.
+The music volume/toggle is applied by the shared MusicManager.
+
+Step E - Add game instructions (optional)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Create an `info.txt` file directly in the root of your game folder, beside
+`__init__.py`. Put the game's objective, controls, modes, or other useful
+instructions in plain text. The Settings screen's Learn more button finds this
+file automatically from the active game module; no filename mapping or Settings
+code changes are needed when adding a game.
+
+The main menu uses `src/menu/info.txt` for its own help text. You can edit this
+file to explain how to navigate the launcher.
+
+Step F - Save a result (optional)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Every launched game gets its games_played count saved, even if it has no score. The
+launcher cannot safely guess that a variable named score, wave, level or round means the
+same thing in every game. If you want a useful number to appear on your scoreboard, add
+a get_scoreboard_data(self) method to your mode class and return a dictionary.
+
+For a score-based game:
+
+  def get_scoreboard_data(self):
+      return {"score": self.score, "wins": 1, "result": "Win"}
+
+For a game measured in waves or rounds:
+
+  def get_scoreboard_data(self):
+      return {
+          "metric_label": "Wave",
+          "metric_value": self.wave_number,
+          "result": "Game over",
+      }
+
+Replace these example variable names with the ones used by your own game. Use a number
+for metric_value. The scoreboard will show the metric label you supply. If you do not add
+this method, the play count and last-played information are still saved, but no numeric
+metric is invented for your game.
+
+A player's file is created automatically in code/data/<game-name>_stats.json. The score
+helper handles file creation and keeps the best value for the same metric. Do not make
+your game write directly to another game's save file.
+
+5. How difficulty works
+-----------------------
+
+A game can opt into the shared difficulty selector by creating a difficulties/ package
+inside its own folder. Follow the examples already in breakout, guess_number, spr and
+tetris. If a game does not have this package, the launcher skips the shared difficulty
+screen. Memory Match uses its own difficulty selection, so it should not get a second
+selector unless that flow is intentionally changed.
+
+6. Useful files when fixing bugs
+--------------------------------
+
+- src/core/game_base.py: common methods every mode inherits.
+- src/core/game_discovery.py: finds game folders and names.
+- assets_loader.py: finds cover art and root-level game audio.
+- src/core/stats.py: stores game results in JSON files.
+- src/menu/carousel_menu.py: carousel navigation and launch flow.
+- src/menu/settings_menu.py: volume and key-binding settings, drawn as an overlay.
+- src/menu/scoreboard.py: reads saved results and draws as an overlay.
+- main.py: routes events to an open overlay and draws it over the current screen.
+- src/engine/music_manager.py: handles background music.
+
+7. Before sharing a game
+------------------------
+
+- Run python -m compileall -q . from inside code to check Python syntax.
+- Launch the game and check its menu, controls, window size, sounds, and pause behaviour.
+- Test without a cover image or optional sound to ensure the game still opens.
+- Play and exit once with a username. Check that a JSON file is created in data/.
+- If the game reports a score or another metric, check that the scoreboard label and value
+  match what the game actually measures.
+
+Keep comments straightforward and keep each game's rules/assets inside that game's folder.
+That is what lets another person add a game without needing to change the launcher.

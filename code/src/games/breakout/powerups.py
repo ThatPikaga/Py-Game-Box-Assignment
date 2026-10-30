@@ -1,11 +1,12 @@
 import pygame
 import random
+from src.core.constants import scale_size
 
 class PowerUp(pygame.Rect):
     def __init__(self, x, y, type_str):
-        super().__init__(x, y, 25, 15)
+        super().__init__(x, y, scale_size(25), scale_size(15))
         self.type = type_str
-        self.speed = 3
+        self.speed = scale_size(3)
 
     def update(self):
         self.y += self.speed

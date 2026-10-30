@@ -4,7 +4,7 @@ from src.core.constants import COL_TEXT, COL_WIN, COL_LOSE
 from .common import MemoryBaseMode, STATE_GAME_OVER
 
 class Memory1PMode(MemoryBaseMode):
-    menu_title = "MEMORY MATCH — 1 PLAYER"
+    menu_title = "MEMORY MATCH — Single Player"
 
     def __init__(self):
         super().__init__("Memory 1 Player")

@@ -1,0 +1,85 @@
+{
+  "TESTER": {
+    "score": 770,
+    "best_score": 770,
+    "last_score": 770,
+    "games_played": 1,
+    "wins": 0,
+    "last_result": "Game over",
+    "last_mode": "Breakout1PMode"
+  },
+  "GAMERBOI": {
+    "score": 80,
+    "best_score": 80,
+    "last_score": 80,
+    "games_played": 1,
+    "wins": 0,
+    "last_result": "Game over",
+    "last_mode": "Breakout1PMode"
+  },
+  "DD": {
+    "score": 60,
+    "best_score": 60,
+    "last_score": 60,
+    "metric_label": "Score",
+    "metric_value": 60,
+    "best_metric_value": 60,
+    "games_played": 1,
+    "wins": 0,
+    "last_result": "Game over",
+    "last_mode": "Breakout1PMode",
+    "last_played": "2026-10-17T20:39:24"
+  },
+  "SS": {
+    "score": 570,
+    "best_score": 570,
+    "last_score": 30,
+    "metric_label": "Score",
+    "metric_value": 30,
+    "best_metric_value": 570,
+    "games_played": 10,
+    "wins": 0,
+    "last_result": "Exited game",
+    "last_mode": "Breakout1PMode",
+    "last_played": "2026-10-28T14:54:49"
+  },
+  "RULE34ISCOOL": {
+    "score": 3200,
+    "best_score": 3200,
+    "last_score": 3200,
+    "metric_label": "Score",
+    "metric_value": 3200,
+    "best_metric_value": 3200,
+    "games_played": 1,
+    "wins": 0,
+    "last_result": "Exited game",
+    "last_mode": "Breakout1PMode",
+    "last_played": "2026-10-21T14:06:14"
+  },
+  "S": {
+    "score": 30,
+    "best_score": 30,
+    "last_score": 30,
+    "metric_label": "Score",
+    "metric_value": 30,
+    "best_metric_value": 30,
+    "games_played": 1,
+    "wins": 0,
+    "last_result": "Game over",
+    "last_mode": "Breakout1PMode",
+    "last_played": "2026-10-21T14:25:35"
+  },
+  "SAS": {
+    "score": 20,
+    "best_score": 20,
+    "last_score": 20,
+    "metric_label": "Score",
+    "metric_value": 20,
+    "best_metric_value": 20,
+    "games_played": 1,
+    "wins": 0,
+    "last_result": "Exited game",
+    "last_mode": "Breakout1PMode",
+    "last_played": "2026-10-30T11:26:23"
+  }
+}

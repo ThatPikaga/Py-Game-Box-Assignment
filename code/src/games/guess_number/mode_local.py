@@ -4,7 +4,7 @@ import random
 import pygame
 
 from src.core.constants import (
-    SCREEN_WIDTH, COL_TEXT, COL_TEXT_MUTED, COL_WIN, COL_LOSE, COL_AI,
+    SCREEN_WIDTH, scale_x, scale_y, COL_TEXT, COL_TEXT_MUTED, COL_WIN, COL_LOSE, COL_AI,
     COL_CARD_BG, COL_CARD_BORDER, title_font, header_font, body_font
 )
 from .common import (
@@ -106,61 +106,61 @@ class GuessNumLocalMode(GuessNumBaseMode):
             self._draw_playing(surface)
             
     def _draw_coin_flip(self, surface):
-        card = pygame.Rect(30, 110, SCREEN_WIDTH - 60, 100)
+        card = pygame.Rect(scale_x(30), scale_y(110), SCREEN_WIDTH - scale_x(60), scale_y(100))
         pygame.draw.rect(surface, COL_CARD_BG, card, border_radius=12)
         pygame.draw.rect(surface, COL_CARD_BORDER, card, width=2, border_radius=12)
         
         msg = header_font().render(self.status_message, True, COL_TEXT)
-        surface.blit(msg, (card.x + 25, card.y + 32))
+        surface.blit(msg, (card.x + scale_x(25), card.y + scale_y(32)))
         
     def _draw_setting_number(self, surface):
-        card = pygame.Rect(30, 100, SCREEN_WIDTH - 60, 140)
+        card = pygame.Rect(scale_x(30), scale_y(100), SCREEN_WIDTH - scale_x(60), scale_y(140))
         pygame.draw.rect(surface, COL_CARD_BG, card, border_radius=12)
         pygame.draw.rect(surface, COL_AI, card, width=2, border_radius=12)
         
         who = title_font().render(f"{self.chooser_name}: pick a secret number!", True, COL_AI)
-        surface.blit(who, (card.x + 25, card.y + 18))
+        surface.blit(who, (card.x + scale_x(25), card.y + scale_y(18)))
         
         warn = body_font().render(f"Oi! {self.guesser_name}, look away! No peeking!", True, COL_LOSE)
-        surface.blit(warn, (card.x + 25, card.y + 65))
+        surface.blit(warn, (card.x + scale_x(25), card.y + scale_y(65)))
         
         hint = body_font().render("The number will be hidden as ****", True, COL_TEXT_MUTED)
-        surface.blit(hint, (card.x + 25, card.y + 100))
+        surface.blit(hint, (card.x + scale_x(25), card.y + scale_y(100)))
         
-        input_box = pygame.Rect(40, 325, 200, 50)
+        input_box = pygame.Rect(scale_x(40), scale_y(325), scale_x(200), scale_y(50))
         GuessNumUI.draw_input_box(surface, input_box, "Type a number (1-1000) and press Enter:", self.input_text, hidden=True)
         
     def _draw_playing(self, surface):
-        card = pygame.Rect(30, 100, SCREEN_WIDTH - 60, 140)
+        card = pygame.Rect(scale_x(30), scale_y(100), SCREEN_WIDTH - scale_x(60), scale_y(140))
         pygame.draw.rect(surface, COL_CARD_BG, card, border_radius=12)
         pygame.draw.rect(surface, COL_CARD_BORDER, card, width=2, border_radius=12)
         
         turn = header_font().render(f"{self.guesser_name} is guessing", True, COL_TEXT)
-        surface.blit(turn, (card.x + 25, card.y + 18))
+        surface.blit(turn, (card.x + scale_x(25), card.y + scale_y(18)))
         
         tries_text = body_font().render(f"Tries left: {self.tries_left} / {self.max_tries}", True, COL_TEXT)
-        surface.blit(tries_text, (card.x + 25, card.y + 58))
+        surface.blit(tries_text, (card.x + scale_x(25), card.y + scale_y(58)))
         
         status_color = COL_WIN if "win" in self.status_message.lower() else COL_TEXT_MUTED
         status_surf = body_font().render(self.status_message, True, status_color)
-        surface.blit(status_surf, (card.x + 25, card.y + 95))
+        surface.blit(status_surf, (card.x + scale_x(25), card.y + scale_y(95)))
         
-        input_box = pygame.Rect(40, 320, 200, 50)
+        input_box = pygame.Rect(scale_x(40), scale_y(320), scale_x(200), scale_y(50))
         GuessNumUI.draw_input_box(surface, input_box, "Type your guess:", self.input_text)
 
     def _draw_game_over(self, surface):
-        card = pygame.Rect(30, 100, SCREEN_WIDTH - 60, 180)
+        card = pygame.Rect(scale_x(30), scale_y(100), SCREEN_WIDTH - scale_x(60), scale_y(180))
         pygame.draw.rect(surface, COL_CARD_BG, card, border_radius=12)
         pygame.draw.rect(surface, COL_CARD_BORDER, card, width=2, border_radius=12)
         
         outcome = title_font().render(self.status_message, True, COL_WIN)
-        surface.blit(outcome, (card.x + 25, card.y + 30))
+        surface.blit(outcome, (card.x + scale_x(25), card.y + scale_y(30)))
         
         detail = body_font().render(
             f"{self.chooser_name} chose the number that {self.guesser_name} was guessing", 
             True, COL_TEXT_MUTED
         )
-        surface.blit(detail, (card.x + 25, card.y + 90))
+        surface.blit(detail, (card.x + scale_x(25), card.y + scale_y(90)))
         
         reveal = body_font().render(f"The secret number was: {self.secret_number}", True, COL_TEXT)
-        surface.blit(reveal, (card.x + 25, card.y + 130))
+        surface.blit(reveal, (card.x + scale_x(25), card.y + scale_y(130)))

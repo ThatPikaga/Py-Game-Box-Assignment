@@ -1,0 +1,12 @@
+PYCADE RETRO ARCADE BOX
+
+Welcome to PyCade!
+A collection of classic arcade games & a general hub to play all your python games.
+Browse the game covers with the LEFT and RIGHT arrow keys, then press ENTER or E to select a game. 
+Follow the on-screen prompts to choose a mode and difficulty where available. 
+Press S to open Settings, T to open the Scoreboard, or ESC from the main carousel to exit the application. 
+Your player name is collected once per session and reused when you play another game.
+I hope you enjoy this small launcher.
+
+Regards,
+The Creator

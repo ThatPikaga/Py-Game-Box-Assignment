@@ -1,0 +1,41 @@
+{
+  "RULE34ISCOOL": {
+    "score": 0,
+    "best_score": 0,
+    "last_score": 0,
+    "metric_label": "Score",
+    "metric_value": 0,
+    "best_metric_value": 0,
+    "games_played": 2,
+    "wins": 0,
+    "last_result": "Finished",
+    "last_mode": "GuessNumAIMode",
+    "last_played": "2026-10-21T14:17:12"
+  },
+  "SS": {
+    "score": 0,
+    "best_score": 0,
+    "last_score": 0,
+    "metric_label": "Score",
+    "metric_value": 0,
+    "best_metric_value": 0,
+    "games_played": 2,
+    "wins": 0,
+    "last_result": "Exited game",
+    "last_mode": "GuessNumAIMode",
+    "last_played": "2026-10-28T14:57:57"
+  },
+  "SAS": {
+    "score": 0,
+    "best_score": 0,
+    "last_score": 0,
+    "metric_label": "Score",
+    "metric_value": 0,
+    "best_metric_value": 0,
+    "games_played": 1,
+    "wins": 0,
+    "last_result": "Exited game",
+    "last_mode": "GuessNumAIMode",
+    "last_played": "2026-10-30T11:27:00"
+  }
+}

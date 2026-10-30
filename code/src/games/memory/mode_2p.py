@@ -4,7 +4,7 @@ from src.core.constants import * # Colours
 from .common import MemoryBaseMode, STATE_GAME_OVER
 
 class Memory2PMode(MemoryBaseMode):
-    menu_title = "MEMORY MATCH — 2 PLAYERS"
+    menu_title = "MEMORY MATCH — Local VS"
 
     def __init__(self):
         super().__init__("Memory 2 Players")

@@ -1,0 +1,54 @@
+{
+  "PLAYER": {
+    "score": 0,
+    "best_score": 0,
+    "last_score": 0,
+    "metric_label": "Score",
+    "metric_value": 0,
+    "best_metric_value": 0,
+    "games_played": 1,
+    "wins": 0,
+    "last_result": "Loss",
+    "last_mode": "PongAIMode",
+    "last_played": "2026-10-17T14:46:27"
+  },
+  "RULE34ISCOOL": {
+    "score": 4,
+    "best_score": 4,
+    "last_score": 3,
+    "metric_label": "Score",
+    "metric_value": 3,
+    "best_metric_value": 4,
+    "games_played": 4,
+    "wins": 0,
+    "last_result": "Loss",
+    "last_mode": "Pong2PMode",
+    "last_played": "2026-10-21T14:14:54"
+  },
+  "SS": {
+    "score": 0,
+    "best_score": 0,
+    "last_score": 0,
+    "metric_label": "Score",
+    "metric_value": 0,
+    "best_metric_value": 0,
+    "games_played": 4,
+    "wins": 0,
+    "last_result": "Draw",
+    "last_mode": "PongAIMode",
+    "last_played": "2026-10-30T11:34:28"
+  },
+  "SAS": {
+    "score": 2,
+    "best_score": 2,
+    "last_score": 2,
+    "metric_label": "Score",
+    "metric_value": 2,
+    "best_metric_value": 2,
+    "games_played": 1,
+    "wins": 1,
+    "last_result": "Win",
+    "last_mode": "Pong2PMode",
+    "last_played": "2026-10-30T11:27:42"
+  }
+}

@@ -1,0 +1,8 @@
+MEMORY MATCH
+
+Turn over cards by clicking them with the mouse, two at a time, and find matching pairs.
+Remember the positions and values of cards you have already seen to avoid wasting turns.
+Use the mouse wheel to scroll through larger boards.
+In Single Player, find every pair before you run out of lives. 
+In Local Vs, take turns and compete to collect the most pairs. 
+In Vs AI, challenge an opponent whose ability to remember cards depends on the selected difficulty.

@@ -22,12 +22,12 @@ class NameEntryScreen:
         self.font_error = body_font()
 
         # Input box
-        self.input_rect = pygame.Rect(SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT // 2 - 20, 300, 50)
+        self.input_rect = pygame.Rect(SCREEN_WIDTH // 2 - scale_x(150), SCREEN_HEIGHT // 2 - scale_y(20), scale_x(300), scale_y(50))
         self.cursor_visible = True
         self.cursor_timer = 0
 
         # Confirm button
-        self.confirm_btn = pygame.Rect(SCREEN_WIDTH // 2 - 80, SCREEN_HEIGHT // 2 + 60, 160, 45)
+        self.confirm_btn = pygame.Rect(SCREEN_WIDTH // 2 - scale_x(80), SCREEN_HEIGHT // 2 + scale_y(60), scale_x(160), scale_y(45))
 
         # Error message (hidden)
         self.error_message = None
@@ -96,10 +96,10 @@ class NameEntryScreen:
 
         # Title
         title = self.font_title.render(f"{self.game_name}", True, COL_GOLD)
-        surface.blit(title, (w // 2 - title.get_width() // 2, 150))
+        surface.blit(title, (w // 2 - title.get_width() // 2, scale_y(150)))
 
         subtitle = self.font_body.render("Enter your player name", True, COL_TEXT)
-        surface.blit(subtitle, (w // 2 - subtitle.get_width() // 2, 210))
+        surface.blit(subtitle, (w // 2 - subtitle.get_width() // 2, scale_y(210)))
 
         # Input box background
         pygame.draw.rect(surface, COL_CARD_BG, self.input_rect, border_radius=8)
@@ -113,12 +113,12 @@ class NameEntryScreen:
             display_text += "[]"
 
         text_surf = self.font_body.render(display_text, True, COL_TEXT)
-        surface.blit(text_surf, (self.input_rect.x + 15, self.input_rect.centery - text_surf.get_height() // 2))
+        surface.blit(text_surf, (self.input_rect.x + scale_x(15), self.input_rect.centery - text_surf.get_height() // 2))
 
         # Character count
         count_surf = self.font_small.render(f"{len(self.username)}/{self.max_length}", True, COL_TEXT_MUTED)
-        surface.blit(count_surf, (self.input_rect.right - count_surf.get_width() - 10,
-                                  self.input_rect.bottom + 5))
+        surface.blit(count_surf, (self.input_rect.right - count_surf.get_width() - scale_x(10),
+                                  self.input_rect.bottom + scale_y(5)))
 
         # Confirm button
         pygame.draw.rect(surface, COL_DARK_RED, self.confirm_btn, border_radius=6)
@@ -129,12 +129,12 @@ class NameEntryScreen:
         # Error message (if any)
         if self.error_message:
             error_surf = self.font_error.render(self.error_message, True, COL_DARK_RED)
-            surface.blit(error_surf, (w // 2 - error_surf.get_width() // 2, self.confirm_btn.bottom + 20))
+            surface.blit(error_surf, (w // 2 - error_surf.get_width() // 2, self.confirm_btn.bottom + scale_y(20)))
 
         # Instructions
         instr = self.font_small.render("Type your name (max 12 chars) | ENTER to confirm | ESC to cancel",
                                       True, COL_TEXT_MUTED)
-        surface.blit(instr, (w // 2 - instr.get_width() // 2, h - 50))
+        surface.blit(instr, (w // 2 - instr.get_width() // 2, h - scale_y(50)))
 
     def cleanup(self):
         pass

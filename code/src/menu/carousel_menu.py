@@ -23,7 +23,7 @@ import importlib
 from src.menu.mode_select import ModeSelectScreen
 from src.menu.name_entry import NameEntryScreen
 from src.menu.difficulty_select import DifficultySelectScreen
-from src.core.constants import title_font, body_font
+from src.core.constants import SCREEN_WIDTH, SCREEN_HEIGHT, scale_x, scale_y, scale_size, title_font, body_font
 
 class CarouselMenu:
     # How finely we quantize cover sizes before caching a scaled surface.
@@ -110,13 +110,33 @@ class CarouselMenu:
         # Background
         StarfieldClass = assets.get("background_class")
         if StarfieldClass:
-            self.starfield = StarfieldClass(950, 950, star_count=200)
+            self.starfield = StarfieldClass(SCREEN_WIDTH, SCREEN_HEIGHT, star_count=200)
         else:
             self.starfield = None
 
         # Sound & Music
         self.sfx = assets.get("sfx", {})
         self.music = assets.get("music_manager", None)
+
+        # A Play Again transition asks the carousel to reopen this game's
+        # mode selector directly. The player name stays in persist, so it is
+        # never collected again during replay (or when choosing another game).
+        replay_game_name = persist.pop("replay_game_name", None)
+        if replay_game_name:
+            for index, entry in enumerate(self.entries):
+                if entry["name"] == replay_game_name:
+                    self.selected_index = index
+                    self.current_offset = self.target_offset = float(index)
+                    module_prefix = entry["module_prefix"]
+                    try:
+                        mod = importlib.import_module(module_prefix)
+                        modes = getattr(mod, "MODES", None)
+                        if modes:
+                            self.mode_select = ModeSelectScreen(replay_game_name, module_prefix, modes)
+                            self.mode_select.selected_label = list(modes.keys())[0]
+                    except Exception as exc:
+                        print(f"  [Carousel] Could not reopen modes for {replay_game_name}: {exc}")
+                    break
 
         # Start menu music
         if self.music:
@@ -189,7 +209,9 @@ class CarouselMenu:
                             # have __module__ == module_prefix, NOT
                             # "module_prefix.__init__" - that was the bug here,
                             # this loop could never actually find anything
-                            if isinstance(attr, type) and attr.__module__ == module_prefix:
+                            if (isinstance(attr, type) and
+                                    (attr.__module__ == module_prefix or
+                                     attr.__module__.startswith(module_prefix + "."))):
                                 game_instance = attr()
                                 break
                     except Exception as e:
@@ -255,17 +277,30 @@ class CarouselMenu:
 
         # Store module prefix for later use after name entry
         self.persist["pending_game_module"] = module_prefix
-        
-        # Show name entry screen first
+
+        # Once a username exists, go straight to this game's mode selector.
+        # This keeps the same player attached to later games and replays.
+        if self.persist.get("player_username"):
+            try:
+                mod = importlib.import_module(module_prefix)
+                modes = getattr(mod, "MODES", None)
+                if modes:
+                    self.mode_select = ModeSelectScreen(game_name, module_prefix, modes)
+                    self.mode_select.selected_label = list(modes.keys())[0]
+                    return
+            except Exception as exc:
+                print(f"  [Carousel] Could not load modes for {game_name}: {exc}")
+
+        # The name-entry screen is only required for the first game session.
         self.name_entry = NameEntryScreen(game_name)
 
     def _has_difficulties(self, module_prefix):
         """
-        Check if this game defines a difficulties/ package with a
-        DIFFICULTIES dict, e.g. src/games/pong/difficulties/__init__.py.
-        Most games don't have one yet, so this just quietly returns None
-        instead of blowing up - same pattern as the MODES lookup above.
+        Check if this game defines the shared difficulty menu. Memory Match
+        keeps its own difficulty picker inside the game, so don't show two.
         """
+        if module_prefix == "src.games.memory":
+            return None
         try:
             diff_mod = importlib.import_module(f"{module_prefix}.difficulties")
             difficulties = getattr(diff_mod, "DIFFICULTIES", None)
@@ -281,7 +316,14 @@ class CarouselMenu:
         difficulty select next; otherwise launch straight away like it
         always used to.
         """
-        difficulties = self._has_difficulties(module_prefix)
+        # Local two-player Scissors Paper Rock has no difficulty options.
+        # Launch it immediately after mode selection rather than showing an
+        # irrelevant difficulty screen.
+        is_spr_two_player = (
+            module_prefix == "src.games.spr"
+            and getattr(game_instance, "name", "") == "SPR 2 Players"
+        )
+        difficulties = None if is_spr_two_player else self._has_difficulties(module_prefix)
         if difficulties:
             self.pending_launch_instance = game_instance
             self.pending_launch_name = game_name
@@ -436,10 +478,10 @@ class CarouselMenu:
         if not self.entries:
             return
 
-        W, H = 950, 950
-        cw, ch = 400, 400
-        gap = 40
-        centre_y = 260
+        W, H = SCREEN_WIDTH, SCREEN_HEIGHT
+        cw, ch = scale_size(400), scale_size(400)
+        gap = scale_x(40)
+        centre_y = scale_y(260)
         n = self.n
 
         # == Interpolation approach ==
@@ -477,7 +519,7 @@ class CarouselMenu:
 
             base_centre_x = W // 2 + int(effective_offset * spacing)
             x = base_centre_x - scaled_w // 2
-            y = centre_y + int((1.0 - scale) * 80)
+            y = centre_y + scale_y(int((1.0 - scale) * 80))
 
             scaled_cover = self._get_scaled_cover(idx, scaled_w, scaled_h)
 
@@ -493,28 +535,31 @@ class CarouselMenu:
             # Gold border stays on whichever cover is in the logical
             # "selected" slot, for the whole time it holds that slot.
             if offset == 0:
-                pygame.draw.rect(surface, (255, 215, 0), (x - 3, y - 3, sw + 6, sh + 6), 3, border_radius=4)
+                pygame.draw.rect(surface, (255, 215, 0),
+                             (x - scale_x(3), y - scale_y(3),
+                              sw + scale_x(6), sh + scale_y(6)),
+                             scale_size(3), border_radius=scale_size(4))
 
         # Title bar
-        title_bg = pygame.Rect(0, 0, W, 60)
+        title_bg = pygame.Rect(0, 0, W, scale_y(60))
         pygame.draw.rect(surface, (10, 10, 30), title_bg)
         pygame.draw.rect(surface, (60, 60, 120), title_bg, 2)
 
         title_text = self.font_title.render("PYCADE", True, (255, 215, 0))
-        surface.blit(title_text, (W // 2 - title_text.get_width() // 2, 12))
+        surface.blit(title_text, (W // 2 - title_text.get_width() // 2, scale_y(12)))
 
         # game name under the selected cover
         if self.entries:
             sel_name = self.entries[self.selected_index]["name"]
             name_text = self.font_body.render(sel_name, True, (230, 230, 250))
-            surface.blit(name_text, (W // 2 - name_text.get_width() // 2, centre_y + ch + 15))
+            surface.blit(name_text, (W // 2 - name_text.get_width() // 2, centre_y + ch + scale_y(15)))
 
         # instructions
         instr = self.font_body.render(
             "< LEFT / RIGHT >  to browse   |   E  to launch   |   ESC  to quit",
             True, (150, 150, 180)
         )
-        surface.blit(instr, (W // 2 - instr.get_width() // 2, H - 50))
+        surface.blit(instr, (W // 2 - instr.get_width() // 2, H - scale_y(50)))
 
     def cleanup(self):
         pass

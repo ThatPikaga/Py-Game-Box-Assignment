@@ -1,0 +1,54 @@
+{
+  "NIPPLE": {
+    "score": 0,
+    "best_score": 0,
+    "last_score": 0,
+    "metric_label": "Score",
+    "metric_value": 0,
+    "best_metric_value": 0,
+    "games_played": 1,
+    "wins": 0,
+    "last_result": "Draw",
+    "last_mode": "SPRAIMode",
+    "last_played": "2026-10-17T14:32:01"
+  },
+  "GUY": {
+    "score": 0,
+    "best_score": 0,
+    "last_score": 0,
+    "metric_label": "Score",
+    "metric_value": 0,
+    "best_metric_value": 0,
+    "games_played": 1,
+    "wins": 0,
+    "last_result": "Loss",
+    "last_mode": "SPRAIMode",
+    "last_played": "2026-10-17T20:20:17"
+  },
+  "SS": {
+    "score": 0,
+    "best_score": 0,
+    "last_score": 0,
+    "metric_label": "Score",
+    "metric_value": 0,
+    "best_metric_value": 0,
+    "games_played": 6,
+    "wins": 0,
+    "last_result": "Loss",
+    "last_mode": "SPRAIMode",
+    "last_played": "2026-10-30T11:34:07"
+  },
+  "RULE34ISCOOL": {
+    "score": 1,
+    "best_score": 1,
+    "last_score": 0,
+    "metric_label": "Score",
+    "metric_value": 0,
+    "best_metric_value": 1,
+    "games_played": 3,
+    "wins": 1,
+    "last_result": "Loss",
+    "last_mode": "SPRAIMode",
+    "last_played": "2026-10-21T14:07:30"
+  }
+}

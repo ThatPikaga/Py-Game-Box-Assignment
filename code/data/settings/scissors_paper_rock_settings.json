@@ -1,0 +1,14 @@
+{
+  "sfx_volume": 0.7,
+  "music_volume": 0.5,
+  "sfx_enabled": true,
+  "music_enabled": true,
+  "bindings": {
+    "P1 Scissors": 97,
+    "P1 Paper": 119,
+    "P1 Rock": 100,
+    "P2 Scissors": 1073741904,
+    "P2 Paper": 1073741906,
+    "P2 Rock": 1073741903
+  }
+}

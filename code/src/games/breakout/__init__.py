@@ -1,3 +1,5 @@
+GAME_NAME = 'Breakout'
+
 # ======[ B R E A K O U T   —   I N I T ]======
 # only 1P mode for breakout — no 2P needed really
 # but keeping the MODES dict for consistency

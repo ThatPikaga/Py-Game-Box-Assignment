@@ -11,14 +11,14 @@ from src.core.game_base import GameBase
 from src.core.constants import * # Colours
 
 # == Memory Specific Settings =======================================
-MEMORY_GRID_PAD_X = 12
-MEMORY_GRID_PAD_Y = 12
-MEMORY_GRID_START_Y = 100
-MEMORY_BOTTOM_MARGIN = 40
-MEMORY_SCROLL_STEP = 30
+MEMORY_GRID_PAD_X = scale_x(12)
+MEMORY_GRID_PAD_Y = scale_y(12)
+MEMORY_GRID_START_Y = scale_y(100)
+MEMORY_BOTTOM_MARGIN = scale_y(40)
+MEMORY_SCROLL_STEP = scale_y(30)
 
-MEMORY_MATCH_DELAY_MS = 800
-MEMORY_AI_DELAY_MS = 600
+MEMORY_MATCH_DELAY_MS = 1900
+MEMORY_AI_DELAY_MS = 1900
 
 MEMORY_DIFFICULTIES = {
     "Easy":   {"pairs": 12, "lives": 18, "cols": 6},
@@ -31,9 +31,9 @@ STATE_PLAYING = "PLAYING"
 STATE_GAME_OVER = "GAME_OVER"
 
 # == UI Layout Rects ================================================
-MENU_RECT = pygame.Rect(200, 100, 600, 550)
-GAME_OVER_BOX = pygame.Rect(250, 280, 500, 180)
-HUD_RECT = pygame.Rect(30, 15, SCREEN_WIDTH - 60, 60)
+MENU_RECT = pygame.Rect(scale_x(200), scale_y(100), scale_x(600), scale_y(550))
+GAME_OVER_BOX = pygame.Rect(scale_x(250), scale_y(280), scale_x(500), scale_y(180))
+HUD_RECT = pygame.Rect(scale_x(30), scale_y(15), SCREEN_WIDTH - scale_x(60), scale_y(60))
 
 
 # == Classes ========================================================
@@ -61,7 +61,7 @@ class Card:
         pygame.draw.rect(surface, bg, self.rect, border_radius=3)
         pygame.draw.rect(surface, border, self.rect, 2 if self.is_flipped else 1, border_radius=3)
 
-        value_surf = body_font().render(str(self.value), True, text_col)
+        value_surf = make_font(14).render(str(self.value), True, text_col)
         surface.blit(value_surf, value_surf.get_rect(center=self.rect.center))
 
 
@@ -82,7 +82,8 @@ class MenuButton:
         pygame.draw.rect(surface, bg, self.rect, border_radius=4)
         pygame.draw.rect(surface, border, self.rect, 2, border_radius=4)
 
-        text_surf = header_font().render(self.text, True, COL_WHITE)
+        # Smaller labels fit neatly inside the three difficulty buttons.
+        text_surf = make_font(14).render(self.text, True, COL_WHITE)
         surface.blit(text_surf, text_surf.get_rect(center=self.rect.center))
 
     def is_clicked(self, pos):
@@ -117,15 +118,20 @@ class MemoryBaseMode(GameBase):
 
         self.game_over_msg = ""
         self.winner_num = 0
+        self.play_again_btn = pygame.Rect(
+            SCREEN_WIDTH // 2 - scale_x(100),
+            GAME_OVER_BOX.top + scale_y(110),
+            scale_x(200), scale_y(38),
+        )
         self._init_menu_buttons()
 
     def _init_menu_buttons(self):
         cx = SCREEN_WIDTH // 2
         self.menu_buttons = [
-            MenuButton("Easy", cx - 230, 410, 160, 40, "diff", "Easy"),
-            MenuButton("Medium", cx - 70, 410, 160, 40, "diff", "Medium"),
-            MenuButton("Hard", cx + 90, 410, 160, 40, "diff", "Hard"),
-            MenuButton("START GAME", cx - 90, 560, 180, 50, "start", "START"),
+            MenuButton("12 Pairs", cx - scale_x(230), scale_y(410), scale_x(160), scale_y(40), "diff", "Easy"),
+            MenuButton("26 Pairs", cx - scale_x(70), scale_y(410), scale_x(160), scale_y(40), "diff", "Medium"),
+            MenuButton("52 Pairs", cx + scale_x(90), scale_y(410), scale_x(160), scale_y(40), "diff", "Hard"),
+            MenuButton("START GAME", cx - scale_x(90), scale_y(560), scale_x(180), scale_y(50), "start", "START"),
         ]
 
     def _build_deck(self):
@@ -139,7 +145,7 @@ class MemoryBaseMode(GameBase):
         self.grid_start_y = MEMORY_GRID_START_Y
 
         rows = (len(self.cards) + self.max_cols - 1) // self.max_cols
-        self.total_grid_h = rows * (MEMORY_CARD_H + MEMORY_GRID_PAD_Y) + 50
+        self.total_grid_h = rows * (MEMORY_CARD_H + MEMORY_GRID_PAD_Y) + scale_y(50)
 
         visible_bottom = SCREEN_HEIGHT - MEMORY_BOTTOM_MARGIN
         self.max_scroll = max(0, self.grid_start_y + self.total_grid_h - visible_bottom)
@@ -170,9 +176,18 @@ class MemoryBaseMode(GameBase):
             self.pause_requested = True
             return None
 
+        if event.type == pygame.KEYDOWN and self.state == STATE_GAME_OVER:
+            if event.key in (pygame.K_RETURN, pygame.K_e):
+                return "PLAY_AGAIN"
+
         if event.type != pygame.MOUSEBUTTONDOWN: return None
 
-        if event.button == 1: self._handle_click(event.pos)
+        if event.button == 1:
+            if self.state == STATE_GAME_OVER:
+                if self.play_again_btn.collidepoint(event.pos):
+                    return "PLAY_AGAIN"
+                return None
+            self._handle_click(event.pos)
         elif event.button == 4 and self.state == STATE_PLAYING:
             self.scroll_y = max(0, self.scroll_y - MEMORY_SCROLL_STEP)
         elif event.button == 5 and self.state == STATE_PLAYING:
@@ -219,6 +234,7 @@ class MemoryBaseMode(GameBase):
     def _flip_card(self, idx):
         self.cards[idx].is_flipped = True
         self.selected_indices.append(idx)
+        self._on_card_seen(idx)  # lets our ai save the card in it brain
         self._try_play("cardflip_up" if len(self.selected_indices) == 1 else "cardflip_down")
         if len(self.selected_indices) == 2:
             self.lock_board = True
@@ -261,6 +277,9 @@ class MemoryBaseMode(GameBase):
 
     def _on_match(self): pass
     def _on_mismatch(self): pass
+    # We call this every time any card is flipped face up (player or ai). 
+    #It dooes nothing here, only the vs AI mode uses it so the AI can remember what it has seen (player or ai)
+    def _on_card_seen(self, idx): pass
     def _check_game_over(self): return False
     def _after_evaluate(self, now): pass
     def _update_extra(self, now): pass
@@ -276,13 +295,13 @@ class MemoryBaseMode(GameBase):
         pygame.draw.rect(surface, COL_CARD_BORDER, MENU_RECT, 3, border_radius=8)
 
         title = header_font().render(self.menu_title, True, COL_GOLD)
-        surface.blit(title, title.get_rect(center=(SCREEN_WIDTH // 2, 130)))
+        surface.blit(title, title.get_rect(center=(SCREEN_WIDTH // 2, scale_y(130))))
 
-        info = body_font().render(f"Difficulty: {self.selected_diff}", True, COL_TEXT_MUTED)
-        surface.blit(info, info.get_rect(center=(SCREEN_WIDTH // 2, 180)))
+        info = make_font(15).render(f"Difficulty: {self.selected_diff}", True, COL_TEXT_MUTED)
+        surface.blit(info, info.get_rect(center=(SCREEN_WIDTH // 2, scale_y(180))))
 
-        label = header_font().render("Select Difficulty:", True, COL_WHITE)
-        surface.blit(label, label.get_rect(center=(SCREEN_WIDTH // 2, 370)))
+        label = make_font(20).render("Select Difficulty:", True, COL_WHITE)
+        surface.blit(label, label.get_rect(center=(SCREEN_WIDTH // 2, scale_y(370))))
 
         for button in self.menu_buttons:
             current = self.selected_diff if button.btn_type == "diff" else None
@@ -309,15 +328,16 @@ class MemoryBaseMode(GameBase):
     def _draw_hud(self, surface):
         pygame.draw.rect(surface, COL_CARD_BG, HUD_RECT, border_radius=6)
         pygame.draw.rect(surface, COL_BOARD_BDR, HUD_RECT, 2, border_radius=6)
-        hud = header_font().render(self._hud_text(), True, COL_TEXT)
+        # Keep the score and turn text inside the top bar.
+        hud = make_font(13).render(self._hud_text(), True, COL_TEXT)
         surface.blit(hud, hud.get_rect(center=HUD_RECT.center))
 
     def _hud_text(self): return ""
     def _hud_colour(self): return COL_TEXT
 
     def _draw_scroll_hint(self, surface):
-        hint = body_font().render(self.scroll_hint, True, COL_TEXT_MUTED)
-        surface.blit(hint, hint.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 10)))
+        hint = make_font(10).render(self.scroll_hint, True, COL_TEXT_MUTED)
+        surface.blit(hint, hint.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT - scale_y(10))))
 
     def _draw_game_over(self, surface):
         overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
@@ -328,12 +348,14 @@ class MemoryBaseMode(GameBase):
         pygame.draw.rect(surface, COL_CARD_BORDER, GAME_OVER_BOX, 3, border_radius=6)
 
         title = header_font().render("ROUND OVER", True, self._game_over_title_colour())
-        surface.blit(title, title.get_rect(center=(SCREEN_WIDTH // 2, GAME_OVER_BOX.top + 25)))
+        surface.blit(title, title.get_rect(center=(SCREEN_WIDTH // 2, GAME_OVER_BOX.top + scale_y(25))))
 
-        message = body_font().render(self.game_over_msg, True, COL_TEXT)
-        surface.blit(message, message.get_rect(center=(SCREEN_WIDTH // 2, GAME_OVER_BOX.top + 80)))
+        message = make_font(12).render(self.game_over_msg, True, COL_TEXT)
+        surface.blit(message, message.get_rect(center=(SCREEN_WIDTH // 2, GAME_OVER_BOX.top + scale_y(80))))
 
-        click_hint = body_font().render("Click anywhere to return to menu", True, COL_TEXT_MUTED)
-        surface.blit(click_hint, click_hint.get_rect(center=(SCREEN_WIDTH // 2, GAME_OVER_BOX.top + 130)))
+        pygame.draw.rect(surface, COL_DARK_RED, self.play_again_btn, border_radius=5)
+        pygame.draw.rect(surface, COL_GOLD, self.play_again_btn, 2, border_radius=5)
+        button_text = make_font(12).render("PLAY AGAIN", True, COL_WHITE)
+        surface.blit(button_text, button_text.get_rect(center=self.play_again_btn.center))
 
     def _game_over_title_colour(self): return COL_GOLD

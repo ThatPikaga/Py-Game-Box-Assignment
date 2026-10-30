@@ -1,3 +1,5 @@
+GAME_NAME = 'Tetris'
+
 # ======[ T E T R I S   —   I N I T ]======
 # Tetris has two modes: single player and local 2P (SNES style)
 

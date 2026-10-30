@@ -1,3 +1,5 @@
+GAME_NAME = 'Guess Number'
+
 # ======[ G U E S S   N U M B E R   —   I N I T ]======
 # guess the number — play against AI or local hot-seat
 

@@ -118,19 +118,19 @@ GAME_KEY_MAPS = {
         "P1_LEFT_ALT":  pygame.K_a,
         "P1_RIGHT_ALT": pygame.K_d,
     },
-    "tetris_p1": {
+    "tetris_p2": {
         "LEFT":    pygame.K_LEFT,
         "RIGHT":   pygame.K_RIGHT,
         "DOWN":    pygame.K_DOWN,
         "ROTATE":  pygame.K_UP,
-        "DROP":    pygame.K_SPACE,
+        "DROP":    pygame.K_RSHIFT,
     },
-    "tetris_p2": {
+    "tetris_p1": {
         "LEFT":    pygame.K_a,
         "RIGHT":   pygame.K_d,
         "DOWN":    pygame.K_s,
         "ROTATE":  pygame.K_w,
-        "DROP":    pygame.K_LSHIFT,
+        "DROP":    pygame.K_SPACE,
     },
     "spr_p1": {
         "SCISSORS": pygame.K_a,

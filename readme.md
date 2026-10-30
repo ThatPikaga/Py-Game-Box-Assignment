@@ -12,7 +12,7 @@
 Casual gamers who enjoy classic pick‑up‑and‑play titles with local multiplayer and AI opponents, to cure boredom and revive some nostalgia from the early 2000s without any ads, in‑app purchases or WiFi.
 
 ### The Product
-An original desktop arcade collection built with Pygame. The app presents a carousel menu where users scroll through game covers and launch one of five classic games: Pong, Scissors‑Paper‑Rock, Guess the Number, Breakout, and Memory Match. Every game includes multiple play modes, user profile creation, and stat tracking. A dedicated scoreboard screen tracks lifetime achievements across all titles.
+An original desktop arcade collection built with Pygame. The current build has a carousel for Pong, Scissors-Paper-Rock, Guess Number, Breakout, Memory Match, and Tetris. Game folders are discovered automatically, and cover art, sound effects, and music live beside each game's Python files. Players can enter a username and view saved results in a scoreboard overlay.
 
 ---
 <div style="page-break-after: always;"></div>
@@ -21,11 +21,11 @@ An original desktop arcade collection built with Pygame. The app presents a caro
 - **Three play modes** per game: human vs. human, human vs. AI, and pure single‑player where applicable (for games like Breakout). Modes are auto-detected from each game's `__init__.py` — the carousel shows a mode selection screen with buttons built automatically.
 - **Menus and navigation**:
   - **Main Menu**: A carousel game select, navigated via left/right arrow keys. Press **E** on a selected game to launch; if the game has multiple modes, a mode select screen appears first.
-  - **Pause Menu**: Press **ESC** during any game to bring up the pause overlay with options to resume (ESC), quit to menu (Q), or open settings (S — placeholder for now).
-  - **Settings** *(stub)*: Press **S** on the carousel to open the settings screen. Coming soon.
-  - **Scoreboard** *(stub)*: Press **T** on the carousel to view saved stats. Coming soon.
-- **Asset management**: a single config file stores file paths and sizes; a startup routine loads and scales all images and sounds. Missing files are handled gracefully (no crashes).
-- **Modular code architecture**: each game mode extends `GameBase` from `src/core/game_base.py`, the state machine treats everything the same. Modes are separate `.py` files in each game's folder (`mode_1p.py`, `mode_2p.py`, `mode_ai.py`).
+  - **Pause Menu**: Press **ESC** during a game to open the shared pause overlay. It can resume, return to the carousel, or open Settings.
+  - **Settings**: Press **S** on the carousel or from the pause menu to change sound/music volume, enable or disable audio, and view controls.
+  - **Scoreboard**: Press **T** while a game is selected in the carousel to view that game's saved results in an overlay. Press **ESC** or select **Back** to return to the same carousel.
+- **Automatic game and asset discovery**: the launcher scans `src/games/` for game folders, finds cover art ending in `_boxcover.png` or `_boxcover.jpg`, and loads each game's own root-level sounds and music. Missing cover art uses a placeholder.
+- **Modular code architecture**: each game mode can extend `GameBase` from `src/core/game_base.py`. Modes are separate `.py` files inside each game's folder (`mode_1p.py`, `mode_2p.py`, `mode_ai.py`).
 ---
 
 ### Add‑ons (If time bids)
@@ -38,61 +38,34 @@ An original desktop arcade collection built with Pygame. The app presents a caro
 
 <div style="page-break-after: always;"></div>
 
-### Intended File Structure
-<div style="font-size: calc(1em - 3.5px); line-height: 1.2;">
-<pre>
-code/ (Root folder)  
-├── main.py # App entry point; runs the core state machine loop  
-├── settings.py # Central config; file paths, window sizes, colors, FPS  
-├── assets_loader.py # Startup routine; loads and scales all images and sounds  
-├── assets/ (Universal asset storage)  
-	│ ├── sfx/ # UI clicks, game-specific sound & music  
-	│ └── images/ # Carousel covers, backgrounds, sprites
-	| ├── starynight.py #menu background
-├── data/ (Persistent arcade score storage)  
-	│ ├── pong_stats.npy  
-	│ ├── spr_stats.npy  
-	│ ├── guess_stats.npy  
-	│ ├── breakout_stats.npy  
-	│ └── memory_stats.npy  
-└── src/ (Source code directory)  
-	├── __init__.py  
-	├── engine/ (Core framework files)  
-		│ ├── __init__.py  
-		│ ├── base_state.py # Parent class that all games/menus inherit from  
-		│ ├── state_manager.py # Handles switching between menu, games, scoreboard  
-		│ └── input_handler.py # Manages name entry and cabinet button maps  
-	├── menu/ (Menu and UI states)  
-		│ ├── __init__.py  
-		│ ├── carousel_menu.py # Main game selection visual carousel  
-		│ ├── name_entry.py # Old-school high score name input screen  
-		│ ├── settings_menu.py    # Settings screen (general, controls tabs)
-		│ └── scoreboard.py # Toggles stats with 'T'; cycles with arrows  
-	└── games/ (Individual game modules)  
-		├── __init__.py  
-		├── base_game.py  # Shared game logic (AI modes, universal scoring, pause menu)
-		├── pong/  
-			│ ├── __init__.py  
-			│ ├── pong_main.py # Pong state manager & loop  
-			│ └── pong_ai.py # Humanized AI (speed caps, random overshoots)  
-		├── spr/  
-			│ ├── __init__.py  
-			│ ├── spr_main.py # Scissors-Paper-Rock state & loop  
-			│ └── spr_ai.py # Frequency counter AI tracking player moves  
-		├── guess_number/  
-			│ ├── __init__.py  
-			│ └── guess_main.py # Guess the Number state & loop  
-		├── breakout/  
-			│ ├── __init__.py  
-			│ ├── breakout_main.py # Breakout state, split-screen management  
-			│ ├── breakout_ai.py # Humanized tracking AI for Breakout  
-			│ └── powerups.py # Droppable timed items (laser, wide paddle)  
-		└── memory_match/  
-			├── __init__.py  
-			├── memory_main.py # Memory Match state & loop  
-			└── memory_ai.py # Grid memory matrix AI tracking seen cards
-</pre> 
-</div>
+### Current File Structure
+
+The original project plan has changed as the launcher has been built. The working layout is now:
+
+```text
+code/
+├── main.py                    # Starts Pygame and connects the screens
+├── settings.py                # Window and launcher settings
+├── assets_loader.py           # Discovers games and loads their assets
+├── assets/
+│   ├── fonts/                 # Fonts used by menu screens
+│   ├── gui/backgrounds/       # Launcher background
+│   └── sfx/                   # Launcher menu sounds and main_theme.wav
+├── data/                      # Saved JSON results and settings
+└── src/
+    ├── core/                  # GameBase, constants, discovery and stats
+    ├── engine/                # State manager, input and music manager
+    ├── menu/                  # Carousel, settings, pause and scoreboard screens
+    └── games/
+        ├── breakout/
+        ├── guess_number/
+        ├── memory/
+        ├── pong/
+        ├── spr/
+        └── tetris/
+```
+
+Each folder under `src/games/` owns its game code, cover art, sound effects and optional music. For the full instructions to add a game, read `code/structure.txt`.
 
 <div style="page-break-after: always;"></div>
 
@@ -264,7 +237,7 @@ Wired up a state machine in main.py so the carousel menu can launch any game and
 
 Made settings.py as a central config for all file paths, colours, and game names. Assets loader was updated to read music from the music subfolder inside sfx/ (where the actual .wav files live). Scoreboard and Settings screens are filled out with placeholder text for now. I will be planning to fill them in with saved stats and volume controls.
 
-Added a MusicManager in src/engine/music_manager.py that handles the menu theme and game-specific music switching. It uses pygame.mixer.music so it's lightweight — no threading needed, just plays on top of the game loop. The carousel menu starts the main_theme.wav, and whenever a game launches the wrapper swaps to that game's track (breakout.wav, tetris.wav, etc.). On the SFX side I wired in sounds for Tetris (line clear = num_correct.wav, game over = life_lost.wav), Breakout (paddle hits, brick breaks, powerup collects, life lost), Guess Number (correct/wrong), Scissors Paper Rock (selection confirm), and Memory Match (card flip up/down, match found/wrong). Pong is missing its SFX file still so that one just has nothing play for now — but the placeholders are set up so once I get the pong.wav (the SFX one, not the music one) it'll just work.
+Added a MusicManager in src/engine/music_manager.py that handles the menu theme and game-specific music switching. It uses pygame.mixer.music so it's lightweight — no threading needed, just plays on top of the game loop. The carousel menu starts the main_theme.wav, and whenever a game launches the wrapper swaps to that game's track (breakout.wav, tetris.wav, etc.). On the SFX side I wired in sounds for Tetris (line clear = num_correct.wav, game over = life_lost.wav), Breakout (paddle hits, brick breaks, powerup collects, life lost), Guess Number (correct/wrong), Scissors Paper Rock (selection confirm), and Memory Match (card flip up/down, match found/wrong). Pong is missing its SFX file still so that one just has nothing play for now, but the placeholders are set up so once I get the pong.wav (the SFX one, not the music one) it'll just work.
 
 *Next session I will fix the draw order (layering) of game covers on main menue along with making sure all game share floating screen size of main menue while allowing fullscreen*. Then I need to implement score saving with .json files (the data/ modules are created but not connected yet), add the "press T for scoreboard" and "press S for settings" navigation from the carousel, and maybe add a visual game-over summary screen to each game.*
 
@@ -413,28 +386,25 @@ The pygame.mixer documentation was essential for understanding how Sound volumes
 
 
 **Stage 13 - [18/09/2026 / Mode Difficulty Menu + pong update]**
-Making & Updating Difficulties of games for further layer of depth.
+>Making & Updating Difficulties of games for further layer of depth.
 >Pong:
-- Classic - Basic AI + normal ball movement
-- Advanced - Fast randomised ball movement + Basic AI
-- Hell - Ball speed +1 every time hit by paddle, resets on death + Better AI with better ball detection
+> - Classic - Basic AI + normal ball movement
+> - Advanced - Fast randomised ball movement + Basic AI
+> - Hell - Ball speed +1 every time hit by paddle, resets on death + Better AI with better ball detection
 
-Breakout:
+>Made the general `difficulty_select.py` to select same way as per mode select. Instead of being inside of `/*game` it will be inside `/*game/difficulties/*difficulty.py`. For example, Pong will be `/pong/diffuculties/` inside it would be `/diff_1.py`, `/diff_2.py`, `/diff_3.py`. Then the buttons would be displayed the same way as per the `__init__.py` files, we can simply add in:
+>```
+	DIFFICULTIES = {
+	"Classic": "diff_1",
+	"Advanced": "diff_2",
+	"Hell": "diff_3",
+	} ```
 
-Memory Match:
-Difficulties already made, need to update ai of game. 
-
-Made the general `difficulty_select.py` to select same way as per mode select. Instead of being inside of `/*game` it will be inside `/*game/difficulties/*difficulty.py`. For example, Pong will be `/pong/diffuculties/` inside it would be `/diff_1.py`, `/diff_2.py`, `/diff_3.py`. Then the buttons would be displayed the same way as per the `__init__.py` files, we can simply add 
->DIFFICULTIES = {
-"Classic": "diff_1",
-"Advanced": "diff_2",
-"Hell": "diff_3",
-}
-
->Implemented all of this for Pong - difficulty select now shows right after mode select, confirmed that's the order I wanted it in. Reused `mode_select.py`'s exact pattern like planned: `difficulty_select.py` reads a `DIFFICULTIES` dict and builds buttons the same way, and `src/games/pong/difficulties/__init__.py` exports `DIFFICULTIES = {"Classic": "diff_1", "Advanced": "diff_2", "Hell": "diff_3"}` just like the plan said.
+>This system was added in for Pong — difficulty select now shows right after mode select, confirmed that's the order I wanted it in. Reused `mode_select.py`'s exact pattern like planned: `difficulty_select.py` reads a `DIFFICULTIES` dictionary and builds buttons the same way, and `src/games/pong/difficulties/__init__.py` exports `DIFFICULTIES = {"Classic": "diff_1", "Advanced": "diff_2", "Hell": "diff_3"}` just like the plan said.
 
 >**Keeping each difficulty down to a few lines**
-I like to keep my code minimised and object oriented, making a difficulty file isn't a rewritten game, it's just a handful of overridden class attributes. Made a `Difficulty` base class (`src/core/difficulty_base.py`, engine-level so any future game's difficulties can reuse it) with just `name`/`description`, then a `PongDifficulty` subclass (`src/games/pong/difficulties/_base.py`) with Pong's actual tuning knobs and sane defaults. `diff_1.py` (Classic) barely has to override anything:
+>I like to keep my code minimised where possible, and object oriented — making a difficulty file isn't a rewritten game, it's just a handful of overridden class attributes. I've made a `Difficulty` base class (`src/core/difficulty_base.py`, engine-level so any future game's difficulties can reuse it) with just `name`/`description`, then a `PongDifficulty` subclass 
+>(`src/games/pong/difficulties/_base.py`) with Pong's actual tuning knobs and sane defaults. `diff_1.py` (Classic) barely has to override anything:
 
 >```python
 >class Difficulty(PongDifficulty):
@@ -489,12 +459,11 @@ I like to keep my code minimised and object oriented, making a difficulty file i
 > - Apply universal custom font - https://www.pygame.org/docs/ref/font.html 
 
 **Universal Custom Font & Tetris Refactor** - [24/09/2026]
-
 > Finally tackled the custom font implementation and did some much-needed housekeeping on the Tetris files👀.
 > 
 > **The Font Situation:** I made my `constants.py` set up with `title_font()`, `body_font()`, and `header_font()` helpers pointing to "Press Start 2P", but _none_ of the menu or game files were actually using them. Every single screen was still hardcoding `pygame.font.Font(None, ...)` which explicitly tells Pygame to ignore the custom font and use the system default. Also had a crash on startup because `assets_loader.py` was missing the `"fonts": {}` dictionary key, and `constants.py` was trying to use `path.join` without importing `os` — took a solid 15 minutes to figure that out.
 > 
-> **The Fix:** Went through every menu (`carousel_menu.py`, `mode_select.py`, `difficulty_select.py`, `scoreboard.py`, `settings_menu.py`, `pause_menu.py`, `name_entry.py`) and the SPR game files, swapping out the hardcoded `None` calls for the centralised helper functions. Now, changing the font or its sizes in `constants.py` acts as the single source of truth and updates the entire arcade box instantly.
+> **The Fix:** I went through every menu (`carousel_menu.py`, `mode_select.py`, `difficulty_select.py`, `scoreboard.py`, `settings_menu.py`, `pause_menu.py`, `name_entry.py`) and the SPR game files, swapping out the hardcoded `None` calls for the centralised helper functions. Now, changing the font or its sizes in `constants.py` acts as the single source of truth and updates the entire arcade box instantly.
 > 
 > **Tetris Refactor (Goodbye 500-line files🥹):** Tetris was the only game without a `common.py`, resulting in `mode_1p.py` and `mode_2p.py` being bloated with duplicated `Board` logic and grid-drawing code — completely forgot to updated it. Extracted the entire `Board` class (piece spawning, rotation, wall-kicks, line clearing) and a `draw_board_grid_and_pieces()` helper into a new `src/games/tetris/common.py`. This chopped the mode files down significantly and makes the 2P mode much cleaner since it just imports the shared board and drawing logic. Applied the new custom fonts to Tetris while I was in there.
 
@@ -507,6 +476,214 @@ I like to keep my code minimised and object oriented, making a difficulty file i
 > 
 > - Update all other games to include new difficulty system
 > - Fix settings implementation
+
+
+
+**Stage 14 - [15/10/2026 - 17/10/2026 / Difficulty Expansion, Settings Overlay & Pong SFX]**
+> Finally rolled out the difficulty system to the rest of the arcade box. Following the pattern I established for Pong  (inside of a dedicated difficulties folder with `__init__.py `, `_base.py` and `dif_x.py` files ), I added the `difficulties/` folder to Memory, Breakout, Guess Number, Scissors Paper Rock, and Tetris. Each of these now features Easy, Medium, and Hard options that adjust some sort of game variable. There was also a quick fix within pong where I had no sound. No sound was occurring at any stage because while I had the files linked, I never had them called or woken up which kept them in switched off state.
+
+> **Game-specific difficulty tuning details**
+> 
+> - **Memory Match:** The Ai now saves the cards that are flipped over each time (matched pairs are not saved). For each difficulty the AI will have a memory cap — easy forgets cards seen after 2, and for something like Hard it will remember up to 8 cards — which will add a level of flair on top of simply varied board sizes. After that was done, because I have now changed to a custom font by Google, I had to adjust text sizes in `common.py` so the labels actually fit the screen without clipping.
+
+> - **Tetris:** In two-player mode, clearing rows now sends a corresponding number of garbage rows to the opponent's board, pushing their stack up which will create a level of pressure, requiring faster thinking. Difficulty also scales the starting fall speed, making higher difficulties genuinely frantic.
+
+> - **Breakout:** Difficulty now changes base lives, paddle speed, and ball speed. I also updated the game over screen seeing as I had left it as a simple clear board after the last life was lost and start again. I have now made it so the player actually sees what they achieved. This game much like the rest — except for memory match — still does not have any form of replaying from after game over. There is only back to main menu thus resulting in needing to re-select the game.
+
+> - **Guess Number:** The difficulty selector directly controls the number of allowed guesses, making "Hard" actually challenging.
+
+> - **Scissors Paper Rock:** The AI difficulty now adjusts the probability of the AI deliberately choosing a move that counters the player's current move, rather than relying entirely on random selection between the three possible moves. Although this change itself was simple to implement, it adds another layer of difficulty to the game. I do have ideas for making the AI more advanced, such as developing a prediction-based system that analyses patterns in the player's previous choices to estimate what they might choose next. However, implementing something like this would be a much more time-consuming task, and I can imagine it becoming quite frustrating to develop. For now, I'll spare myself the brain damage and keep things simple. To avoid spending an excessive amount of time and code on this single feature, I used a straightforward probability check to see if the AI should counter the player's move or choose one at random. 
+> code snippet: 
+> ```
+> counter_chance = getattr(self.difficulty, "counter_chance", 0.0)
+> if random.random() < counter_chance:
+	winning_moves = {"Scissors": "Rock", "Paper": "Scissors", "Rock": "Paper"}
+	self.ai_choice = winning_moves[player_choice]
+else:
+	self.ai_choice = random_ai_choice()
+	```
+	Also took the liberty of 
+> 
+> **Settings Overlay Fix** I finally tackled the annoying bug where opening settings from the pause menu would dump you back to the the carousel state. I reworked `settings_menu.py` to act as a dimmed overlay on top of the current screen (using the same alpha-surface dimming technique). Closing it now seamlessly returns you to the exact menu or paused game you were in, instead of replacing the state entirely.
+> 
+> **What I learned:**  
+> Consistency is key. Reusing the `difficulty_select.py` pattern across all games saved me hours of rewriting menu logic. Also, treating UI elements like Settings as overlays rather than state changes makes the application feel much more cohesive and professional.
+> 
+> **Still to do:**
+> 
+> - Center the stat saving so each game doesn't need its own save code💀.
+> - Make the carousel automatically discover new games without a hardcoded registry.
+> 
+> **Files changed/created this stage:**
+> 
+> - `src/games/breakout/difficulties/` — new: Easy, Medium, Hard configs
+> - `src/games/guess_number/difficulties/` — new: Easy, Medium, Hard configs
+> - `src/games/spr/difficulties/` — new: Easy, Medium, Hard configs
+> - `src/games/tetris/difficulties/` — new: Easy, Medium, Hard configs
+> - `src/menu/settings_menu.py` — rewritten: now functions as a dimmed overlay instead of a state replacement
+> - `src/games/memory/common.py` — adjusted UI text scaling
+
+**Stage 15 - [16/10/2026 - 17/10/2026 / Stats Saving & Documentation]**
+> I've gotten a grasp of the whole stat saving problem. Up until now, saving results was a bit of a mess, with each game sort of doing its own thing seeing as I had not planned this far into the project. I built dedicated `src/core/stats.py` module to handle all of this in one place.
+> 
+> **Unified Stats System**
+> When a game closes, it now passes its current result data to this central handler, which saves it under the player's entered username into a dedicated JSON file in `code/data/`. The structure tracks the best score, last score, total games played, win count, and the last played mode. I wired this up across Breakout, Guess Number, Memory Match, Pong, Scissors Paper Rock, and Tetris. The Scoreboard screen now reads directly from these `*_stats.json` files, meaning the leaderboard finally shows the save data!
+> 
+> **Documentation Cleanup** 
+> I updated `code/structure.txt` to be a proper manual. It now includes clear instructions on how to navigate the folder structure, locate controls and assets, and most importantly, a step-by-step guide on how to add a new game or difficulty using the current loader. I also renamed this entire development log to `README.md` so it's the first thing anyone sees when opening the project folder.
+> 
+> **What I learned:**  
+>  Centering repetitive logic into a single place prevents tedious bugs and makes adding new games much easier. If a new game just needs to call `save_stats(username, data)` I don't have to worry about it corrupting the JSON or using the wrong path.
+> 
+> **Still to do:**
+> 
+> - Remove the hardcoded `GAME_REGISTRY` and make the launcher auto-discover games.
+> - Convert the Scoreboard to an overlay to match the new Settings behavior so that if a user opens and closes the scoreboard for a game, it stays on that game in the carousel menu.
+> 
+> **Files changed/created this stage:**
+> 
+> - `src/core/stats.py` — new: centralized stat saving and loading logic
+> - `code/data/` — updated: now properly populated with `*_stats.json` files per game
+> - `code/structure.txt` — expanded: added comprehensive game-maker and user guide
+> - `README.md` — renamed from the development log for better visibility
+
+**Stage 16 - [17/10/2026 / Automatic Game Discovery & Asset Restructuring]**
+> This was a major quality-of-life upgrade for the entire architecture. I completely removed the hardcoded `GAME_REGISTRY` from `settings.py`.
+> 
+> The carousel menu now scans `code/src/games/` for any folder containing an `__init__.py`. It reads the `GAME_NAME` and `MODES` attributes directly from that package. This means the carousel automatically laods with new games the moment their folder is created and structured correctly. No more manual registry configurationm makes the system a much nicer experience for any third party user.
+> 
+> I also reorganised the way assets work, to be modular. Each game folder now owns its own `*_boxcover.png` (or `.jpg`/`.jpeg`). The `assets_loader.py` scans for these and applies a placeholder if one is missing. More importantly, I moved all game-specific sound effects and music tracks directly into their respective game folders. Only the core launcher navigation sounds and `main_theme.wav` remain in the shared `assets/sfx/` directory. This change takes away yet again, the need to manually wire sounds.
+> 
+> As for the audio and scoreboard, the settings audio sliders now correctly iterate through and update all loaded game sounds, not just the menu ones. The MusicManager also dynamically looks for `music.wav` or `<folder>_music.wav` without needing a hardcoded dictionary. For the scoreboard, I added a fallback. if a new game doesn't have a traditional "score", it can implement a `get_scoreboard_data()` method to return a custom unit (like "Highest Wave" or "Fastest Time"), ensuring the leaderboard always has something meaningful to display.
+> 
+> Modularity means a new game should require zero changes to the core engine — that's just pain blatantly annoying and should only be used in a static scenario.
+> By relying on consistent naming and `__init__.py` exports, the launcher remains completely separate from what games are actually installed.
+> 
+> **Still to do:**
+> - Convert the Scoreboard to an overlay to match the Settings menu.
+> 
+> **Files changed/created this stage:**
+> 
+> - `assets_loader.py` — rewritten: dynamic folder scanning for games, covers, and local audio
+> - `src/games/*/` — updated: moved SFX and music into individual game directories, added box art
+> - `src/core/stats.py` — updated: added support for custom `get_scoreboard_data()` metrics
+> - `code/structure.txt` — updated: added the new "Game Maker Guide" for auto-discovery
+
+
+**Stage 17 - [18/10/2026 / Scoreboard Overlay & Final Polish]**
+> Finished the last major UI inconsistency. The original Scoreboard replaced the current state entirely, meaning returning from it could lose the exact screen the player had open (like a paused game). Since I already solved this for the Settings menu, I applied the exact same overlay pattern to the Scoreboard.
+> 
+> **Overlay Implementation** In `main.py`, I added a `scoreboard_overlay` flag. When active, the event loop routes input to the overlay, and the draw loop renders it _after_ the current menu or game, complete with a dimmed background surface and a bordered panel. Both the Back button and the Escape key cleanly close the overlay by clearing the flag and resetting its finished status, leaving the underlying carousel or paused game exactly as it was. I also removed both Settings and Scoreboard from the state manager's list of normal states, as they are no longer states at all.
+> 
+> **Rubric & Documentation Check** I updated the user guide and this README to document the new overlay behavior. I also did a final pass against the project rubric, ensuring useful variable names, purposeful comments, modular structure, usability, and a visible testing log are all present and accounted for. Updated `structure.txt` to clearly explain how to add a game without needing to read every single source file 😅.
+> 
+> **What I learned:**  
+> Consistency in UI patterns drastically improves the perceived quality of an application. Having both Settings and Scoreboard behave as non-destructive overlays makes the arcade box feel like a cohesive, professional product rather than a collection of disjointed scripts.
+> 
+> **Still to do:**
+> 
+> - Final live testing of keyboard flow, volume sliders, and visual layout on a machine with Pygame installed.
+> 
+> **Files changed/created this stage:**
+> 
+> - `main.py` — updated: added `scoreboard_overlay` flag and overlay draw routing
+> - `src/menu/scoreboard.py` — rewritten: now renders as a dimmed overlay panel instead of a standalone state
+> - `code/structure.txt` & `README.md` — updated: final documentation and rubric checks
+
+**Stage 18 - [18/10/2026 / Configurable Screen Size & Scaling]**
+
+> As a final polish, I want to ensure the arcade box isn't locked into a single rigid resolution. I made `SCREEN_WIDTH` and `SCREEN_HEIGHT` in `src/core/constants.py` the single source of truth for the window size. While I had intended for this at the start of this project, I found myself forgetting about it when creating a few of the games
+> 
+> **Dynamic Scaling Helpers** Simply changing the resolution isn't enough if all the UI elements and game objects are hardcoded to specific pixel coordinates. I added `scale_x()`, `scale_y()`, and `scale_size()` helper functions in `constants.py`. These automatically calculate proportions based on the original 1030 x 1030 base design. I went through the carousel, menu overlays, name entry, and game play areas, replacing hardcoded coordinates with these helpers. This ensures fonts, square game pieces, and UI panels scale perfectly regardless of the chosen resolution.
+> 
+> **Speed Adjustments** I also noticed that movement speeds in Breakout and Pong were still using fixed pixels-per-frame values. Even if the paddle was scaled up, it would move at the same absolute speed, making the game feel sluggish at higher resolutions. I updated these difficulty speed values to also apply the `scale_size()` ratio, keeping the gameplay feel consistent across all resolutions.
+> 
+> **Screen Size Change: Quick Test Log**
+> 
+> - **Shared resolution settings:** Code-path check passed. `main.py` correctly uses the shared constants.
+> - **Layout scaling:** Simulated calculations for 1030x1030, 1280x720, and 800x600. Scaling values changed appropriately while maintaining a 1.0 scale for the base design.
+> - **Game movement:** Verified that Breakout and Pong difficulty speeds now correctly apply the `scale_size()` ratio.
+> - **Python syntax:** `python -m compileall` passed with no errors.
+> - **Full visual run:** Not run in this workspace due to missing Pygame installation. Requires a live test on a machine with project requirements installed.
+> 
+> **What I learned:**  
+> Responsive design in Pygame is entirely possible without a massive refactor, well, that is if you throw in a few scaling helpers and rigorously replace those magic numbers with proportional calculations of course.
+> 
+> **Still to do:**
+> 
+> - Nothing except creating how to play/use info for games and main menu — additional games if I want, or any further enhancements
+> 
+> **Files changed/created this stage:**
+> 
+> - `src/core/constants.py` — updated: added `scale_x`, `scale_y`, `scale_size` helpers and unified `SCREEN_WIDTH`/`SCREEN_HEIGHT`
+> - `src/menu/` & `src/games/` — updated: replaced hardcoded coordinates and speeds with scaling helpers
+> - `code/structure.txt` — updated: added instructions on how to safely change the screen resolution
+
+**Stage 19 - [18/10/2026 / Play Again Flow & Game Information]**
+
+> I noticed that finishing a game often left the player with a way to return to the main menu, rather than a clear replay flow. I changed this so the end screen can offer **Play Again**, which returns to that game's mode selection. The existing username is kept in the shared persist data, so the name-entry screen is only shown for the first session and is skipped when a player replays or chooses another game.
+>
+> **Replay State Flow** The game wrapper now recognises a `PLAY_AGAIN` transition. It returns to the carousel state while carrying the completed game's name as replay context, and the carousel reopens that game's mode selector instead of the main carousel. The selected mode then follows the normal difficulty selection flow again. This keeps mode and difficulty selection in the same sequence as starting a game for the first time.
+>
+> **Game-Over Controls** Added visible Play Again buttons and keyboard shortcuts to the end screens for Memory Match, Guess Number, Scissors Paper Rock, Breakout, and both Tetris modes. Pong previously had no match end, so both its single-player-versus-AI and local two-player modes now finish when a side reaches five points and show a shared result overlay with Play Again.
+>
+> **Game Information Files** Replaced the placeholder text in each file under `src/info/` with relevant instructions for the main menu, Breakout, Guess Number, Memory Match, Pong, Scissors Paper Rock, and Tetris.
+>
+> **Testing**
+>
+> - **Transition review:** Checked the launcher and carousel routing so Play Again preserves the username and reopens the correct game's mode selector.
+> - **Source review:** Checked the updated game-over event paths and button drawing code.
+> - **Full visual run:** Not run in this environment; a live Pygame test is still needed to verify layout and interaction at runtime.
+>
+> **What I learned:** A replay action is more than restarting the current object. It needs to return to the correct point in the application's state flow, reset the game cleanly, and preserve session information that should not be requested again.
+>
+> **Still to do:**
+>
+> - Perform a full interactive test of every game's Play Again button and mode/difficulty selection on a machine with Pygame installed.
+>
+> **Files changed/created this stage:**
+>
+> - `main.py` — updated: added the Play Again state transition from the game wrapper
+> - `src/menu/carousel_menu.py` — updated: preserves the player name and reopens the selected game's mode selector for replay
+> - `src/games/memory/common.py`, `src/games/guess_number/common.py`, `src/games/spr/common.py` — updated: added replay actions to shared game-over controls
+> - `src/games/breakout/mode_1p.py`, `src/games/tetris/mode_1p.py`, `src/games/tetris/mode_2p.py` — updated: added visible Play Again buttons
+> - `src/games/pong/common.py`, `src/games/pong/mode_ai.py`, `src/games/pong/mode_2p.py` — updated: added first-to-five match endings and replay controls
+> - `src/menu/settings_menu.py` — updated: aligned settings controls and labels within the panel
+> - `src/info/*.txt` — updated: replaced placeholder text with game information and documented Pong's five-point match
+> - `readme.md` — updated: added this Stage 19 development log
+
+> **Follow-up polish (same stage):** I fixed a rendering issue on the Scissors Paper Rock game-over screen where the Play Again button was drawn without its text. I also changed the mode-selection flow so choosing Local 2 Player skips the difficulty screen and starts the game directly, while Vs AI still has its normal difficulty selection. Finally, I reorganised the Settings screen around the panel bounds: the context label, volume labels, sliders, percentages, toggles, control-binding rows, and footer buttons are now positioned relative to the box, with the volume controls grouped into separate rows.
+
+> **Follow-up files changed:**
+>
+> - `src/games/spr/common.py` — updated: centred and drew the Play Again label inside its button
+> - `src/menu/carousel_menu.py` — updated: bypassed difficulty selection for Scissors Paper Rock Local 2 Player only
+> - `src/menu/settings_menu.py` — updated: kept Settings text and controls inside the panel and improved spacing and grouping
+
+> **Follow-up polish (same stage):** Removed the literal “Context:” prefix from Settings so the header shows only the current game name (or “Main Menu”). Widened the Learn more button so its label fits cleanly inside the button.
+>
+> **Automatic game information loading:** Removed the hardcoded game-to-filename map. Learn more now loads `info.txt` from the selected game's root folder using the game's module path, while main-menu help comes from `src/menu/info.txt`. Moved each existing game's instructions beside that game and removed the legacy `src/info/*.txt` files, so adding a game with an `info.txt` file requires no Settings code changes.
+>
+> **Follow-up files changed:**
+>
+> - `src/menu/settings_menu.py` — updated: displays only the current context name, widens Learn more, and resolves info files automatically
+> - `main.py` — updated: reads the game module path from the game class so per-game information is located correctly
+> - `src/games/*/info.txt` — added: stores each game's own instructions in its root folder
+> - `src/menu/info.txt` — added: stores main-menu help text beside the menu code
+> - `src/info/*.txt` — removed: no longer needed after moving help text beside each game/menu
+> - `structure.txt` — updated: documents how game creators add their own `info.txt` without editing Settings
+
+
+> **Final info-screen polish:** The Learn More overlay felt cramped and unfinished after being quickly assembled, so I edited it with more breathing room, clearer text hierarchy, better wrapping, and a proper footer. This should be the last of these small visual clean-up passes.
+
+
+**Stage 20 - [21/10/2026 / Final Adjustments]**
+This stage is all about polishing things further. After testing my latest major updates, I see that there is much wrong with it. Some of the screens have got incorrectly placed graphics that do not adjust accordingly to the scaling since I have not updated them. Pong has a collisions bug where if the ball gets to fast then it phases through the players panel, Hugo my friend has recommended I do Raycasting Collisions, — a lot simpler than it sounds — Semi-transcribed: "Balls current positio This thing, ball's new positioIn between them is the ba So you can see that if you're just checking pixels, it'll go from here to here and never actually touch the ba Because like you're just adding spee So like the, it doesn't interpolat It just a Distanc So it teleports behind the pane Yea Now, before you teleport it, so before you actually add the speed onto the distance, onto the position, what you can do is you can say, okay, draw a line, like not actual drawing, but like imagine a line from the original point to what its next point would b And if that line at any pointyour path. Yeah, I if that line intersects at any point, you know that it has like gone through initiative. Right. Okay. So then you can say, okay, just throw it back out. Yeah, but you can do it. There's two ways of doing it. There's two ways of doing it. Either you can bounce it back just immediately. So just like do the same bounce code. Yeah. But like just add its current position. So even though it technically hasn't touched the paddle, like you can just say, I'll touch the panel. Yeah, or you can calculate when that line would have hit the pedal, which is just the maths. And then calculate the rest of the path. Yeah, as if it hit the panel. Right. So let me get my book to explain. So your paddle is there. That's your paddle. Very craftly drawn paddle. But that's your paddle. This is the ball's position one. Right, so that's where it is. And then you can imagine that it's going on, just going to follow the line. That kind of a path. And it's speed is enough that when you just add the speed, it teleports behind the paddle. So that's ball position two. So does that make sense? Yeah, yeah. Because it's gone too far. Like to move the ball, you're just adding speed, right? Yes. Or like a change in... It's just a change in speed, yeah. Whatever. Just to get it updated. Like you're adding it. And so in that adding, if this adding is too much, it'll just skip over the paddle. Because it's changed in that time.I got a line in between them. If that line intersects the paddle. The paddle at any point. Then we can say, okay, it should have hit the paddle. Right. And then from the two options you have. I just inferred its axis. Either you do the bounce logic for this position one. So you just say, oh, okay, it hit a wall there. And it bounces off. The problem with that is once you get up to really high speeds, like theoretically is possible. This bounce position will just keep getting close or getting closer. And you'll get errors. Okay. As you get, like theoretically, you can get fast enough where, like, you'll crash your game. Because it's just too fast to compute. It tries to be like, okay.So that's not the recommended way. So then what should I do? The other way is you can calculate easily how far along this line it hit the paddle. Right. And then from that point instead of adding more X subtract it. So the same bounce code. So instead of doing that you flip along this paddle. Yes. There. So you see that's what I thought. Yeah that's what I thought. Yeah. These are the same. Yeah. Just inverted. Now the way you would do that is one you have an X distance to the paddle. have the total x distance. your new X can be calculated by getting the distance to the ball yeah the distance to the paddle and then subtracting what would have been the excess distance that it would have teleported would have gone okay so yeah because we have the line and we know this distance from the wall to the wall there and the wall to the wall there same yep so it's the same X distance just negative of each other yeah okay so you can see it bounces back that much I just flip that around and your Y distance because it's not affected it's perpendicular yep doesn't change so you don't have to do anything about you that's so much better than your Y yeah you just have to what like do your X I would have never thought about and so code wise so let's say wherever your paddle is at like 250 X don't worry about the action numbers. 240. So it's gone past. Like in theory, like in theory, yeah, going from there to there, it doesn't cross over 50 because you're just adding minus 20. And so like, it'll never see like, okay, it was 50 at some point, which is how your collision works. Yeah. So it won't realize there's a collision. So you can do that. If you do this, you can say, okay, cool. It has hit the wall at some point. So you like, you make the line and you do whatever functioning code there is to say, it does this line here. Okay, it hits the paddle. Great. What you can say is, okay, I know the distance from my old ball to the paddle is 10 because of our math. If you're... you can then say, okay, the distance the ball would have traveled on the X is 260 minus 240. The speed. So that's the speed. There's 20 units. So travels 20 units. Every tick. There's your currency. So you know it travels 10 to the paddle and you want to know how far it would have traveled more than we've ever thought of. And so that is 20 minus... 10. That didn't even get that. It was 10, right? So that means that your ball would have traveled 10 further.So 250 plus 10, 26 So in the example we use, because I use less than even others, it goes back to the same expositio But it works for any numbe Damn, that's actually really goo So you get the new exposition is 26 But you need to update the wate And the white position, you just update it as normal, because it's not effectiv Yea Yeah, you just set it ther Yeah, because it's where it's meant to b The speed, you can update the same as you were before, as if it collide So you can add however much speed to the x and make sure that it inverts, because you hit somethin That's an easier fix than a fill is going to b No, it's very simple So in variable terms, so you remember the variable It is handle x minus... And then here is X speed minus this to paddle is how far bounces from the pedal. And then you are new X. So I'm going to call it new new so I'm going to get confused. Because that's your theoretical new. It was your new new update of it is equal to the paddle X plus, and then just make sure to update XP as you normally would for any collision. 
+
+We need to fix power-ups inside of Breakout; Speed ball + 2, Ball spawn 1+ from paddle, speed ball - 2. The other Paddle length is fine but just needs to incresse more until being collected like 7 times. 
+Seeing as games might be dropped into the /games folder, we need to update the engine to launch the games at whatever aspect they have been set to unless they use the screen dimensions set in constants. They need to simply launch independently. Same with constants for games; because we are creating a launcher for independent games I should make my current games independent by making their own constants.py. This just makes sure that no on screen calculations made by a user gets affected by a screen size change, some people might not build their game to auto adjust to screen size, this will fix that issue.
+
+
 ---
 
 ## Evaluation and Review

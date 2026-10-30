@@ -53,8 +53,8 @@ class DifficultySelectScreen:
         # build button rects - stacked vertically in the centre, same
         # layout math as ModeSelectScreen
         self.buttons = []
-        btn_w, btn_h = 300, 55
-        gap = 15
+        btn_w, btn_h = scale_size(300), scale_y(55)
+        gap = scale_y(15)
         total_h = len(difficulties_dict) * (btn_h + gap) - gap
         start_y = (SCREEN_HEIGHT - total_h) // 2
 
@@ -124,11 +124,11 @@ class DifficultySelectScreen:
 
         # title
         title = self.font_title.render(f"{self.display_name} - Difficulty", True, COL_YELLOW)
-        surface.blit(title, (SCREEN_WIDTH // 2 - title.get_width() // 2, 120))
+        surface.blit(title, (SCREEN_WIDTH // 2 - title.get_width() // 2, scale_y(120)))
 
         # subtitle
         sub = self.font_body.render("Select a difficulty", True, COL_TEXT_MUTED)
-        surface.blit(sub, (SCREEN_WIDTH // 2 - sub.get_width() // 2, 170))
+        surface.blit(sub, (SCREEN_WIDTH // 2 - sub.get_width() // 2, scale_y(170)))
 
         # buttons
         for btn in self.buttons:
@@ -149,11 +149,11 @@ class DifficultySelectScreen:
             if desc_text:
                 desc_surf = self.font_small.render(desc_text, True, COL_TEXT_MUTED)
                 surface.blit(desc_surf, (SCREEN_WIDTH // 2 - desc_surf.get_width() // 2,
-                                          self.buttons[-1]["rect"].bottom + 25))
+                                          self.buttons[-1]["rect"].bottom + scale_y(25)))
 
         # bottom text
         hint = self.font_body.render(r"/\ \/ to navigate   ENTER to select   ESC to go back", True, COL_TEXT_MUTED)
-        surface.blit(hint, (SCREEN_WIDTH // 2 - hint.get_width() // 2, SCREEN_HEIGHT - 40))
+        surface.blit(hint, (SCREEN_WIDTH // 2 - hint.get_width() // 2, SCREEN_HEIGHT - scale_y(40)))
 
     def cleanup(self):
         pass

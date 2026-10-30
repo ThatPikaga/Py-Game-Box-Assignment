@@ -9,6 +9,7 @@ from src.games.pong.ai import AI
 from src.games.pong.common import (
     PongBaseMode, make_paddle_rect, make_paddle_rect_right,
     make_ball_rect, draw_pong_board,
+    PONG_WIN_SCORE, PONG_PLAY_AGAIN_RECT, draw_pong_game_over,
 )
 
 class PongAIMode(PongBaseMode):
@@ -44,11 +45,18 @@ class PongAIMode(PongBaseMode):
         self.state = "PLAYING"
         self.player_score = 0
         self.opponent_score = 0
+        self.winner_msg = ""
         self.reset_ball()
         self.input.clear()
 
     def handle_event(self, event):
         self.input.handle_event(event)  # let the handler track key state
+        if self.state == "GAME_OVER":
+            if event.type == pygame.KEYDOWN and event.key in (pygame.K_RETURN, pygame.K_e):
+                return "PLAY_AGAIN"
+            if (event.type == pygame.MOUSEBUTTONDOWN and event.button == 1
+                    and PONG_PLAY_AGAIN_RECT.collidepoint(event.pos)):
+                return "PLAY_AGAIN"
         return super().handle_event(event)
 
     def update(self, dt):
@@ -86,10 +94,16 @@ class PongAIMode(PongBaseMode):
     def _on_left_scored(self):
         """Player scored."""
         self.player_score += 1
+        if self.player_score >= PONG_WIN_SCORE:
+            self.winner_msg = "You Win!"
+            self.state = "GAME_OVER"
 
     def _on_right_scored(self):
         """Opponent (AI) scored."""
         self.opponent_score += 1
+        if self.opponent_score >= PONG_WIN_SCORE:
+            self.winner_msg = "AI Wins!"
+            self.state = "GAME_OVER"
 
     def draw(self, surface):
         draw_pong_board(
@@ -99,6 +113,8 @@ class PongAIMode(PongBaseMode):
             p1_colour=COL_WHITE, p2_colour=COL_WHITE,
             font_big=self.font_title, font_body=self.font_body,
         )
+        if self.state == "GAME_OVER":
+            draw_pong_game_over(surface, self.winner_msg)
 
     def cleanup(self):
         self.input.clear()

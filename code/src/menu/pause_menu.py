@@ -60,12 +60,12 @@ class PauseMenu:
 
         # ── pause header ──
         title = self.font_title.render("PAUSED", True, COL_YELLOW)
-        surface.blit(title, (w // 2 - title.get_width() // 2, h // 2 - 100))
+        surface.blit(title, (w // 2 - title.get_width() // 2, h // 2 - scale_y(100)))
 
         # ── option list ──
         for i, (key, action) in enumerate(self.options):
             txt = f"{key}  |  {action}"
             rendered = self.font_body.render(txt, True, COL_TEXT)
             x = w // 2 - rendered.get_width() // 2
-            y = h // 2 - 30 + i * 40
+            y = h // 2 - scale_y(30) + i * scale_y(40)
             surface.blit(rendered, (x, y))

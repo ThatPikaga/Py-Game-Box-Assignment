@@ -13,30 +13,33 @@ from src.engine.input_handler import GameKeyHandler
 
 # == Ball / Paddle helpers ============================================
 
+H = 1030
+W = 1030
+
 def make_paddle_rect(x_center, y_center=None):
     """Create a left-side paddle rect (y centred by default)."""
     if y_center is None:
-        y_center = SCREEN_HEIGHT // 2
-    return pygame.Rect(x_center, y_center - PONG_PADDLE_H // 2,
+        y_center = H // 2
+    return pygame.Rect(scale_x(x_center), y_center - PONG_PADDLE_H // 2,
                         PONG_PADDLE_W, PONG_PADDLE_H)
 
 
 def make_paddle_rect_right():
     """Create a right-side paddle rect, y centred."""
-    return pygame.Rect(SCREEN_WIDTH - 50 - PONG_PADDLE_W,
-                        SCREEN_HEIGHT // 2 - PONG_PADDLE_H // 2,
+    return pygame.Rect(W - scale_x(50) - PONG_PADDLE_W,
+                        H // 2 - PONG_PADDLE_H // 2,
                         PONG_PADDLE_W, PONG_PADDLE_H)
 
 
 def make_ball_rect():
-    return pygame.Rect(SCREEN_WIDTH // 2 - BALL_SIZE // 2,
-                        SCREEN_HEIGHT // 2 - BALL_SIZE // 2,
+    return pygame.Rect(W // 2 - BALL_SIZE // 2,
+                        H // 2 - BALL_SIZE // 2,
                         BALL_SIZE, BALL_SIZE)
 
 
 def reset_ball(ball, ball_speed_x, ball_speed_y):
     """Centre the ball and flip horizontal direction."""
-    ball.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+    ball.center = (W // 2, H // 2)
     ball_speed_x = -ball_speed_x if ball_speed_x > 0 else ball_speed_x
     ball_speed_y = 5 if ball_speed_y > 0 else -5
     return ball_speed_x, ball_speed_y
@@ -46,12 +49,12 @@ def reset_ball(ball, ball_speed_x, ball_speed_y):
 
 def wall_bounce(ball, ball_speed_x, ball_speed_y):
     """Bounce off top/bottom walls. Returns updated ball_speed_y."""
-    if ball.top <= 0 or ball.bottom >= SCREEN_HEIGHT:
+    if ball.top <= 0 or ball.bottom >= H:
         ball_speed_y *= -1
         if ball.top <= 0:
             ball.top = 0
         else:
-            ball.bottom = SCREEN_HEIGHT
+            ball.bottom = H
     return ball_speed_y
 
 
@@ -104,14 +107,42 @@ def draw_pong_board(surface, p1_rect, p2_rect, ball_rect,
 
     # centre line
     pygame.draw.aaline(surface, COL_WHITE,
-                       (SCREEN_WIDTH // 2, 0),
-                       (SCREEN_WIDTH // 2, SCREEN_HEIGHT))
+                       (W // 2, 0),
+                       (W // 2, H))
 
     # scores
     p1t = font_big.render(str(p1_score), True, p1_colour)
-    surface.blit(p1t, (SCREEN_WIDTH // 4, 20))
+    surface.blit(p1t, (W // 4, scale_y(20)))
     p2t = font_big.render(str(p2_score), True, p2_colour)
-    surface.blit(p2t, (3 * SCREEN_WIDTH // 4, 20))
+    surface.blit(p2t, (3 * W // 4, scale_y(20)))
+
+
+# A Pong match ends when one side reaches this score, creating a clear
+# match result and a consistent replay point for both game modes.
+PONG_WIN_SCORE = 5
+PONG_PLAY_AGAIN_RECT = pygame.Rect(
+    W // 2 - scale_x(110),
+    H // 2 + scale_y(80),
+    scale_x(220), scale_y(48),
+)
+
+
+def draw_pong_game_over(surface, winner_message):
+    """Draw a common end-of-match overlay with an explicit replay button."""
+    overlay = pygame.Surface((W, H), pygame.SRCALPHA)
+    overlay.fill((0, 0, 0, 190))
+    surface.blit(overlay, (0, 0))
+
+    title = title_font().render(winner_message, True, COL_GOLD)
+    surface.blit(title, title.get_rect(center=(W // 2, H // 2 - scale_y(75))))
+
+    hint = body_font().render(f"First to {PONG_WIN_SCORE} points", True, COL_TEXT)
+    surface.blit(hint, hint.get_rect(center=(W // 2, H // 2 - scale_y(25))))
+
+    pygame.draw.rect(surface, COL_DARK_RED, PONG_PLAY_AGAIN_RECT, border_radius=7)
+    pygame.draw.rect(surface, COL_GOLD, PONG_PLAY_AGAIN_RECT, 2, border_radius=7)
+    button = body_font().render("PLAY AGAIN", True, COL_WHITE)
+    surface.blit(button, button.get_rect(center=PONG_PLAY_AGAIN_RECT.center))
 
 
 # == Base Mode =========================================================
@@ -156,6 +187,7 @@ class PongBaseMode(GameBase):
         self.ball.x += self.ball_speed_x
         self.ball.y += self.ball_speed_y
 
+
         # top/bottom wall bounce
         old_speed_y = self.ball_speed_y
         self.ball_speed_y = wall_bounce(self.ball, self.ball_speed_x, self.ball_speed_y)
@@ -197,7 +229,7 @@ class PongBaseMode(GameBase):
                 pass
 
         if self.difficulty and getattr(self.difficulty, "speed_up_on_hit", False):
-            self._current_speed += getattr(self.difficulty, "speed_up_amount", 1)
+            self._current_speed += scale_size(getattr(self.difficulty, "speed_up_amount", 1))
 
     def _apply_difficulty(self):
         """
@@ -210,15 +242,18 @@ class PongBaseMode(GameBase):
         None and everything keeps using the original hardcoded defaults.
         """
         diff = getattr(self, "difficulty", None)
-        self._base_speed = diff.ball_base_speed if diff else TOTAL_SPEED
-        self.paddle_speed = diff.paddle_speed if diff else PADDLE_MAX_SPEED
+        self._base_speed = scale_size(diff.ball_base_speed) if diff else TOTAL_SPEED
+        self.paddle_speed = scale_size(diff.paddle_speed) if diff else PADDLE_MAX_SPEED
 
         # Pong2PMode has no self.ai, so this is skipped there - the ball
         # tuning above still applies to both modes
         if diff and hasattr(self, "ai"):
-            self.ai.speed = diff.ai_speed
+            self.ai.speed = scale_size(diff.ai_speed)
             self.ai.predictive = diff.ai_predictive
             self.ai.error = diff.ai_error
+        elif hasattr(self, "ai"):
+            # Keep the default AI movement in proportion with the ball/paddles.
+            self.ai.speed = scale_size(7)
 
     def _check_scoring(self):
         """Check if ball went past left/right edges. Returns True if scored."""
@@ -232,7 +267,7 @@ class PongBaseMode(GameBase):
             self._on_right_scored()
             self.reset_ball()
             scored = True
-        if self.ball.right >= SCREEN_WIDTH:
+        if self.ball.right >= W:
             if self.sfx.get("ball_gone"):
                 try:
                     self.sfx["ball_gone"].play()
@@ -259,7 +294,7 @@ class PongBaseMode(GameBase):
         after a Hell-style rally sped it up - reset_ball() runs on every
         single score, see _check_scoring below.
         """
-        self.ball.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+        self.ball.center = (W // 2, H // 2)
         self._current_speed = self._base_speed
 
         x_dir = -1 if self.ball_speed_x > 0 else 1

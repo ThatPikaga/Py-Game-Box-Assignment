@@ -1,3 +1,5 @@
+GAME_NAME = 'Scissors Paper Rock'
+
 # ======[ S P R   —   I N I T ]======
 # scissors paper rock — local 2P or vs AI
 

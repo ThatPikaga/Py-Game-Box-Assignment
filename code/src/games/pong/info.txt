@@ -1,0 +1,9 @@
+PONG
+
+Compete in a classic paddle-and-ball game.
+Return the ball past your opponent to score.
+In Single Player Vs AI, move your paddle with W (Up) and S (Down).
+In the local two-player mode, Player 1 uses W/S and Player 2 uses the UP/DOWN arrow keys.
+Select a difficulty to change the challenge.
+The first player to reach five points wins the match; use Play Again to return
+to mode selection and start another match.

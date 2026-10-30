@@ -53,9 +53,10 @@ class StarfieldBackground:
 
 
 if __name__ == "__main__":
+    from src.core.constants import SCREEN_WIDTH, SCREEN_HEIGHT
     pygame.init()
 
-    WIDTH, HEIGHT = 800, 600
+    WIDTH, HEIGHT = SCREEN_WIDTH, SCREEN_HEIGHT
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Starfield")
 
